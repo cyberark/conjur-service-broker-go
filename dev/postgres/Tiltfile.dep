@@ -1,0 +1,5 @@
+load('ext://deployment', 'deployment_create')
+
+deployment_create('postgres', 'postgres:alpine', ports=['5432:5432'], env=read_yaml('./dev.env'))
+
+k8s_resource('postgres', labels='dev')

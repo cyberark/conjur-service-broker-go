@@ -1,0 +1,14 @@
+load('ext://deployment', 'deployment_create')
+
+deployment_create('conjur', 'cyberark/conjur:latest', ports=['80:80'], command='conjurctl server -a dev'.split(' '), env=read_yaml('./.env.server.yaml'))
+
+k8s_resource('conjur', labels=['conjur'], port_forwards=['8081:80'], resource_deps=['postgres'])
+
+docker_build('conjur-cli', '.', dockerfile_contents="""
+FROM cyberark/conjur-cli:5
+COPY ./init/ ./init/
+""")
+
+deployment_create('client', 'conjur-cli', command='/init/entrypoint.sh', env=read_yaml('./.env.client.yaml'))
+
+k8s_resource('client', labels=['conjur'], resource_deps=['conjur'])
