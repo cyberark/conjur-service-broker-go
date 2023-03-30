@@ -65,7 +65,10 @@ func mergeConfig(clientConf conjurapi.Config, config *Config) conjurapi.Config {
 func (c *Client) Validate() error {
 	policyID := fmt.Sprintf("%s:policy:%s", c.ConjurAccount, c.ConjurPolicy)
 	_, err := c.Client.CheckPermission(policyID, readPermission)
-	return fmt.Errorf("validation failed, missing read permissions on policy: %w", err)
+	if err != nil {
+		return fmt.Errorf("validation failed, missing read permissions on policy: %w", err)
+	}
+	return nil
 }
 
 // HostID returns host ID of the client
