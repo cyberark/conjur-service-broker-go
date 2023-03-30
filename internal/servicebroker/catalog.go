@@ -1,6 +1,8 @@
-package main
+package servicebroker
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 var catalogResp = Catalog{
 	Services: &[]Service{
@@ -36,6 +38,6 @@ var catalogResp = Catalog{
 
 // CatalogGet get the catalog of services that the service broker offers
 // (GET /v2/catalog)
-func (*ServerImpl) CatalogGet(c *gin.Context, params CatalogGetParams) {
+func (*serverImpl) CatalogGet(c *gin.Context, params CatalogGetParams) {
 	c.JSON(200, catalogResp)
 }

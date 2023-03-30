@@ -33,7 +33,7 @@ var (
 
 func createOrgSpace(orgSpace *OrgSpace) io.Reader {
 	reader, writer := io.Pipe()
-
+	// TODO: handle number IDs and special chars like # / validate the !!str approach
 	go func() {
 		defer writer.Close()
 		// TODO: error handling

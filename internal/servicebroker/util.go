@@ -1,6 +1,8 @@
-package main
+package servicebroker
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	expectedServiceID = "c024e536-6dc4-45c6-8a53-127e7f8275ab"

@@ -3,7 +3,7 @@ load('ext://deployment', 'deployment_create')
 
 load_dynamic('./dev/Tiltfile.dep')
 
-ko_build('conjur-service-broker', '.')
+ko_build('conjur-service-broker', './cmd/conjur_service_broker')
 
 deployment_create('conjur-service-broker', 'conjur-service-broker', ports=['8080:8080'], env=read_yaml('./.env.yaml'))
 

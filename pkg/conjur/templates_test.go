@@ -46,7 +46,7 @@ func Test_createOrgSpace(t *testing.T) {
   body:
     - !layer
     - !policy
-      id: !!str 2
+      id: !!str 4
       annotations:
         pcf/type: space
         pcf/orgName: org

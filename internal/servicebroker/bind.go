@@ -1,4 +1,4 @@
-package main
+package servicebroker
 
 import (
 	"net/http"
@@ -8,28 +8,28 @@ import (
 
 // ServiceBindingUnbinding deprovision a service binding
 // (DELETE /v2/service_instances/{instance_id}/service_bindings/{binding_id})
-func (*ServerImpl) ServiceBindingUnbinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingUnbindingParams) {
+func (*serverImpl) ServiceBindingUnbinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingUnbindingParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
 // ServiceBindingGet get a service binding
 // (GET /v2/service_instances/{instance_id}/service_bindings/{binding_id})
-func (*ServerImpl) ServiceBindingGet(c *gin.Context, instanceID string, bindingID string, params ServiceBindingGetParams) {
+func (*serverImpl) ServiceBindingGet(c *gin.Context, instanceID string, bindingID string, params ServiceBindingGetParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
 // ServiceBindingBinding generate a service binding
 // (PUT /v2/service_instances/{instance_id}/service_bindings/{binding_id})
-func (*ServerImpl) ServiceBindingBinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingBindingParams) {
+func (*serverImpl) ServiceBindingBinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingBindingParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
 // ServiceBindingLastOperationGet get the last requested operation state for service binding
 // (GET /v2/service_instances/{instance_id}/service_bindings/{binding_id}/last_operation)
-func (*ServerImpl) ServiceBindingLastOperationGet(c *gin.Context, instanceID string, bindingID string, params ServiceBindingLastOperationGetParams) {
+func (*serverImpl) ServiceBindingLastOperationGet(c *gin.Context, instanceID string, bindingID string, params ServiceBindingLastOperationGetParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }

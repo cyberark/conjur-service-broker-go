@@ -1,11 +1,11 @@
-package main
+package http
 
 import (
 	"errors"
 	"fmt"
 
 	"github.com/caarlos0/env/v7"
-	"github.com/cyberark/conjur-service-broker/conjur"
+	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 )
 
 type config struct {
