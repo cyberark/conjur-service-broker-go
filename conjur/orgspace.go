@@ -33,22 +33,22 @@ func (c *Client) NewOrgSpace(orgID, spaceID string, orgName, spaceName *string) 
 }
 
 func (o *OrgSpace) orgPolicyID() string {
-	return fmt.Sprintf("%v:policy:%v%v", o.c.ConjurAccount, o.c.ConjurPolicy, o.OrgID)
+	return fmt.Sprintf("%v:policy:%v/%v", o.c.ConjurAccount, o.c.ConjurPolicy, o.OrgID)
 }
 
 func (o *OrgSpace) spacePolicyID() string {
-	return fmt.Sprintf("%v:policy:%v%v/%v", o.c.ConjurAccount, o.c.ConjurPolicy, o.OrgID, o.SpaceID)
+	return fmt.Sprintf("%v:policy:%v/%v/%v", o.c.ConjurAccount, o.c.ConjurPolicy, o.OrgID, o.SpaceID)
 }
 
 func (o *OrgSpace) spaceLayerID() string {
-	return fmt.Sprintf("%v:layer:%v%v/%v", o.c.ConjurAccount, o.c.ConjurPolicy, o.OrgID, o.SpaceID)
+	return fmt.Sprintf("%v:layer:%v/%v/%v", o.c.ConjurAccount, o.c.ConjurPolicy, o.OrgID, o.SpaceID)
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space
 func (o *OrgSpace) CreatePolicy() error {
 	_, err := o.c.Client.LoadPolicy(
-		conjurapi.PolicyModePut,
-		o.spacePolicyID(),
+		conjurapi.PolicyModePost,
+		o.c.ConjurPolicy,
 		createOrgSpace(o),
 	)
 	return err

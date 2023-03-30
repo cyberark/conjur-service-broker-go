@@ -1,14 +1,32 @@
 load('ext://deployment', 'deployment_create')
+load('ext://execute_in_pod', 'execute_in_pod')
 
-deployment_create('conjur', 'cyberark/conjur:latest', ports=['80:80'], command='conjurctl server -a dev'.split(' '), env=read_yaml('./.env.server.yaml'))
+docker_build('conjur', '.', dockerfile_contents="""
+FROM cyberark/conjur:latest
+COPY ./server/ /init/
+ENTRYPOINT /init/entrypoint.sh
+""")
+
+deployment_create('conjur', 'conjur', ports=['80:80'], env=read_yaml('./.env.server.yaml'),
+  startupProbe={'exec':{'command': ['ls', 'up']}, 'failureThreshold': 30})
 
 k8s_resource('conjur', labels=['conjur'], port_forwards=['8081:80'], resource_deps=['postgres'])
 
+local_resource(
+    name='api_key',
+    cmd='kubectl delete secret conjur --ignore-not-found && kubectl create secret generic conjur \
+      --from-literal=api_key=$(' + execute_in_pod('conjur', 'conjurctl role retrieve-key dev:host:service-broker') + ') \
+      --from-literal=admin_api_key=$(' + execute_in_pod('conjur', 'conjurctl role retrieve-key dev:user:admin') + ')',
+    resource_deps=['conjur'],
+    labels=['conjur'],
+)
+
 docker_build('conjur-cli', '.', dockerfile_contents="""
-FROM cyberark/conjur-cli:5
-COPY ./init/ ./init/
+FROM cyberark/conjur-cli:8
+COPY ./client/ /init/
+ENTRYPOINT /init/entrypoint.sh
 """)
 
-deployment_create('client', 'conjur-cli', command='/init/entrypoint.sh', env=read_yaml('./.env.client.yaml'))
+deployment_create('client', 'conjur-cli', env=read_yaml('./.env.client.yaml'))
 
-k8s_resource('client', labels=['conjur'], resource_deps=['conjur'])
+k8s_resource('client', labels=['conjur'], resource_deps=['api_key'])

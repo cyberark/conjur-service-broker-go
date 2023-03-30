@@ -1,4 +1,5 @@
-/conjur-service-broker
-/conjur-service-broker.exe
+/cmd/conjur_service_broker/conjur_service_broker
+/conjur_service_broker
+conjur_service_broker.exe
 
 .idea/

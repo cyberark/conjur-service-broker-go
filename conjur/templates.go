@@ -8,7 +8,7 @@ import (
 var (
 	orgSpaceTemplate = template.Must(template.New("create_org_space").Parse(`---
 - !policy
-  id: {{ .OrgID }}
+  id: !!str {{ .OrgID }}
   {{ if .OrgName -}}
   annotations:
     pcf/type: org
@@ -17,7 +17,7 @@ var (
   body:
     - !layer
     - !policy
-      id: {{ .SpaceID }}
+      id: !!str {{ .SpaceID }}
       {{ if and .OrgName .SpaceName -}}
       annotations:
         pcf/type: space
@@ -28,15 +28,17 @@ var (
        - !layer	
     - !grant
       role: !layer
-	  member: !layer {{ .SpaceID }}`))
+      member: !layer {{ .SpaceID }}`))
 )
 
 func createOrgSpace(orgSpace *OrgSpace) io.Reader {
 	reader, writer := io.Pipe()
+
 	go func() {
 		defer writer.Close()
 		// TODO: error handling
 		orgSpaceTemplate.Execute(writer, orgSpace)
 	}()
+
 	return reader
 }

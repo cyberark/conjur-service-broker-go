@@ -36,9 +36,11 @@ func (s *ServerImpl) ServiceInstanceProvision(c *gin.Context, instanceID string,
 	if err != nil {
 		// TODO: handle error from AbortWithError
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
+		return
 	}
 	if err = validateServiceAndPlan(body.ServiceId, body.PlanId); err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
+		return
 	}
 
 	// check if exists
@@ -51,9 +53,11 @@ func (s *ServerImpl) ServiceInstanceProvision(c *gin.Context, instanceID string,
 	)
 	if err = orgSpace.CreatePolicy(); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
+		return
 	}
 	if err = orgSpace.ValidateExists(); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to validate policy exists: %w", err))
+		return
 	}
 
 	c.Status(http.StatusCreated)
