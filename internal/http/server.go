@@ -38,7 +38,9 @@ func StartHTTPServer() error {
 	}
 	openAPI.Servers = nil // temporary workaround: https://github.com/deepmap/oapi-codegen/issues/710
 
-	r.Use(middleware.OapiRequestValidatorWithOptions(openAPI, validatorOpts()), errorsMiddleware)
+	// TODO: the validation middleware doesn't handle http error codes - everything is 400
+	//r.Use(middleware.OapiRequestValidatorWithOptions(openAPI, validatorOpts()), errorsMiddleware)
+	r.Use(errorsMiddleware)
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
 		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
 	}

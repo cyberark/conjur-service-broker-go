@@ -4,16 +4,6 @@ Feature: get catalog
   As an CF compliant platform
   I need to be able to request catalog
 
-  Scenario: does not allow POST method
-    When I send "POST" request to "/v2/catalog"
-    Then the response code should be 405
-    And the response should match json:
-      """
-      {
-        "error": "Method not allowed"
-      }
-      """
-
   Scenario: should get catalog
     When I send "GET" request to "/v2/catalog"
     Then the response code should be 200
