@@ -10,28 +10,28 @@ import (
 
 // ServiceInstanceDeprovision deprovision a service instance
 // (DELETE /v2/service_instances/{instance_id})
-func (*serverImpl) ServiceInstanceDeprovision(c *gin.Context, instanceID string, params ServiceInstanceDeprovisionParams) {
+func (*ServerImpl) ServiceInstanceDeprovision(c *gin.Context, instanceID string, params ServiceInstanceDeprovisionParams) {
 	// That's all folks!
 	c.Status(http.StatusOK)
 }
 
 // ServiceInstanceGet get a service instance
 // (GET /v2/service_instances/{instance_id})
-func (*serverImpl) ServiceInstanceGet(c *gin.Context, instanceID string, params ServiceInstanceGetParams) {
+func (*ServerImpl) ServiceInstanceGet(c *gin.Context, instanceID string, params ServiceInstanceGetParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
 // ServiceInstanceUpdate update a service instance
 // (PATCH /v2/service_instances/{instance_id})
-func (*serverImpl) ServiceInstanceUpdate(c *gin.Context, instanceID string, params ServiceInstanceUpdateParams) {
+func (*ServerImpl) ServiceInstanceUpdate(c *gin.Context, instanceID string, params ServiceInstanceUpdateParams) {
 	// That's all folks!
 	c.Status(http.StatusOK)
 }
 
 // ServiceInstanceProvision provision a service instance
 // (PUT /v2/service_instances/{instance_id})
-func (s *serverImpl) ServiceInstanceProvision(c *gin.Context, instanceID string, params ServiceInstanceProvisionParams) {
+func (s *ServerImpl) ServiceInstanceProvision(c *gin.Context, instanceID string, params ServiceInstanceProvisionParams) {
 	body := ServiceInstanceProvisionJSONRequestBody{}
 	err := c.BindJSON(&body)
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *serverImpl) ServiceInstanceProvision(c *gin.Context, instanceID string,
 
 // ServiceInstanceLastOperationGet get the last requested operation state for service instance
 // (GET /v2/service_instances/{instance_id}/last_operation)
-func (*serverImpl) ServiceInstanceLastOperationGet(c *gin.Context, instanceID string, params ServiceInstanceLastOperationGetParams) {
+func (*ServerImpl) ServiceInstanceLastOperationGet(c *gin.Context, instanceID string, params ServiceInstanceLastOperationGetParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }

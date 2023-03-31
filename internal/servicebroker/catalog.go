@@ -42,6 +42,6 @@ var (
 
 // CatalogGet get the catalog of services that the service broker offers
 // (GET /v2/catalog)
-func (*serverImpl) CatalogGet(c *gin.Context, _ CatalogGetParams) {
+func (*ServerImpl) CatalogGet(c *gin.Context, _ CatalogGetParams) {
 	c.JSON(200, catalogResp)
 }

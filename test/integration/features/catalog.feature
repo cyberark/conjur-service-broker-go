@@ -4,6 +4,15 @@ Feature: get catalog
   As an CF compliant platform
   I need to be able to request catalog
 
+  Scenario: should not allow getting catalog with incorrect HTTP basic auth credentials
+    Given my basic auth credentials are incorrect
+    When I send "GET" request to "/v2/catalog"
+    Then the response code should be 401
+    And the response should match json:
+      """
+      { "error": "unauthorized" }
+      """
+
   Scenario: should get catalog
     When I send "GET" request to "/v2/catalog"
     Then the response code should be 200

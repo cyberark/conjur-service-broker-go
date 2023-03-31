@@ -20,6 +20,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		api.resetResponse(sc)
 		return ctx, nil
 	})
+	ctx.Step(`^my basic auth credentials are incorrect$`, api.myBasicAuthCredentialsAreIncorrect)
 	ctx.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
 	ctx.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
 	ctx.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)

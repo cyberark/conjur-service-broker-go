@@ -16,14 +16,21 @@ func init() {
 }
 
 type httpFeature struct {
-	cfg  config
-	resp *http.Response
-	body string
+	cfg       config
+	resp      *http.Response
+	body      string
+	authnPass string
 }
 
 func (a *httpFeature) resetResponse(*godog.Scenario) {
 	a.resp = nil
 	a.body = ""
+	a.authnPass = a.cfg.BasicAuthPassword
+}
+
+func (a *httpFeature) myBasicAuthCredentialsAreIncorrect() error {
+	a.authnPass = ""
+	return nil
 }
 
 func (a *httpFeature) iSendrequestTo(method, endpoint string) (err error) {
@@ -38,7 +45,7 @@ func (a *httpFeature) iSendrequestTo(method, endpoint string) (err error) {
 	req.Header.Set("X-Broker-API-Version", "2.17")
 
 	if len(a.cfg.BasicAuthPassword) > 0 {
-		req.SetBasicAuth(a.cfg.BasicAuthUser, a.cfg.BasicAuthPassword)
+		req.SetBasicAuth(a.authnPass, a.cfg.BasicAuthPassword)
 	}
 
 	// handle panic
@@ -77,7 +84,7 @@ func (a *httpFeature) theResponseShouldMatchJSON(body *godog.DocString) (err err
 	res, diff := jsondiff.Compare([]byte(body.Content), []byte(a.body), &diffOpts)
 
 	if res != jsondiff.FullMatch {
-		return fmt.Errorf("expected JSON does not match actual: %s", diff)
+		return fmt.Errorf("expected JSON does not match actual: %s\n%v", diff, a.body)
 	}
 	return nil
 }
