@@ -1,0 +1,7 @@
+
+local_resource(
+    name='integration_tests',
+    cmd='go test',
+    resource_deps=['conjur-service-broker'],
+    labels=['conjur-service-broker'],
+)
