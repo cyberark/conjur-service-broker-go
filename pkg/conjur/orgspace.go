@@ -10,13 +10,15 @@ type OrgSpace struct {
 	OrgName   string
 	SpaceID   string
 	SpaceName string
+	client    Client
 }
 
 // NewOrgSpace creates an OrgSpace based on
-func NewOrgSpace(orgID, spaceID string, orgName, spaceName *string) *OrgSpace {
+func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *string) *OrgSpace {
 	res := &OrgSpace{
 		OrgID:   orgID,
 		SpaceID: spaceID,
+		client:  client,
 	}
 	if orgName != nil {
 		res.OrgName = *orgName
@@ -27,41 +29,41 @@ func NewOrgSpace(orgID, spaceID string, orgName, spaceName *string) *OrgSpace {
 	return res
 }
 
-func (o *OrgSpace) orgPolicyID(client ResourceChecker) string {
-	return fmt.Sprintf("%v/%v", client.BasePolicy(), o.OrgID)
+func (o *OrgSpace) orgPolicyID() string {
+	return fmt.Sprintf("%v/%v", o.client.BasePolicy(), o.OrgID)
 }
 
-func (o *OrgSpace) spacePolicyID(client ResourceChecker) string {
-	return fmt.Sprintf("%v/%v/%v", client.BasePolicy(), o.OrgID, o.SpaceID)
+func (o *OrgSpace) spacePolicyID() string {
+	return fmt.Sprintf("%v/%v/%v", o.client.BasePolicy(), o.OrgID, o.SpaceID)
 }
 
-func (o *OrgSpace) spaceLayerID(client ResourceChecker) string {
-	return fmt.Sprintf("%v/%v/%v", client.BaseLayer(), o.OrgID, o.SpaceID)
+func (o *OrgSpace) spaceLayerID() string {
+	return fmt.Sprintf("%v/%v/%v", o.client.BaseLayer(), o.OrgID, o.SpaceID)
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space
-func (o *OrgSpace) CreatePolicy(client PolicyLoader) error {
-	err := client.UpsertPolicy(createOrgSpace(o))
+func (o *OrgSpace) CreatePolicy() error {
+	err := o.client.UpsertPolicy(createOrgSpace(o))
 	return err
 }
 
 // Exists checks existence of conjur org and space policies
-func (o *OrgSpace) Exists(client ResourceChecker) (bool, error) {
-	ok, err := client.CheckResource(o.orgPolicyID(client))
+func (o *OrgSpace) Exists() (bool, error) {
+	ok, err := o.client.CheckResource(o.orgPolicyID())
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return ok, nil
 	}
-	ok, err = client.CheckResource(o.spacePolicyID(client))
+	ok, err = o.client.CheckResource(o.spacePolicyID())
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return ok, nil
 	}
-	ok, err = client.CheckResource(o.spaceLayerID(client))
+	ok, err = o.client.CheckResource(o.spaceLayerID())
 	if err != nil {
 		return false, err
 	}

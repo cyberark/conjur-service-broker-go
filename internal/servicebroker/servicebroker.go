@@ -6,12 +6,12 @@ import (
 
 //go:generate oapi-codegen --config ./oapi-codegen.yaml ../../api/openapi.yaml
 
-// ServerImpl service broker server implementation
-type ServerImpl struct {
-	client *conjur.Client
+// server service broker server implementation
+type server struct {
+	client conjur.Client
 }
 
 // NewServerImpl creates the webservice implementation
-func NewServerImpl(client *conjur.Client) ServerImpl {
-	return ServerImpl{client}
+func NewServerImpl(client conjur.Client) ServerInterface {
+	return &server{client}
 }

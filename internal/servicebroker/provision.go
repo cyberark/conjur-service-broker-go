@@ -10,28 +10,28 @@ import (
 
 // ServiceInstanceDeprovision deprovision a service instance
 // (DELETE /v2/service_instances/{instance_id})
-func (*ServerImpl) ServiceInstanceDeprovision(c *gin.Context, instanceID string, params ServiceInstanceDeprovisionParams) {
+func (*server) ServiceInstanceDeprovision(c *gin.Context, instanceID string, params ServiceInstanceDeprovisionParams) {
 	// That's all folks!
 	c.Status(http.StatusOK)
 }
 
 // ServiceInstanceGet get a service instance
 // (GET /v2/service_instances/{instance_id})
-func (*ServerImpl) ServiceInstanceGet(c *gin.Context, instanceID string, params ServiceInstanceGetParams) {
+func (*server) ServiceInstanceGet(c *gin.Context, instanceID string, params ServiceInstanceGetParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
 // ServiceInstanceUpdate update a service instance
 // (PATCH /v2/service_instances/{instance_id})
-func (*ServerImpl) ServiceInstanceUpdate(c *gin.Context, instanceID string, params ServiceInstanceUpdateParams) {
+func (*server) ServiceInstanceUpdate(c *gin.Context, instanceID string, params ServiceInstanceUpdateParams) {
 	// That's all folks!
 	c.Status(http.StatusOK)
 }
 
 // ServiceInstanceProvision provision a service instance
 // (PUT /v2/service_instances/{instance_id})
-func (s *ServerImpl) ServiceInstanceProvision(c *gin.Context, instanceID string, params ServiceInstanceProvisionParams) {
+func (s *server) ServiceInstanceProvision(c *gin.Context, instanceID string, params ServiceInstanceProvisionParams) {
 	body := ServiceInstanceProvisionJSONRequestBody{}
 	err := c.BindJSON(&body)
 	if err != nil {
@@ -47,16 +47,17 @@ func (s *ServerImpl) ServiceInstanceProvision(c *gin.Context, instanceID string,
 	// check if exists
 	// TODO: use IDs from context
 	orgSpace := conjur.NewOrgSpace(
+		s.client,
 		body.OrganizationGuid,
 		body.SpaceGuid,
 		formContext(body.Context, "organization_name"),
 		formContext(body.Context, "space_name"),
 	)
-	if err = orgSpace.CreatePolicy(s.client); err != nil {
+	if err = orgSpace.CreatePolicy(); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
 		return
 	}
-	if exists, err := orgSpace.Exists(s.client); err != nil || !exists {
+	if exists, err := orgSpace.Exists(); err != nil || !exists {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to validate policy exists: %w", err))
 		return
 	}
@@ -65,7 +66,7 @@ func (s *ServerImpl) ServiceInstanceProvision(c *gin.Context, instanceID string,
 
 // ServiceInstanceLastOperationGet get the last requested operation state for service instance
 // (GET /v2/service_instances/{instance_id}/last_operation)
-func (*ServerImpl) ServiceInstanceLastOperationGet(c *gin.Context, instanceID string, params ServiceInstanceLastOperationGetParams) {
+func (*server) ServiceInstanceLastOperationGet(c *gin.Context, instanceID string, params ServiceInstanceLastOperationGetParams) {
 	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }

@@ -22,7 +22,7 @@ func StartHTTPServer() error {
 	if err != nil {
 		return fmt.Errorf("failed to initialize conjur client: %w", err)
 	}
-	if err := client.Validate(); err != nil {
+	if err := client.ValidateConnectivity(); err != nil {
 		return fmt.Errorf("failed to validate conjur client: %w", err)
 	}
 	srv := servicebroker.NewServerImpl(client)
@@ -44,7 +44,7 @@ func StartHTTPServer() error {
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
 		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
 	}
-	r = servicebroker.RegisterHandlers(r, &srv)
+	r = servicebroker.RegisterHandlers(r, srv)
 	// TODO: graceful shutdown
 	err = r.Run()
 	if err != nil {

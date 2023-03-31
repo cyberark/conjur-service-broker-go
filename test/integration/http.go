@@ -22,7 +22,7 @@ type httpFeature struct {
 	authnPass string
 }
 
-func (a *httpFeature) resetResponse(*godog.Scenario) {
+func (a *httpFeature) resetResponse(_ *godog.Scenario) {
 	a.resp = nil
 	a.body = ""
 	a.authnPass = a.cfg.BasicAuthPassword
