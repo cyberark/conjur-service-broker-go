@@ -1,7 +1,11 @@
 package conjur
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+
+	"gopkg.in/yaml.v3"
 )
 
 // OrgSpace allows basic operations on the organization and space
@@ -43,7 +47,11 @@ func (o *OrgSpace) spaceLayerID() string {
 
 // CreatePolicy creates all needed conjur polices for given org and space
 func (o *OrgSpace) CreatePolicy() error {
-	err := o.client.UpsertPolicy(createOrgSpace(o))
+	orgSpace, err := createOrgSpace(o)
+	if err != nil {
+		return err
+	}
+	err = o.client.UpsertPolicy(orgSpace)
 	return err
 }
 
@@ -71,4 +79,36 @@ func (o *OrgSpace) Exists() (bool, error) {
 		return ok, nil
 	}
 	return true, nil
+}
+
+func createOrgSpace(orgSpace *OrgSpace) (io.Reader, error) {
+	policy := PolicyDocument{
+		NewTag(Policy{
+			Id: orgSpace.OrgID,
+			Body: []interface{}{
+				NewTag[Layer](""),
+				NewTag(Policy{
+					Id: orgSpace.SpaceID,
+					Body: []interface{}{
+						NewTag[Layer](""),
+					},
+				}),
+				NewTag(Grant{
+					Role:   NewTag[any](Layer("")),
+					Member: NewTag[any](Layer(orgSpace.SpaceID)),
+				}),
+			},
+		}),
+	}
+	if len(orgSpace.OrgName) > 0 && len(orgSpace.OrgName) > 0 { // TODO: make this better
+		policy[0].v.Annotations = map[string]string{"pcf/type": "org", "pcf/orgName": orgSpace.OrgName}
+		policy[0].v.Body[1].(*Tag[Policy]).v.Annotations = map[string]string{"pcf/type": "space", "pcf/orgName": orgSpace.OrgName, "pcf/spaceName": orgSpace.SpaceName}
+	}
+	res := new(bytes.Buffer)
+	encoder := yaml.NewEncoder(res)
+	err := encoder.Encode(policy)
+	if err != nil {
+		return nil, err
+	}
+	return res, err
 }

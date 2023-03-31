@@ -16,19 +16,18 @@ func Test_createOrgSpace(t *testing.T) {
 			&OrgSpace{
 				OrgID:   "1",
 				SpaceID: "2",
-			},
-			`---
-- !policy
-  id: !!str 1
+			}, `- !policy
+  id: "1"
   body:
     - !layer
     - !policy
-      id: !!str 2
+      id: "2"
       body:
-       - !layer	
+        - !layer
     - !grant
       role: !layer
-      member: !layer 2`,
+      member: !layer 2
+`,
 		}, {
 			"with annotations",
 			&OrgSpace{
@@ -37,30 +36,33 @@ func Test_createOrgSpace(t *testing.T) {
 				SpaceID:   "4",
 				SpaceName: "space",
 			},
-			`---
-- !policy
-  id: !!str 3
-  annotations:
-    pcf/type: org
-    pcf/orgName: org
+			`- !policy
+  id: "3"
   body:
     - !layer
     - !policy
-      id: !!str 4
+      id: "4"
+      body:
+        - !layer
       annotations:
-        pcf/type: space
         pcf/orgName: org
         pcf/spaceName: space
-      body:
-       - !layer	
+        pcf/type: space
     - !grant
       role: !layer
-      member: !layer 4`,
+      member: !layer 4
+  annotations:
+    pcf/orgName: org
+    pcf/type: org
+`,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := createOrgSpace(tt.args)
+			got, err := createOrgSpace(tt.args)
+			if err != nil {
+				t.Error(err)
+			}
 			bytes, err := io.ReadAll(got)
 			if err != nil {
 				t.Error(err)
