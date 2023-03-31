@@ -13,3 +13,6 @@ k8s_resource('conjur-service-broker', port_forwards=['8080'], labels=['conjur-se
 
 # integration tests
 load_dynamic('./test/integration/Tiltfile.dep')
+
+# deploy ruby version of service broker for testing purposes
+load_dynamic('./Tiltfile.ruby')

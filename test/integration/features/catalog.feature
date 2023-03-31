@@ -28,6 +28,7 @@ Feature: get catalog
                     {
                         "description": "Community service plan",
                         "id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
+                        "free": true,
                         "metadata": {
                             "bullets": [
                                 "Machine Identity",
