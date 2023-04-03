@@ -24,7 +24,7 @@ func StartHTTPServer() error {
 	if err := client.ValidateConnectivity(); err != nil {
 		return fmt.Errorf("failed to validate conjur client: %w", err)
 	}
-	srv := servicebroker.NewServerImpl(client)
+	srv := servicebroker.NewServerImpl(client, cfg.EnableSpaceIdentity)
 
 	// TODO: make this production grade gin
 	if !cfg.Debug {

@@ -12,6 +12,9 @@ type server struct {
 }
 
 // NewServerImpl creates the webservice implementation
-func NewServerImpl(client conjur.Client) ServerInterface {
-	return &server{client}
+func NewServerImpl(client conjur.Client, enableSpaceIdentity bool) ServerInterface {
+	if enableSpaceIdentity {
+		return &spaceBindServer{server{client}}
+	}
+	return &hostBindServer{server{client}}
 }

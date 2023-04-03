@@ -1,25 +1,31 @@
 package conjur
 
 import (
+	"bytes"
+	"io"
 	"reflect"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
-func typeName(v interface{}) string {
-	return "!" + strings.ToLower(reflect.TypeOf(v).Name())
+type Tag interface {
+	Value() interface{}
 }
 
-type Tag[T any] struct {
+type tag[T any] struct {
 	v T
 }
 
-func NewTag[T any](v T) *Tag[T] {
-	return &Tag[T]{v}
+func (t *tag[T]) Value() interface{} {
+	return t.v
 }
 
-func (t *Tag[T]) MarshalYAML() (interface{}, error) {
+func NewTag[T any](v T) Tag {
+	return &tag[T]{v}
+}
+
+func (t *tag[T]) MarshalYAML() (interface{}, error) {
 	type aliasType *T
 	data := (aliasType)(&t.v)
 
@@ -33,13 +39,55 @@ func (t *Tag[T]) MarshalYAML() (interface{}, error) {
 	return node, nil
 }
 
-type Ref[T any] string
+type Ref interface {
+	Kind() string
+	Value() string
+}
 
-func (r *Ref[T]) MarshalYAML() (interface{}, error) {
+type ref struct {
+	kind  string
+	value string
+}
+
+func (r *ref) Kind() string {
+	return r.kind
+}
+
+func (r *ref) Value() string {
+	return r.value
+}
+
+func NewRef[T any](v string) Ref {
+	return &ref{typeName(new(T)), v}
+}
+
+func (r *ref) MarshalYAML() (interface{}, error) {
 	return &yaml.Node{
 		Kind:  yaml.ScalarNode,
-		Value: string(*r),
-		Tag:   typeName(*new(T)),
+		Value: r.Value(),
+		Tag:   r.Kind(),
 		Style: yaml.TaggedStyle,
 	}, nil
+}
+
+func policyReader(policy PolicyDocument) (io.Reader, error) {
+	res := new(bytes.Buffer)
+	encoder := yaml.NewEncoder(res)
+	err := encoder.Encode(policy)
+	if err != nil {
+		return nil, err
+	}
+	return res, err
+}
+
+func typeName(v interface{}) string {
+	name := reflect.TypeOf(v).String()
+	dot := strings.LastIndex(name, ".")
+	if dot == -1 {
+		return ""
+	}
+	if dot >= len(name) {
+		return ""
+	}
+	return "!" + strings.ToLower(name[dot+1:])
 }

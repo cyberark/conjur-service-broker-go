@@ -1,14 +1,10 @@
 package conjur
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-
-	"gopkg.in/yaml.v3"
 )
 
-// OrgSpace allows basic operations on the organization and space
 type orgSpace struct {
 	OrgID     string
 	OrgName   string
@@ -17,6 +13,7 @@ type orgSpace struct {
 	client    Client
 }
 
+// OrgSpace allows basic operations on the organization and space
 type OrgSpace interface {
 	CreatePolicy() error
 	Exists() (bool, error)
@@ -52,7 +49,7 @@ func (o *orgSpace) spaceLayerID() string {
 
 // CreatePolicy creates all needed conjur polices for given org and space
 func (o *orgSpace) CreatePolicy() error {
-	orgSpace, err := createOrgSpace(o)
+	orgSpace, err := createOrgSpaceYAML(o)
 	if err != nil {
 		return err
 	}
@@ -86,34 +83,40 @@ func (o *orgSpace) Exists() (bool, error) {
 	return true, nil
 }
 
-func createOrgSpace(o *orgSpace) (io.Reader, error) {
+func createOrgSpaceYAML(o *orgSpace) (io.Reader, error) {
 	policy := PolicyDocument{
 		NewTag(Policy{
-			Id: o.OrgID,
-			Body: []interface{}{
+			Id:          o.OrgID,
+			Annotations: policyAnnotations(o),
+			Body: []Tag{
 				NewTag[Layer](""),
-				NewTag(Policy{
+				NewTag[Policy](Policy{
 					Id: o.SpaceID,
-					Body: []interface{}{
+					Body: []Tag{
 						NewTag[Layer](""),
 					},
+					Annotations: subPolicyAnnotations(o),
 				}),
 				NewTag(Grant{
-					Role:   NewTag[any](Layer("")),
-					Member: NewTag[any](Layer(o.SpaceID)),
+					Role:   NewRef[Layer](""),
+					Member: NewRef[Layer](o.SpaceID),
 				}),
 			},
 		}),
 	}
-	if len(o.OrgName) > 0 && len(o.OrgName) > 0 { // TODO: make this better
-		policy[0].v.Annotations = map[string]string{"pcf/type": "org", "pcf/orgName": o.OrgName}
-		policy[0].v.Body[1].(*Tag[Policy]).v.Annotations = map[string]string{"pcf/type": "space", "pcf/orgName": o.OrgName, "pcf/spaceName": o.SpaceName}
+	return policyReader(policy)
+}
+
+func policyAnnotations(o *orgSpace) map[string]string {
+	if len(o.OrgName) == 0 || len(o.OrgName) == 0 {
+		return nil
 	}
-	res := new(bytes.Buffer)
-	encoder := yaml.NewEncoder(res)
-	err := encoder.Encode(policy)
-	if err != nil {
-		return nil, err
+	return map[string]string{"pcf/type": "org", "pcf/orgName": o.OrgName}
+}
+
+func subPolicyAnnotations(o *orgSpace) map[string]string {
+	if len(o.OrgName) == 0 || len(o.OrgName) == 0 {
+		return nil
 	}
-	return res, err
+	return map[string]string{"pcf/type": "space", "pcf/orgName": o.OrgName, "pcf/spaceName": o.SpaceName}
 }
