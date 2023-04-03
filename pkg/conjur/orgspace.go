@@ -9,7 +9,7 @@ import (
 )
 
 // OrgSpace allows basic operations on the organization and space
-type OrgSpace struct {
+type orgSpace struct {
 	OrgID     string
 	OrgName   string
 	SpaceID   string
@@ -17,9 +17,14 @@ type OrgSpace struct {
 	client    Client
 }
 
+type OrgSpace interface {
+	CreatePolicy() error
+	Exists() (bool, error)
+}
+
 // NewOrgSpace creates an OrgSpace based on
-func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *string) *OrgSpace {
-	res := &OrgSpace{
+func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *string) OrgSpace {
+	res := &orgSpace{
 		OrgID:   orgID,
 		SpaceID: spaceID,
 		client:  client,
@@ -33,20 +38,20 @@ func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *strin
 	return res
 }
 
-func (o *OrgSpace) orgPolicyID() string {
+func (o *orgSpace) orgPolicyID() string {
 	return fmt.Sprintf("%v/%v", o.client.BasePolicy(), o.OrgID)
 }
 
-func (o *OrgSpace) spacePolicyID() string {
+func (o *orgSpace) spacePolicyID() string {
 	return fmt.Sprintf("%v/%v/%v", o.client.BasePolicy(), o.OrgID, o.SpaceID)
 }
 
-func (o *OrgSpace) spaceLayerID() string {
+func (o *orgSpace) spaceLayerID() string {
 	return fmt.Sprintf("%v/%v/%v", o.client.BaseLayer(), o.OrgID, o.SpaceID)
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space
-func (o *OrgSpace) CreatePolicy() error {
+func (o *orgSpace) CreatePolicy() error {
 	orgSpace, err := createOrgSpace(o)
 	if err != nil {
 		return err
@@ -56,7 +61,7 @@ func (o *OrgSpace) CreatePolicy() error {
 }
 
 // Exists checks existence of conjur org and space policies
-func (o *OrgSpace) Exists() (bool, error) {
+func (o *orgSpace) Exists() (bool, error) {
 	ok, err := o.client.CheckResource(o.orgPolicyID())
 	if err != nil {
 		return false, err
@@ -81,28 +86,28 @@ func (o *OrgSpace) Exists() (bool, error) {
 	return true, nil
 }
 
-func createOrgSpace(orgSpace *OrgSpace) (io.Reader, error) {
+func createOrgSpace(o *orgSpace) (io.Reader, error) {
 	policy := PolicyDocument{
 		NewTag(Policy{
-			Id: orgSpace.OrgID,
+			Id: o.OrgID,
 			Body: []interface{}{
 				NewTag[Layer](""),
 				NewTag(Policy{
-					Id: orgSpace.SpaceID,
+					Id: o.SpaceID,
 					Body: []interface{}{
 						NewTag[Layer](""),
 					},
 				}),
 				NewTag(Grant{
 					Role:   NewTag[any](Layer("")),
-					Member: NewTag[any](Layer(orgSpace.SpaceID)),
+					Member: NewTag[any](Layer(o.SpaceID)),
 				}),
 			},
 		}),
 	}
-	if len(orgSpace.OrgName) > 0 && len(orgSpace.OrgName) > 0 { // TODO: make this better
-		policy[0].v.Annotations = map[string]string{"pcf/type": "org", "pcf/orgName": orgSpace.OrgName}
-		policy[0].v.Body[1].(*Tag[Policy]).v.Annotations = map[string]string{"pcf/type": "space", "pcf/orgName": orgSpace.OrgName, "pcf/spaceName": orgSpace.SpaceName}
+	if len(o.OrgName) > 0 && len(o.OrgName) > 0 { // TODO: make this better
+		policy[0].v.Annotations = map[string]string{"pcf/type": "org", "pcf/orgName": o.OrgName}
+		policy[0].v.Body[1].(*Tag[Policy]).v.Annotations = map[string]string{"pcf/type": "space", "pcf/orgName": o.OrgName, "pcf/spaceName": o.SpaceName}
 	}
 	res := new(bytes.Buffer)
 	encoder := yaml.NewEncoder(res)
