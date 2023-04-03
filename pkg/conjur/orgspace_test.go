@@ -1,23 +1,23 @@
 package conjur
 
 import (
-	"io"
-	"testing"
+    "io"
+    "testing"
 )
 
 func Test_createOrgSpace(t *testing.T) {
-	tests := []struct {
-		name string
-		args *OrgSpace
-		want string
-	}{
-		{
-			"just IDs",
-			&OrgSpace{
-				OrgID:   "1",
-				SpaceID: "2",
-			}, `- !policy
-  id: "1"
+    tests := []struct {
+        name string
+        args *orgSpace
+        want string
+    }{
+        {
+            "just IDs",
+            &orgSpace{
+                OrgID:   "1 # 2",
+                SpaceID: "2",
+            }, `- !policy
+  id: '1 # 2'
   body:
     - !layer
     - !policy
@@ -28,15 +28,15 @@ func Test_createOrgSpace(t *testing.T) {
       role: !layer
       member: !layer 2
 `,
-		}, {
-			"with annotations",
-			&OrgSpace{
-				OrgID:     "3",
-				OrgName:   "org",
-				SpaceID:   "4",
-				SpaceName: "space",
-			},
-			`- !policy
+        }, {
+            "with annotations",
+            &orgSpace{
+                OrgID:     "3",
+                OrgName:   "org",
+                SpaceID:   "4",
+                SpaceName: "space",
+            },
+            `- !policy
   id: "3"
   body:
     - !layer
@@ -55,21 +55,21 @@ func Test_createOrgSpace(t *testing.T) {
     pcf/orgName: org
     pcf/type: org
 `,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := createOrgSpace(tt.args)
-			if err != nil {
-				t.Error(err)
-			}
-			bytes, err := io.ReadAll(got)
-			if err != nil {
-				t.Error(err)
-			}
-			if string(bytes) != tt.want {
-				t.Errorf("createOrgSpace() = \n%v\n, want \n%v\n", string(bytes), tt.want)
-			}
-		})
-	}
+        },
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got, err := createOrgSpace(tt.args)
+            if err != nil {
+                t.Error(err)
+            }
+            bytes, err := io.ReadAll(got)
+            if err != nil {
+                t.Error(err)
+            }
+            if string(bytes) != tt.want {
+                t.Errorf("createOrgSpace() = \n%v\n, want \n%v\n", string(bytes), tt.want)
+            }
+        })
+    }
 }

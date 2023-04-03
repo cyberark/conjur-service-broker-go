@@ -29,7 +29,5 @@ spec:
           %r
 """ % (resource_name, namespace, resource_name, resource_name, resource_name, resource_name, image_name, envs))
 
-print(deployment_generator('aaa', 'bbb', 'default'))
-
 git_resource('conjur-service-broker-ruby', 'git@github.com:cyberark/conjur-service-broker.git#main',
     resource_deps=['api_key'], port_forwards=['3000:3000'], deployment_callback=deployment_generator)
