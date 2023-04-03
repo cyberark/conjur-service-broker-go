@@ -61,7 +61,7 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, instanceID string, par
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to validate policy exists: %w", err))
 		return
 	}
-	c.Status(http.StatusCreated)
+	c.JSON(http.StatusCreated, gin.H{})
 }
 
 // ServiceInstanceLastOperationGet get the last requested operation state for service instance
