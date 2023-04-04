@@ -1,7 +1,10 @@
 package servicebroker
 
 import (
+	"encoding/json"
 	"fmt"
+
+	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 )
 
 const (
@@ -9,16 +12,52 @@ const (
 	expectedPlanID    = "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community"
 )
 
-func formContext(context *Context, field string) *string {
-	if context == nil {
+type context struct {
+	Platform  string  `json:"platform"`
+	OrgId     string  `json:"organization_guid"`
+	OrgName   *string `json:"organization_name"`
+	SpaceId   string  `json:"space_guid"`
+	SpaceName *string `json:"space_name"`
+}
+
+func parseContext(ctx *Context) context {
+	return context{
+		str(ctx, "platform"),
+		str(ctx, "organization_guid"),
+		strOrNil(ctx, "organization_name"),
+		str(ctx, "space_guid"),
+		strOrNil(ctx, "space_name"),
+	}
+}
+
+func str(ctx *Context, name string) string {
+	if ctx == nil {
+		return ""
+	}
+	v, found := (*ctx)[name]
+	if !found {
+		return ""
+	}
+	s, ok := v.(string)
+	if !ok {
+		return ""
+	}
+	return s
+}
+
+func strOrNil(ctx *Context, name string) *string {
+	if ctx == nil {
 		return nil
 	}
-	val, ok := (*context)[field]
+	v, found := (*ctx)[name]
+	if !found {
+		return nil
+	}
+	s, ok := v.(string)
 	if !ok {
 		return nil
 	}
-	res := fmt.Sprintf("%v", val)
-	return &res
+	return &s
 }
 
 func validateServiceAndPlan(serviceID, planID string) error {
@@ -29,4 +68,18 @@ func validateServiceAndPlan(serviceID, planID string) error {
 		return fmt.Errorf("invalid planID expected %v, got %v", expectedPlanID, planID)
 	}
 	return nil
+}
+
+func object(policy *conjur.CreatedPolicy) *Object {
+	// TODO: would it better to use reflection?
+	bytes, err := json.Marshal(policy)
+	if err != nil {
+		panic(err)
+	}
+	var res Object
+	err = json.Unmarshal(bytes, &res)
+	if err != nil {
+		panic(err)
+	}
+	return &res
 }

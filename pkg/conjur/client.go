@@ -1,6 +1,7 @@
 package conjur
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -24,10 +25,12 @@ func init() {
 type Client interface {
 	CheckPermission(resourceID string, privilege ...Privilege) (bool, error)
 	CheckVariablePermission(variableID string, privilege ...VariablePrivilege) (bool, error)
-	UpsertPolicy(policy io.Reader) error
+	UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, error)
 	CheckResource(resourceID string) (bool, error)
-	BasePolicy() string
-	BaseLayer() string
+	RoleExists(roleID string) (bool, error)
+	Platform() (string, error)
+
+	Config() *Config
 	ValidateConnectivity() error
 }
 
@@ -69,23 +72,20 @@ func NewClient(config *Config) (Client, error) {
 
 // ValidateConnectivity validates conjur client configuration by checking read access permission to the policy
 func (c *client) ValidateConnectivity() error {
-	_, err := c.client.CheckPermission(c.BasePolicy(), PrivilegeRead.String())
+	_, err := c.client.CheckPermission(c.basePolicy(), PrivilegeRead.String())
 	if err != nil {
-		return fmt.Errorf("validation failed, missing read permissions on policy %v: %w", c.BasePolicy(), err)
+		return fmt.Errorf("validation failed, missing read permissions on policy %v: %w", c.basePolicy(), err)
 	}
-	_, err = c.roClient.CheckPermission(c.BasePolicy(), PrivilegeRead.String())
+	_, err = c.roClient.CheckPermission(c.basePolicy(), PrivilegeRead.String())
 	if err != nil {
-		return fmt.Errorf("validation failed, ro missing read permissions on policy %v: %w", c.BasePolicy(), err)
+		return fmt.Errorf("validation failed, ro missing read permissions on policy %v: %w", c.basePolicy(), err)
 	}
 	return nil
 }
 
-// HostID returns host ID of the client
-func (c *client) HostID() string {
-	if !strings.HasPrefix(c.config.ConjurAuthNLogin, "host/") {
-		return "" // TODO: should this be an error?
-	}
-	return string([]rune(c.config.ConjurAuthNLogin)[5:])
+// ClientHostID returns host ID of the client
+func (c *client) ClientHostID() string {
+	return strings.TrimPrefix(c.config.ConjurAuthNLogin, "host/")
 }
 
 func (c *client) checkPermission(resourceID string, privilege string) (bool, error) {
@@ -124,16 +124,16 @@ func (c *client) CheckVariablePermission(variableID string, privilege ...Variabl
 }
 
 // UpsertPolicy creates or updates (appends) a policy
-func (c *client) UpsertPolicy(policy io.Reader) error {
-	_, err := c.client.LoadPolicy(
+func (c *client) UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, error) {
+	res, err := c.client.LoadPolicy(
 		conjurapi.PolicyModePost,
 		c.config.ConjurPolicy,
 		policy,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return res, nil
 }
 
 // CheckResource checks for an existence of a resource with a given id
@@ -143,17 +143,54 @@ func (c *client) CheckResource(resourceID string) (bool, error) {
 		return false, fmt.Errorf("unable to find resource %v: %w", resourceID, err)
 	}
 	if len(spacePolicy) == 0 {
-		return false, fmt.Errorf("unable to find resource %v", resourceID)
+		return false, nil
 	}
 	return true, nil
 }
 
-// BasePolicy returns a base policy
-func (c *client) BasePolicy() string {
+// RoleExists checks for an existence of a role with a given id
+func (c *client) RoleExists(roleID string) (bool, error) {
+	roleExists, err := c.roClient.RoleExists(roleID)
+	if err != nil {
+		return false, fmt.Errorf("unable to find role %v: %w", roleID, err)
+	}
+	return roleExists, nil
+}
+
+func (c *client) basePolicy() string {
 	return fmt.Sprintf("%v:policy:%v", c.config.ConjurAccount, c.config.ConjurPolicy)
 }
 
-// BaseLayer returns a base layer
-func (c *client) BaseLayer() string {
-	return fmt.Sprintf("%v:layer:%v", c.config.ConjurAccount, c.config.ConjurPolicy)
+// Platform checks for platform annotation on host used for service broker authentication
+func (c *client) Platform() (string, error) {
+	hostID := composeID(c.config.ConjurAccount, KindHost, c.ClientHostID())
+	clientHost, err := c.roClient.Resource(hostID)
+	if err != nil {
+		return "", fmt.Errorf("unable to find resource %v: %w", hostID, err)
+	}
+	resp := struct {
+		Annotations []struct {
+			Name  string `json:"name"`
+			Value string `json:"value"`
+		} `json:"annotations"`
+	}{}
+	bytes, err := json.Marshal(clientHost)
+	if err != nil {
+		return "", err
+	}
+	err = json.Unmarshal(bytes, &resp)
+	if err != nil {
+		return "", err
+	}
+	for _, a := range resp.Annotations {
+		if a.Name == "platform" {
+			return a.Value, nil
+		}
+	}
+	return "", nil
+}
+
+// Config returns a conjur client config
+func (c *client) Config() *Config {
+	return c.config
 }

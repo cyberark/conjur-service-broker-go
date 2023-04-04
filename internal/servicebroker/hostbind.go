@@ -1,8 +1,10 @@
 package servicebroker
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,10 +28,40 @@ func (*hostBindServer) ServiceBindingGet(c *gin.Context, instanceID string, bind
 
 // ServiceBindingBinding generate a service binding
 // (PUT /v2/service_instances/{instance_id}/service_bindings/{binding_id})
-func (*hostBindServer) ServiceBindingBinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingBindingParams) {
+func (s *hostBindServer) ServiceBindingBinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingBindingParams) {
 	// TODO: Implement me
+	body := ServiceBindingBindingJSONRequestBody{}
+	err := c.BindJSON(&body)
+	if err != nil {
+		// TODO: handle error from AbortWithError
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
+		return
+	}
+	if err = validateServiceAndPlan(body.ServiceId, body.PlanId); err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
+		return
+	}
 
-	c.Status(http.StatusNotImplemented)
+	ctxParams := parseContext(body.Context)
+
+	bind := conjur.NewBind(s.client, ctxParams.OrgId, ctxParams.SpaceId, bindingID)
+	hostExists, err := bind.HostExists()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
+		return
+	}
+	if hostExists {
+		c.AbortWithError(http.StatusConflict, fmt.Errorf("host already exists"))
+		return
+	}
+	policy, err := bind.CreatePolicy()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
+		return
+	}
+	c.JSON(http.StatusCreated, ServiceBindingResponse{
+		Credentials: object(policy),
+	})
 }
 
 // ServiceBindingLastOperationGet get the last requested operation state for service binding

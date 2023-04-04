@@ -3,13 +3,15 @@ package conjur
 import (
 	"fmt"
 	"io"
+
+	"github.com/doodlesbykumbi/conjur-policy-go/pkg/conjurpolicy"
 )
 
 type orgSpace struct {
-	OrgID     string
-	OrgName   string
-	SpaceID   string
-	SpaceName string
+	orgID     string
+	orgName   string
+	spaceID   string
+	spaceName string
 	client    Client
 }
 
@@ -22,38 +24,41 @@ type OrgSpace interface {
 // NewOrgSpace creates an OrgSpace based on
 func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *string) OrgSpace {
 	res := &orgSpace{
-		OrgID:   orgID,
-		SpaceID: spaceID,
+		orgID:   orgID,
+		spaceID: spaceID,
 		client:  client,
 	}
 	if orgName != nil {
-		res.OrgName = *orgName
+		res.orgName = *orgName
 	}
 	if spaceName != nil {
-		res.SpaceName = *spaceName
+		res.spaceName = *spaceName
 	}
 	return res
 }
 
 func (o *orgSpace) orgPolicyID() string {
-	return fmt.Sprintf("%v/%v", o.client.BasePolicy(), o.OrgID)
+	config := o.client.Config()
+	return fmt.Sprintf("%v:policy:%v/%v", config.ConjurAccount, config.ConjurPolicy, o.orgID)
 }
 
 func (o *orgSpace) spacePolicyID() string {
-	return fmt.Sprintf("%v/%v/%v", o.client.BasePolicy(), o.OrgID, o.SpaceID)
+	config := o.client.Config()
+	return fmt.Sprintf("%v:policy:%v/%v/%v", config.ConjurAccount, config.ConjurPolicy, o.orgID, o.spaceID)
 }
 
 func (o *orgSpace) spaceLayerID() string {
-	return fmt.Sprintf("%v/%v/%v", o.client.BaseLayer(), o.OrgID, o.SpaceID)
+	config := o.client.Config()
+	return fmt.Sprintf("%v:layer:%v/%v/%v", config.ConjurAccount, config.ConjurPolicy, o.orgID, o.spaceID)
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space
 func (o *orgSpace) CreatePolicy() error {
-	orgSpace, err := createOrgSpaceYAML(o)
+	yaml, err := o.createOrgSpaceYAML()
 	if err != nil {
 		return err
 	}
-	err = o.client.UpsertPolicy(orgSpace)
+	_, err = o.client.UpsertPolicy(yaml)
 	return err
 }
 
@@ -83,40 +88,40 @@ func (o *orgSpace) Exists() (bool, error) {
 	return true, nil
 }
 
-func createOrgSpaceYAML(o *orgSpace) (io.Reader, error) {
-	policy := PolicyDocument{
-		NewTag(Policy{
-			Id:          o.OrgID,
-			Annotations: policyAnnotations(o),
-			Body: []Tag{
-				NewTag[Layer](""),
-				NewTag[Policy](Policy{
-					Id: o.SpaceID,
-					Body: []Tag{
-						NewTag[Layer](""),
+func (o *orgSpace) createOrgSpaceYAML() (io.Reader, error) {
+	policy := conjurpolicy.PolicyStatements{
+		conjurpolicy.Policy{
+			Id:          o.orgID,
+			Annotations: o.orgAnnotations(),
+			Body: conjurpolicy.PolicyStatements{
+				conjurpolicy.Layer{},
+				conjurpolicy.Policy{
+					Id: o.spaceID,
+					Body: conjurpolicy.PolicyStatements{
+						conjurpolicy.Layer{},
 					},
-					Annotations: subPolicyAnnotations(o),
-				}),
-				NewTag(Grant{
-					Role:   NewRef[Layer](""),
-					Member: NewRef[Layer](o.SpaceID),
-				}),
+					Annotations: o.spaceAnnotations(),
+				},
+				conjurpolicy.Grant{
+					Role:   conjurpolicy.LayerRef(""),
+					Member: conjurpolicy.LayerRef(o.spaceID),
+				},
 			},
-		}),
+		},
 	}
 	return policyReader(policy)
 }
 
-func policyAnnotations(o *orgSpace) map[string]string {
-	if len(o.OrgName) == 0 || len(o.OrgName) == 0 {
+func (o *orgSpace) orgAnnotations() map[string]string {
+	if len(o.orgName) == 0 || len(o.orgName) == 0 {
 		return nil
 	}
-	return map[string]string{"pcf/type": "org", "pcf/orgName": o.OrgName}
+	return map[string]string{"pcf/type": "org", "pcf/orgName": o.orgName}
 }
 
-func subPolicyAnnotations(o *orgSpace) map[string]string {
-	if len(o.OrgName) == 0 || len(o.OrgName) == 0 {
+func (o *orgSpace) spaceAnnotations() map[string]string {
+	if len(o.orgName) == 0 || len(o.orgName) == 0 {
 		return nil
 	}
-	return map[string]string{"pcf/type": "space", "pcf/orgName": o.OrgName, "pcf/spaceName": o.SpaceName}
+	return map[string]string{"pcf/type": "space", "pcf/orgName": o.orgName, "pcf/spaceName": o.spaceName}
 }

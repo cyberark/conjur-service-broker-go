@@ -3,7 +3,7 @@ package conjur
 // Config is the part of config that is specific to conjur
 type Config struct {
 	//CONJUR_VERSION: the version of Conjur enterprise, currently only version '5' is supported. Any other, non-empty value would raise an error.
-	ConjurVersion string `env:"CONJUR_VERSION" envDefault:"5"`
+	ConjurVersion uint32 `env:"CONJUR_VERSION" envDefault:"5"`
 	// CONJUR_ACCOUNT: the account name for the Conjur instance you are connecting to.
 	ConjurAccount string `env:"CONJUR_ACCOUNT,required"`
 	//CONJUR_APPLIANCE_URL: the URL of the Conjur appliance instance you are connecting to. When using an HA Conjur master cluster, this should be the URL of the master load balancer.

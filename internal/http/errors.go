@@ -12,7 +12,7 @@ import (
 func errorsMiddleware(c *gin.Context) {
 	c.Next()
 	if len(c.Errors) > 0 {
-		c.JSON(-1, gin.H{"error": strings.Join(c.Errors.Errors(), ", ")})
+		c.JSON(-1, gin.H{"error": camelCasedStatus(c.Writer.Status()), "description": strings.Join(c.Errors.Errors(), ", ")})
 	}
 	if c.IsAborted() && c.Writer.Size() == 0 { // request is aborted and body is missing
 		statusCode := c.Writer.Status()

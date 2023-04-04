@@ -35,7 +35,7 @@ func newConfig() (*config, error) {
 }
 
 func validate(cfg config) error {
-	if len(cfg.ConjurVersion) > 0 && cfg.ConjurVersion != "5" {
+	if cfg.ConjurVersion != 5 {
 		return errors.New("conjur enterprise v4 is no longer supported, please use conjur service broker v1.1.4 or earlier")
 	}
 	// TODO: validate certificate if present

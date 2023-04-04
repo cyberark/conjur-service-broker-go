@@ -14,8 +14,8 @@ func Test_createOrgSpace(t *testing.T) {
 		{
 			"just IDs",
 			&orgSpace{
-				OrgID:   "1 # 2",
-				SpaceID: "2",
+				orgID:   "1 # 2",
+				spaceID: "2",
 			}, `- !policy
   id: '1 # 2'
   body:
@@ -31,35 +31,35 @@ func Test_createOrgSpace(t *testing.T) {
 		}, {
 			"with annotations",
 			&orgSpace{
-				OrgID:     "3",
-				OrgName:   "org",
-				SpaceID:   "4",
-				SpaceName: "space",
+				orgID:     "3",
+				orgName:   "org",
+				spaceID:   "4",
+				spaceName: "space",
 			},
 			`- !policy
   id: "3"
+  annotations:
+    pcf/orgName: org
+    pcf/type: org
   body:
     - !layer
     - !policy
       id: "4"
-      body:
-        - !layer
       annotations:
         pcf/orgName: org
         pcf/spaceName: space
         pcf/type: space
+      body:
+        - !layer
     - !grant
       role: !layer
       member: !layer 4
-  annotations:
-    pcf/orgName: org
-    pcf/type: org
 `,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := createOrgSpaceYAML(tt.args)
+			got, err := tt.args.createOrgSpaceYAML()
 			if err != nil {
 				t.Error(err)
 			}
