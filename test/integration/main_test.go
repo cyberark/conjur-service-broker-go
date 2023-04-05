@@ -15,7 +15,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		panic(err)
 	}
 	api := &httpFeature{cfg: cfg}
-
+	conjur := &conjur{api: api}
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		api.resetResponse(sc)
 		return ctx, nil
@@ -27,6 +27,10 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
 	ctx.Step(`^the response should match json:$`, api.theResponseShouldMatchJSONBody)
 	ctx.Step(`^the response should match json "([^"]*)"$`, api.theResponseShouldMatchJSON)
+	ctx.Step(`^conjur credentials are invalid$`, conjur.conjurCredentialsAreInvalid)
+	ctx.Step(`^conjur credentials are valid$`, conjur.conjurCredentialsAreValid)
+	ctx.Step(`^I create conjur client$`, conjur.iCreateConjurClient)
+
 }
 
 func TestIntegration(t *testing.T) {
