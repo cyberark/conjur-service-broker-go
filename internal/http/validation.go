@@ -80,6 +80,9 @@ func errMsg(err error) string {
 		if e.Err == nil {
 			return e.Error()
 		}
+		if e.Parameter != nil {
+			return fmt.Sprintf("%s %s", e.Parameter.Name, e.Reason)
+		}
 		return fmt.Sprintf("%s %s", e.Reason, errMsg(e.Err))
 	case *openapi3.SchemaError:
 		return e.Reason

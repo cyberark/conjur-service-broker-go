@@ -17,20 +17,27 @@ func init() {
 }
 
 type httpFeature struct {
-	cfg       config
-	resp      *http.Response
-	body      string
-	authnPass string
+	cfg                        config
+	resp                       *http.Response
+	body                       string
+	authnPass                  string
+	omitBrokerAPIVersionHeader bool
 }
 
 func (a *httpFeature) resetResponse(_ *godog.Scenario) {
 	a.resp = nil
 	a.body = ""
+	a.omitBrokerAPIVersionHeader = false
 	a.authnPass = a.cfg.BasicAuthPassword
 }
 
 func (a *httpFeature) myBasicAuthCredentialsAreIncorrect() error {
 	a.authnPass = ""
+	return nil
+}
+
+func (a *httpFeature) myRequestDoesntIncludeTheXBrokerAPIVersionHeader() error {
+	a.omitBrokerAPIVersionHeader = true
 	return nil
 }
 
@@ -48,7 +55,9 @@ func (a *httpFeature) iSendRequestToWithBody(method, endpoint string, bodyDocStr
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Broker-API-Version", "2.17")
+	if !a.omitBrokerAPIVersionHeader {
+		req.Header.Set("X-Broker-API-Version", "2.17")
+	}
 
 	if len(a.cfg.BasicAuthPassword) > 0 {
 		req.SetBasicAuth(a.authnPass, a.cfg.BasicAuthPassword)

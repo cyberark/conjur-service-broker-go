@@ -60,6 +60,7 @@ func strOrNil(ctx *Context, name string) *string {
 	return &s
 }
 
+// TODO: move this validation to middleware
 func validateServiceAndPlan(serviceID string, planID *string) error {
 	if serviceID != expectedServiceID {
 		return fmt.Errorf("invalid serviceID expected %v, got %v", expectedServiceID, serviceID)
