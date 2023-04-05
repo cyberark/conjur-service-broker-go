@@ -47,10 +47,10 @@ func openAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 
 		if err != nil {
 			if errors.Is(err, routers.ErrMethodNotAllowed) {
-				c.AbortWithStatusJSON(http.StatusMethodNotAllowed, gin.H{"error": "methodNotAllowed"})
+				c.AbortWithStatusJSON(http.StatusMethodNotAllowed, gin.H{"error": "MethodNotAllowed"})
 				return
 			}
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "notFound"})
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "NotFound"})
 			return
 		}
 		err = openapi3filter.ValidateRequest(ctx, &openapi3filter.RequestValidationInput{
@@ -61,7 +61,7 @@ func openAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 		})
 		if err != nil {
 			errMsg := errMsg(err)
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "validationError", "description": errMsg})
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "ValidationError", "description": errMsg})
 			return
 		}
 		c.Next()
@@ -71,7 +71,7 @@ func openAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 func errMsg(err error) string {
 	switch e := err.(type) {
 	case openapi3.MultiError:
-		errMsgs := make([]string, len(e))
+		errMsgs := make([]string, 0, len(e))
 		for _, errs := range e {
 			errMsgs = append(errMsgs, errMsg(errs))
 		}

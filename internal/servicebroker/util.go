@@ -65,7 +65,7 @@ func validateServiceAndPlan(serviceID string, planID *string) error {
 		return fmt.Errorf("invalid serviceID expected %v, got %v", expectedServiceID, serviceID)
 	}
 	if planID != nil && *planID != expectedPlanID {
-		return fmt.Errorf("invalid planID expected %v, got %v", expectedPlanID, planID)
+		return fmt.Errorf("invalid planID expected %s, got %s", expectedPlanID, *planID)
 	}
 	return nil
 }

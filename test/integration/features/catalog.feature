@@ -10,7 +10,7 @@ Feature: get catalog
     Then the response code should be 401
     And the response should match json:
       """
-      { "error": "unauthorized" }
+      { "error": "Unauthorized" }
       """
 
   Scenario: should get catalog

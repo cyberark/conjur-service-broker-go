@@ -10,7 +10,7 @@ Feature: Provisioning
     Then the response code should be 401
     And the response should match json:
       """
-      { "error": "unauthorized" }
+      { "error": "Unauthorized" }
       """
 
   Scenario: Provision resource with invalid body - missing keys
@@ -33,8 +33,8 @@ Feature: Provisioning
     And the response should match json:
       """
       {
-        "error": "validationError",
-        "description": " doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody  property \"plan_id\" is missing"
+        "error": "ValidationError",
+        "description": "doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody property \"plan_id\" is missing"
       }
       """
 
@@ -120,8 +120,8 @@ Feature: Provisioning
     And the response should match json:
       """
       {
-        "error": "validationError",
-        "description": " doesn't match schema #/components/schemas/ServiceInstanceUpdateRequestBody  property \"service_id\" is missing"
+        "error": "ValidationError",
+        "description": "doesn't match schema #/components/schemas/ServiceInstanceUpdateRequestBody property \"service_id\" is missing"
       }
       """
 
@@ -146,8 +146,8 @@ Feature: Provisioning
     And the response should match json:
       """
       {
-        "error": "validationError",
-        "description": "The property '#/service_id' value \"XXXXXXX-6dc4-45c6-8a53-127e7f8275ab\" was invalid."
+        "error": "ValidationError",
+        "description": "validation failed: invalid serviceID expected c024e536-6dc4-45c6-8a53-127e7f8275ab, got XXXXXXX-6dc4-45c6-8a53-127e7f8275ab"
       }
       """
 
@@ -172,8 +172,8 @@ Feature: Provisioning
     And the response should match json:
       """
       {
-        "error": "validationError",
-        "description": "The property '#/plan_id' value \"XXXXXXX-fc8b-496f-a715-e9a1b205d05c.community\" was invalid."
+        "error": "ValidationError",
+        "description": "validation failed: invalid planID expected 3a116ac2-fc8b-496f-a715-e9a1b205d05c.community, got XXXXXXX-fc8b-496f-a715-e9a1b205d05c.community"
       }
       """
 
@@ -197,8 +197,8 @@ Feature: Provisioning
     And the response should match json:
       """
       {
-        "error": "validationError",
-        "description": "The property '#/service_id' value \"XXXXXXX-6dc4-45c6-8a53-127e7f8275ab\" was invalid."
+        "error": "ValidationError",
+        "description": "validation failed: invalid serviceID expected c024e536-6dc4-45c6-8a53-127e7f8275ab, got XXXXXXX-6dc4-45c6-8a53-127e7f8275ab"
       }
       """
 
@@ -222,8 +222,8 @@ Feature: Provisioning
     And the response should match json:
     """
     {
-      "error": "validationError",
-      "description": "The property '#/plan_id' value \"XXXXXXX-fc8b-496f-a715-e9a1b205d05c.community\" was invalid."
+      "error": "ValidationError",
+      "description": "validation failed: invalid planID expected 3a116ac2-fc8b-496f-a715-e9a1b205d05c.community, got XXXXXXX-fc8b-496f-a715-e9a1b205d05c.community"
     }
     """
 
@@ -249,7 +249,7 @@ Feature: Provisioning
     And the response should match json:
     """
     {
-      "error": "validationError",
+      "error": "ValidationError",
       "description": "The property '#/parameters' had more properties than the allowed 0"
     }
     """

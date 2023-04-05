@@ -11,10 +11,14 @@ import (
 
 func errorsMiddleware(c *gin.Context) {
 	c.Next()
+	if c.Writer.Size() > 0 { // body was already sent
+		return
+	}
 	if len(c.Errors) > 0 {
 		c.JSON(-1, gin.H{"error": camelCasedStatus(c.Writer.Status()), "description": strings.Join(c.Errors.Errors(), ", ")})
+		return
 	}
-	if c.IsAborted() && c.Writer.Size() == 0 { // request is aborted and body is missing
+	if c.IsAborted() {
 		statusCode := c.Writer.Status()
 		if statusCode >= http.StatusBadRequest {
 			c.JSON(-1, gin.H{"error": camelCasedStatus(statusCode)})
@@ -23,7 +27,7 @@ func errorsMiddleware(c *gin.Context) {
 }
 
 func camelCasedStatus(code int) string {
-	var lastSpace bool
+	lastSpace := true
 	return strings.Map(func(r rune) rune {
 		switch {
 		case !runes.In(unicode.Letter).Contains(r):

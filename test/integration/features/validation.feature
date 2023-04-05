@@ -10,7 +10,7 @@ Feature: request and response validation
     And the response should match json:
       """
       {
-        "error": "notFound"
+        "error": "NotFound"
       }
       """
 
@@ -20,6 +20,6 @@ Feature: request and response validation
     And the response should match json:
       """
       {
-        "error": "methodNotAllowed"
+        "error": "MethodNotAllowed"
       }
       """

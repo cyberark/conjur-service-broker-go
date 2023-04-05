@@ -11,8 +11,12 @@ import (
 // ServiceInstanceDeprovision deprovision a service instance
 // (DELETE /v2/service_instances/{instance_id})
 func (*server) ServiceInstanceDeprovision(c *gin.Context, instanceID string, params ServiceInstanceDeprovisionParams) {
-	// That's all folks!
-	c.Status(http.StatusOK)
+	if err := validateServiceAndPlan(params.ServiceId, &params.PlanId); err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // ServiceInstanceGet get a service instance
@@ -36,8 +40,7 @@ func (*server) ServiceInstanceUpdate(c *gin.Context, instanceID string, params S
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
 		return
 	}
-
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // ServiceInstanceProvision provision a service instance
