@@ -47,8 +47,8 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, instanceID string, par
 	ctxParams := parseContext(body.Context)
 	orgSpace := conjur.NewOrgSpace(
 		s.client,
-		ctxParams.OrgId,
-		ctxParams.SpaceId,
+		ctxParams.OrgID,
+		ctxParams.SpaceID,
 		ctxParams.OrgName,
 		ctxParams.SpaceName,
 	)

@@ -14,9 +14,9 @@ const (
 
 type context struct {
 	Platform  string  `json:"platform"`
-	OrgId     string  `json:"organization_guid"`
+	OrgID     string  `json:"organization_guid"`
 	OrgName   *string `json:"organization_name"`
-	SpaceId   string  `json:"space_guid"`
+	SpaceID   string  `json:"space_guid"`
 	SpaceName *string `json:"space_name"`
 }
 

@@ -26,8 +26,10 @@ type Client interface {
 	CheckPermission(resourceID string, privilege ...Privilege) (bool, error)
 	CheckVariablePermission(variableID string, privilege ...VariablePrivilege) (bool, error)
 	UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, error)
+	ReplacePolicy(policy io.Reader) (*conjurapi.PolicyResponse, error)
 	CheckResource(resourceID string) (bool, error)
 	RoleExists(roleID string) (bool, error)
+	RotateAPIKey(roleID string) error
 	Platform() (string, error)
 
 	Config() *Config
@@ -136,6 +138,19 @@ func (c *client) UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, erro
 	return res, nil
 }
 
+// ReplacePolicy completely replaces an existing policy, implicitly deleting data which is not present in the new policy
+func (c *client) ReplacePolicy(policy io.Reader) (*conjurapi.PolicyResponse, error) {
+	res, err := c.client.LoadPolicy(
+		conjurapi.PolicyModePut,
+		c.config.ConjurPolicy,
+		policy,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 // CheckResource checks for an existence of a resource with a given id
 func (c *client) CheckResource(resourceID string) (bool, error) {
 	spacePolicy, err := c.roClient.Resource(resourceID)
@@ -155,6 +170,15 @@ func (c *client) RoleExists(roleID string) (bool, error) {
 		return false, fmt.Errorf("unable to find role %v: %w", roleID, err)
 	}
 	return roleExists, nil
+}
+
+// RotateAPIKey checks for an existence of a role with a given id
+func (c *client) RotateAPIKey(roleID string) error {
+	_, err := c.client.RotateAPIKey(roleID)
+	if err != nil {
+		return fmt.Errorf("unable to rotate API key for role %v: %w", roleID, err)
+	}
+	return nil
 }
 
 func (c *client) basePolicy() string {

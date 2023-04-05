@@ -29,6 +29,7 @@ type CreatedPolicy struct {
 type Bind interface {
 	CreatePolicy() (*CreatedPolicy, error)
 	HostExists() (bool, error)
+	DeletePolicy() error
 }
 
 func NewBind(client Client, orgID, spaceID, bindingID string) Bind {
@@ -61,6 +62,22 @@ func (b *bind) CreatePolicy() (*CreatedPolicy, error) {
 		return nil, err
 	}
 	return b.onlyPolicy(policy)
+}
+
+func (b *bind) DeletePolicy() error {
+	err := b.client.RotateAPIKey(b.hostID)
+	if err != nil {
+		return err
+	}
+	yaml, err := b.deleteBindYAML()
+	if err != nil {
+		return err
+	}
+	_, err = b.client.ReplacePolicy(yaml)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*CreatedPolicy, error) {

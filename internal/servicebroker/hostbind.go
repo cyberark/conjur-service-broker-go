@@ -14,9 +14,31 @@ type hostBindServer struct {
 
 // ServiceBindingUnbinding deprovision a service binding
 // (DELETE /v2/service_instances/{instance_id}/service_bindings/{binding_id})
-func (*hostBindServer) ServiceBindingUnbinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingUnbindingParams) {
-	// TODO: Implement me
-	c.Status(http.StatusNotImplemented)
+func (s *hostBindServer) ServiceBindingUnbinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingUnbindingParams) {
+	if err := validateServiceAndPlan(params.ServiceId, params.PlanId); err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
+		return
+	}
+
+	// TODO: how to persist org and space id?
+	bind := conjur.NewBind(s.client, "", "", bindingID)
+
+	hostExists, err := bind.HostExists()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
+		return
+	}
+	if !hostExists {
+		c.AbortWithError(http.StatusGone, fmt.Errorf("host doesn't exists"))
+		return
+	}
+
+	err = bind.DeletePolicy()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to delete policy: %w", err))
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // ServiceBindingGet get a service binding
@@ -44,7 +66,7 @@ func (s *hostBindServer) ServiceBindingBinding(c *gin.Context, instanceID string
 
 	ctxParams := parseContext(body.Context)
 
-	bind := conjur.NewBind(s.client, ctxParams.OrgId, ctxParams.SpaceId, bindingID)
+	bind := conjur.NewBind(s.client, ctxParams.OrgID, ctxParams.SpaceID, bindingID)
 	hostExists, err := bind.HostExists()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
