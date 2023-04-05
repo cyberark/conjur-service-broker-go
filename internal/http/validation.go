@@ -3,8 +3,11 @@ package http
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/cyberark/conjur-service-broker/internal/servicebroker"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/getkin/kin-openapi/routers"
@@ -12,7 +15,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func OpenAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
+func validatorMiddleware(ctx context.Context) (gin.HandlerFunc, error) {
+	openAPI, err := servicebroker.GetSwagger()
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize open api validator: %w", err)
+	}
+	openAPI.Servers = nil // temporary workaround: https://github.com/deepmap/oapi-codegen/issues/710
+
+	err = openAPI.Validate(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to validate open api definition: %w", err)
+	}
+
+	validator, err := openAPIValidator(openAPI)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create open api validator: %w", err)
+	}
+	return validator, nil
+}
+
+func openAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 	ctx := context.Background()
 
 	router, err := gorillamux.NewRouter(spec)
@@ -38,11 +60,32 @@ func OpenAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 			Options:    validatorOpts(),
 		})
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "badRequest", "description": err.Error()})
+			errMsg := errMsg(err)
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "validationError", "description": errMsg})
 			return
 		}
 		c.Next()
 	}, nil
+}
+
+func errMsg(err error) string {
+	switch e := err.(type) {
+	case openapi3.MultiError:
+		errMsgs := make([]string, len(e))
+		for _, errs := range e {
+			errMsgs = append(errMsgs, errMsg(errs))
+		}
+		return strings.Join(errMsgs, " ")
+	case *openapi3filter.RequestError:
+		if e.Err == nil {
+			return e.Error()
+		}
+		return fmt.Sprintf("%s %s", e.Reason, errMsg(e.Err))
+	case *openapi3.SchemaError:
+		return e.Reason
+	default:
+		return err.Error()
+	}
 }
 
 func validatorOpts() *openapi3filter.Options {

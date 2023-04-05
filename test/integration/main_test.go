@@ -22,8 +22,10 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	})
 	ctx.Step(`^my basic auth credentials are incorrect$`, api.myBasicAuthCredentialsAreIncorrect)
 	ctx.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendrequestTo)
+	ctx.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
 	ctx.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
-	ctx.Step(`^the response should match json:$`, api.theResponseShouldMatchJSON)
+	ctx.Step(`^the response should match json:$`, api.theResponseShouldMatchJSONBody)
+	ctx.Step(`^the response should match json "([^"]*)"$`, api.theResponseShouldMatchJSON)
 }
 
 func TestIntegration(t *testing.T) {

@@ -60,11 +60,11 @@ func strOrNil(ctx *Context, name string) *string {
 	return &s
 }
 
-func validateServiceAndPlan(serviceID, planID string) error {
+func validateServiceAndPlan(serviceID string, planID *string) error {
 	if serviceID != expectedServiceID {
 		return fmt.Errorf("invalid serviceID expected %v, got %v", expectedServiceID, serviceID)
 	}
-	if planID != expectedPlanID {
+	if planID != nil && *planID != expectedPlanID {
 		return fmt.Errorf("invalid planID expected %v, got %v", expectedPlanID, planID)
 	}
 	return nil

@@ -15,7 +15,7 @@ type hostBindServer struct {
 // ServiceBindingUnbinding deprovision a service binding
 // (DELETE /v2/service_instances/{instance_id}/service_bindings/{binding_id})
 func (s *hostBindServer) ServiceBindingUnbinding(c *gin.Context, instanceID string, bindingID string, params ServiceBindingUnbindingParams) {
-	if err := validateServiceAndPlan(params.ServiceId, params.PlanId); err != nil {
+	if err := validateServiceAndPlan(params.ServiceId, &params.PlanId); err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
 		return
 	}
@@ -59,7 +59,7 @@ func (s *hostBindServer) ServiceBindingBinding(c *gin.Context, instanceID string
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
 		return
 	}
-	if err = validateServiceAndPlan(body.ServiceId, body.PlanId); err != nil {
+	if err = validateServiceAndPlan(body.ServiceId, &body.PlanId); err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
 		return
 	}

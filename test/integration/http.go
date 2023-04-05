@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/cucumber/godog"
@@ -33,15 +34,20 @@ func (a *httpFeature) myBasicAuthCredentialsAreIncorrect() error {
 	return nil
 }
 
-func (a *httpFeature) iSendrequestTo(method, endpoint string) (err error) {
+func (a *httpFeature) iSendRequestToWithBody(method, endpoint string, bodyDocString *godog.DocString) (err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, method, a.cfg.ServiceURL+endpoint, nil)
+	var body io.Reader
+	if bodyDocString != nil {
+		body = strings.NewReader(bodyDocString.Content)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, a.cfg.ServiceURL+endpoint, body)
 	if err != nil {
 		return
 	}
 
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Broker-API-Version", "2.17")
 
 	if len(a.cfg.BasicAuthPassword) > 0 {
@@ -72,6 +78,10 @@ func (a *httpFeature) iSendrequestTo(method, endpoint string) (err error) {
 	return nil
 }
 
+func (a *httpFeature) iSendrequestTo(method, endpoint string) (err error) {
+	return a.iSendRequestToWithBody(method, endpoint, nil)
+}
+
 func (a *httpFeature) theResponseCodeShouldBe(code int) error {
 	if code != a.resp.StatusCode {
 		return fmt.Errorf("expected response code to be: %d, but actual is: %d %s\n\n%v\n", code, a.resp.StatusCode, a.resp.Status, a.body)
@@ -79,9 +89,16 @@ func (a *httpFeature) theResponseCodeShouldBe(code int) error {
 	return nil
 }
 
-func (a *httpFeature) theResponseShouldMatchJSON(body *godog.DocString) (err error) {
+func (a *httpFeature) theResponseShouldMatchJSONBody(body *godog.DocString) (err error) {
+	return a.theResponseShouldMatchJSON(body.Content)
+}
+
+func (a *httpFeature) theResponseShouldMatchJSON(body string) (err error) {
+	if len(a.body) == 0 {
+		return fmt.Errorf("server response is empty")
+	}
 	diffOpts := jsondiff.DefaultConsoleOptions()
-	res, diff := jsondiff.Compare([]byte(body.Content), []byte(a.body), &diffOpts)
+	res, diff := jsondiff.Compare([]byte(body), []byte(a.body), &diffOpts)
 
 	if res != jsondiff.FullMatch {
 		return fmt.Errorf("expected JSON does not match actual: %s\n%v", diff, a.body)

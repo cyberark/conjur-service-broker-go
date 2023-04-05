@@ -31,26 +31,18 @@ func StartHTTPServer() error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.Default()
-	openAPI, err := servicebroker.GetSwagger()
-	if err != nil {
-		return fmt.Errorf("failed to initialize open api validator: %w", err)
-	}
-	openAPI.Servers = nil // temporary workaround: https://github.com/deepmap/oapi-codegen/issues/710
 
-	err = openAPI.Validate(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to validate open api definition: %w", err)
-	}
+	r.Use(errorsMiddleware)
 
-	validator, err := OpenAPIValidator(openAPI)
-	if err != nil {
-		return fmt.Errorf("failed to create open api validator: %w", err)
-	}
-
-	r.Use(validator, errorsMiddleware)
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
 		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
 	}
+	validator, err := validatorMiddleware(ctx)
+	if err != nil {
+		return err
+	}
+	r.Use(validator)
+
 	r = servicebroker.RegisterHandlers(r, srv)
 	// TODO: graceful shutdown
 	err = r.Run()

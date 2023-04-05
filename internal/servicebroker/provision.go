@@ -25,7 +25,18 @@ func (*server) ServiceInstanceGet(c *gin.Context, instanceID string, params Serv
 // ServiceInstanceUpdate update a service instance
 // (PATCH /v2/service_instances/{instance_id})
 func (*server) ServiceInstanceUpdate(c *gin.Context, instanceID string, params ServiceInstanceUpdateParams) {
-	// That's all folks!
+	body := ServiceInstanceUpdateJSONRequestBody{}
+	err := c.BindJSON(&body)
+	if err != nil {
+		// TODO: handle error from AbortWithError
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
+		return
+	}
+	if err = validateServiceAndPlan(body.ServiceId, body.PlanId); err != nil {
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
+		return
+	}
+
 	c.Status(http.StatusOK)
 }
 
@@ -39,7 +50,7 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, instanceID string, par
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
 		return
 	}
-	if err = validateServiceAndPlan(body.ServiceId, body.PlanId); err != nil {
+	if err = validateServiceAndPlan(body.ServiceId, &body.PlanId); err != nil {
 		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
 		return
 	}
