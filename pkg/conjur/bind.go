@@ -14,6 +14,7 @@ type bind struct {
 	spaceID   string
 	bindingID string
 	hostID    string
+	policy    string
 	client    Client
 }
 
@@ -38,6 +39,7 @@ func NewBind(client Client, orgID, spaceID, bindingID string) Bind {
 		spaceID:   spaceID,
 		bindingID: bindingID,
 		client:    client,
+		policy:    client.Config().ConjurPolicy,
 	}
 	res.hostID = hostID(res)
 	return res
@@ -48,7 +50,7 @@ func hostID(b *bind) string {
 	if b.useSpace() {
 		res = append(res, b.orgID, b.spaceID)
 	}
-	res = append(res, b.client.Config().ConjurPolicy+"/"+b.bindingID)
+	res = append(res, b.policy+"/"+b.bindingID)
 	return strings.Join(res, ":")
 }
 
@@ -57,7 +59,7 @@ func (b *bind) CreatePolicy() (*CreatedPolicy, error) {
 	if err != nil {
 		return nil, err
 	}
-	policy, err := b.client.UpsertPolicy(yaml)
+	policy, err := b.client.UpsertPolicy(yaml, b.policy)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +75,7 @@ func (b *bind) DeletePolicy() error {
 	if err != nil {
 		return err
 	}
-	_, err = b.client.ReplacePolicy(yaml)
+	_, err = b.client.ReplacePolicy(yaml, b.policy)
 	if err != nil {
 		return err
 	}

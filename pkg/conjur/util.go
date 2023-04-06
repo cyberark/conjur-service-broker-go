@@ -1,8 +1,11 @@
 package conjur
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/cyberark/conjur-api-go/conjurapi"
 )
 
 //go:generate stringer -type=Kind -linecomment -output kind.gen.go
@@ -63,4 +66,21 @@ func composeID(account string, kind Kind, identifier string) string {
 		res = append(res, identifier)
 	}
 	return strings.Join(res, ":")
+}
+
+func apiKey(policy *conjurapi.PolicyResponse) (string, error) {
+	if len(policy.CreatedRoles) < 1 {
+		return "", fmt.Errorf("expecting at least one created role")
+	}
+	var roleID string
+	var role conjurapi.CreatedRole
+	for k, v := range policy.CreatedRoles {
+		roleID = k
+		role = v
+		break
+	}
+	if roleID != role.ID {
+		return "", fmt.Errorf("creatred role ID do not match %v != %v", roleID, role.ID)
+	}
+	return role.APIKey, nil
 }

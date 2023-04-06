@@ -26,3 +26,5 @@ const (
 	// VariablePrivilegeUpdate update
 	VariablePrivilegeUpdate // update
 )
+
+const spaceHostAPIKey = "space-host-api-key"

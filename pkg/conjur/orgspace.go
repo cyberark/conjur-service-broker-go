@@ -12,6 +12,8 @@ type orgSpace struct {
 	orgName   string
 	spaceID   string
 	spaceName string
+	account   string
+	policy    string
 	client    Client
 }
 
@@ -23,10 +25,13 @@ type OrgSpace interface {
 
 // NewOrgSpace creates an OrgSpace based on
 func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *string) OrgSpace {
+	cfg := client.Config()
 	res := &orgSpace{
 		orgID:   orgID,
 		spaceID: spaceID,
 		client:  client,
+		policy:  cfg.ConjurPolicy,
+		account: cfg.ConjurAccount,
 	}
 	if orgName != nil {
 		res.orgName = *orgName
@@ -37,19 +42,20 @@ func NewOrgSpace(client Client, orgID, spaceID string, orgName, spaceName *strin
 	return res
 }
 
-func (o *orgSpace) orgPolicyID() string {
-	config := o.client.Config()
-	return fmt.Sprintf("%v:policy:%v/%v", config.ConjurAccount, config.ConjurPolicy, o.orgID)
+func (o *orgSpace) orgSpacePolicyID() string {
+	return fmt.Sprintf("%s/%s/%s", o.policy, o.orgID, o.spaceID)
 }
 
-func (o *orgSpace) spacePolicyID() string {
-	config := o.client.Config()
-	return fmt.Sprintf("%v:policy:%v/%v/%v", config.ConjurAccount, config.ConjurPolicy, o.orgID, o.spaceID)
+func (o *orgSpace) orgPolicyResourceID() string {
+	return composeID(o.account, KindPolicy, fmt.Sprintf("%s/%s", o.policy, o.orgID))
 }
 
-func (o *orgSpace) spaceLayerID() string {
-	config := o.client.Config()
-	return fmt.Sprintf("%v:layer:%v/%v/%v", config.ConjurAccount, config.ConjurPolicy, o.orgID, o.spaceID)
+func (o *orgSpace) spacePolicyResourceID() string {
+	return composeID(o.account, KindPolicy, fmt.Sprintf("%s/%s/%s", o.policy, o.orgID, o.spaceID))
+}
+
+func (o *orgSpace) spaceLayerResourceID() string {
+	return composeID(o.account, KindLayer, fmt.Sprintf("%s/%s/%s", o.policy, o.orgID, o.spaceID))
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space
@@ -58,27 +64,44 @@ func (o *orgSpace) CreatePolicy() error {
 	if err != nil {
 		return err
 	}
-	_, err = o.client.UpsertPolicy(yaml)
-	return err
+	_, err = o.client.UpsertPolicy(yaml, o.policy)
+	if exists, err := o.Exists(); err != nil || !exists {
+		return fmt.Errorf("failed to validate policy exists: %w", err)
+	}
+	// TODO: check toggle
+	yaml, err = o.createSpaceHostYAML()
+	if err != nil {
+		return err
+	}
+	policy, err := o.client.UpsertPolicy(yaml, o.orgSpacePolicyID())
+	apiKey, err := apiKey(policy)
+	if err != nil {
+		return err
+	}
+	err = o.client.SetVariable(fmt.Sprintf("%s/%s", o.orgSpacePolicyID(), spaceHostAPIKey), apiKey)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Exists checks existence of conjur org and space policies
 func (o *orgSpace) Exists() (bool, error) {
-	ok, err := o.client.CheckResource(o.orgPolicyID())
+	ok, err := o.client.CheckResource(o.orgPolicyResourceID())
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return ok, nil
 	}
-	ok, err = o.client.CheckResource(o.spacePolicyID())
+	ok, err = o.client.CheckResource(o.spacePolicyResourceID())
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return ok, nil
 	}
-	ok, err = o.client.CheckResource(o.spaceLayerID())
+	ok, err = o.client.CheckResource(o.spaceLayerResourceID())
 	if err != nil {
 		return false, err
 	}
@@ -107,6 +130,25 @@ func (o *orgSpace) createOrgSpaceYAML() (io.Reader, error) {
 					Member: conjurpolicy.LayerRef(o.spaceID),
 				},
 			},
+		},
+	}
+	return policyReader(policy)
+}
+
+func (o *orgSpace) createSpaceHostYAML() (io.Reader, error) {
+	policy := conjurpolicy.PolicyStatements{
+		conjurpolicy.Host{},
+		conjurpolicy.Grant{
+			Role:   conjurpolicy.LayerRef(""),
+			Member: conjurpolicy.HostRef(""),
+		},
+		conjurpolicy.Variable{
+			Id: spaceHostAPIKey,
+		},
+		conjurpolicy.Permit{
+			Role:       conjurpolicy.HostRef("/" + o.client.ClientHostID()),
+			Privileges: []conjurpolicy.Privilege{conjurpolicy.PrivilegeRead},
+			Resources:  conjurpolicy.VariableRef(spaceHostAPIKey),
 		},
 	}
 	return policyReader(policy)

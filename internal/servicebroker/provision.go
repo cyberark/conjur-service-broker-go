@@ -70,10 +70,6 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, instanceID string, par
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
 		return
 	}
-	if exists, err := orgSpace.Exists(); err != nil || !exists {
-		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to validate policy exists: %w", err))
-		return
-	}
 	c.JSON(http.StatusCreated, gin.H{})
 }
 

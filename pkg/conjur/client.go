@@ -25,14 +25,16 @@ func init() {
 type Client interface {
 	CheckPermission(resourceID string, privilege ...Privilege) (bool, error)
 	CheckVariablePermission(variableID string, privilege ...VariablePrivilege) (bool, error)
-	UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, error)
-	ReplacePolicy(policy io.Reader) (*conjurapi.PolicyResponse, error)
+	UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
+	ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
+	SetVariable(variableID, secret string) error
 	CheckResource(resourceID string) (bool, error)
 	RoleExists(roleID string) (bool, error)
 	RotateAPIKey(roleID string) error
 	Platform() (string, error)
 
 	Config() *Config
+	ClientHostID() string
 	ValidateConnectivity() error
 }
 
@@ -126,10 +128,10 @@ func (c *client) CheckVariablePermission(variableID string, privilege ...Variabl
 }
 
 // UpsertPolicy creates or updates (appends) a policy
-func (c *client) UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, error) {
+func (c *client) UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
 	res, err := c.client.LoadPolicy(
 		conjurapi.PolicyModePost,
-		c.config.ConjurPolicy,
+		policyID,
 		policy,
 	)
 	if err != nil {
@@ -139,10 +141,10 @@ func (c *client) UpsertPolicy(policy io.Reader) (*conjurapi.PolicyResponse, erro
 }
 
 // ReplacePolicy completely replaces an existing policy, implicitly deleting data which is not present in the new policy
-func (c *client) ReplacePolicy(policy io.Reader) (*conjurapi.PolicyResponse, error) {
+func (c *client) ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
 	res, err := c.client.LoadPolicy(
 		conjurapi.PolicyModePut,
-		c.config.ConjurPolicy,
+		policyID,
 		policy,
 	)
 	if err != nil {
@@ -170,6 +172,11 @@ func (c *client) RoleExists(roleID string) (bool, error) {
 		return false, fmt.Errorf("unable to find role %v: %w", roleID, err)
 	}
 	return roleExists, nil
+}
+
+// SetVariable sets a secret variable
+func (c *client) SetVariable(variableID, secret string) error {
+	return c.client.AddSecret(variableID, secret)
 }
 
 // RotateAPIKey checks for an existence of a role with a given id

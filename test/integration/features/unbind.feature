@@ -53,6 +53,7 @@ Feature: Unbinding
     And the response code should be 200
     And conjur credentials are invalid
 
+# TODO: add test for service broker host api key rotation scenario
 #  Scenario: Unbind with incorrect Conjur credentials
 #    Given I make a bind request with body:
 #    """
