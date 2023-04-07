@@ -8,12 +8,12 @@ import (
 func Test_createOrgSpace(t *testing.T) {
 	tests := []struct {
 		name string
-		args *orgSpace
+		args *provision
 		want string
 	}{
 		{
 			"just IDs",
-			&orgSpace{
+			&provision{
 				orgID:   "1 # 2",
 				spaceID: "2",
 			}, `- !policy
@@ -30,7 +30,7 @@ func Test_createOrgSpace(t *testing.T) {
 `,
 		}, {
 			"with annotations",
-			&orgSpace{
+			&provision{
 				orgID:     "3",
 				orgName:   "org",
 				spaceID:   "4",

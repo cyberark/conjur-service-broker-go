@@ -8,13 +8,11 @@ import (
 
 // server service broker server implementation
 type server struct {
-	client conjur.Client
+	client              conjur.Client
+	enableSpaceIdentity bool
 }
 
 // NewServerImpl creates the webservice implementation
 func NewServerImpl(client conjur.Client, enableSpaceIdentity bool) ServerInterface {
-	if enableSpaceIdentity {
-		return &spaceBindServer{server{client}}
-	}
-	return &hostBindServer{server{client}}
+	return &server{client, enableSpaceIdentity}
 }

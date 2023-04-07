@@ -59,12 +59,13 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, instanceID string, par
 	}
 
 	ctxParams := parseContext(body.Context)
-	orgSpace := conjur.NewOrgSpace(
+	orgSpace := conjur.NewProvision(
 		s.client,
 		ctxParams.OrgID,
 		ctxParams.SpaceID,
 		ctxParams.OrgName,
 		ctxParams.SpaceName,
+		s.enableSpaceIdentity,
 	)
 	if err = orgSpace.CreatePolicy(); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
