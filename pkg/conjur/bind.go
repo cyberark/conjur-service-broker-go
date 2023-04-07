@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
+	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/doodlesbykumbi/conjur-policy-go/pkg/conjurpolicy"
 )
 
@@ -31,9 +32,9 @@ type CreatedPolicy struct {
 
 // Bind allows operations needed for binding an instance
 type Bind interface {
-	CreatePolicy() (*CreatedPolicy, error)
-	HostExists() (bool, error)
-	DeletePolicy() error
+	CreatePolicy(ctxutil.Context) (*CreatedPolicy, error)
+	HostExists(ctxutil.Context) (bool, error)
+	DeletePolicy(ctxutil.Context) error
 }
 
 // NewBind creates new binding service
@@ -58,7 +59,7 @@ func hostID(b *bind) string {
 	return strings.Join(res, ":")
 }
 
-func (b *bind) CreatePolicy() (*CreatedPolicy, error) {
+func (b *bind) CreatePolicy(ctxutil.Context) (*CreatedPolicy, error) {
 	yaml, err := b.createBindYAML()
 	if err != nil {
 		return nil, err
@@ -70,7 +71,7 @@ func (b *bind) CreatePolicy() (*CreatedPolicy, error) {
 	return b.onlyPolicy(policy)
 }
 
-func (b *bind) DeletePolicy() error {
+func (b *bind) DeletePolicy(ctxutil.Context) error {
 	err := b.client.RotateAPIKey(b.hostID)
 	if err != nil {
 		return err
@@ -115,7 +116,7 @@ func dropAccount(id string) string {
 	return strings.Join([]string{kind.String(), identifier}, "/")
 }
 
-func (b *bind) HostExists() (bool, error) {
+func (b *bind) HostExists(ctxutil.Context) (bool, error) {
 	return b.client.RoleExists(b.hostID)
 }
 

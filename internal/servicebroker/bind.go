@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +16,7 @@ func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID str
 	// TODO: how to persist org and space id?
 	bind := conjur.NewBind(s.client, "", "", bindingID)
 
-	hostExists, err := bind.HostExists()
+	hostExists, err := bind.HostExists(ctxutil.Ctx(c))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
 		return
@@ -25,7 +26,7 @@ func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID str
 		return
 	}
 
-	err = bind.DeletePolicy()
+	err = bind.DeletePolicy(ctxutil.Ctx(c))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to delete policy: %w", err))
 		return
@@ -55,7 +56,7 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 	ctxParams := parseContext(body.Context)
 
 	bind := conjur.NewBind(s.client, ctxParams.OrgID, ctxParams.SpaceID, bindingID)
-	hostExists, err := bind.HostExists()
+	hostExists, err := bind.HostExists(ctxutil.Ctx(c))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
 		return
@@ -64,7 +65,7 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 		_ = c.AbortWithError(http.StatusConflict, fmt.Errorf("host already exists"))
 		return
 	}
-	policy, err := bind.CreatePolicy()
+	policy, err := bind.CreatePolicy(ctxutil.Ctx(c))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
 		return

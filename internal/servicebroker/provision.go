@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-gonic/gin"
 )
@@ -24,13 +25,6 @@ func (*server) ServiceInstanceGet(c *gin.Context, _ string, _ ServiceInstanceGet
 // ServiceInstanceUpdate update a service instance
 // (PATCH /v2/service_instances/{instance_id})
 func (*server) ServiceInstanceUpdate(c *gin.Context, _ string, _ ServiceInstanceUpdateParams) {
-	body := ServiceInstanceUpdateJSONRequestBody{}
-	err := c.BindJSON(&body)
-	if err != nil {
-		// TODO: handle error from AbortWithError
-		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
-		return
-	}
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -52,9 +46,8 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, _ string, _ ServiceIns
 		ctxParams.SpaceID,
 		ctxParams.OrgName,
 		ctxParams.SpaceName,
-		s.enableSpaceIdentity,
 	)
-	if err = orgSpace.CreatePolicy(); err != nil {
+	if err = orgSpace.CreatePolicy(ctxutil.Ctx(c)); err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
 		return
 	}

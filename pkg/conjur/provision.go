@@ -4,36 +4,35 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/doodlesbykumbi/conjur-policy-go/pkg/conjurpolicy"
 )
 
 type provision struct {
-	orgID             string
-	orgName           string
-	spaceID           string
-	spaceName         string
-	account           string
-	policy            string
-	spaceHostIdentity bool
-	client            Client
+	orgID     string
+	orgName   string
+	spaceID   string
+	spaceName string
+	account   string
+	policy    string
+	client    Client
 }
 
 // Provision allows basic operations on the organization and space
 type Provision interface {
-	CreatePolicy() error
+	CreatePolicy(ctx ctxutil.Context) error
 	Exists() (bool, error)
 }
 
 // NewProvision creates a Provision based on provided configuration
-func NewProvision(client Client, orgID, spaceID string, orgName, spaceName *string, spaceHostIdentity bool) Provision {
+func NewProvision(client Client, orgID, spaceID string, orgName, spaceName *string) Provision {
 	cfg := client.Config()
 	res := &provision{
-		orgID:             orgID,
-		spaceID:           spaceID,
-		client:            client,
-		policy:            cfg.ConjurPolicy,
-		account:           cfg.ConjurAccount,
-		spaceHostIdentity: spaceHostIdentity,
+		orgID:   orgID,
+		spaceID: spaceID,
+		client:  client,
+		policy:  cfg.ConjurPolicy,
+		account: cfg.ConjurAccount,
 	}
 	if orgName != nil {
 		res.orgName = *orgName
@@ -61,7 +60,7 @@ func (o *provision) spaceLayerResourceID() string {
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space
-func (o *provision) CreatePolicy() error {
+func (o *provision) CreatePolicy(ctx ctxutil.Context) error {
 	yaml, err := o.createOrgSpaceYAML()
 	if err != nil {
 		return err
@@ -73,7 +72,7 @@ func (o *provision) CreatePolicy() error {
 	if exists, err := o.Exists(); err != nil || !exists {
 		return fmt.Errorf("failed to validate policy exists: %w", err)
 	}
-	if !o.spaceHostIdentity {
+	if !ctx.IsEnableSpaceIdentity() {
 		return nil
 	}
 	yaml, err = o.createSpaceHostYAML()
