@@ -1,3 +1,4 @@
+// Package conjur provides a wrapper around conjur go SDK
 package conjur
 
 import (
@@ -18,21 +19,24 @@ type bind struct {
 	client    Client
 }
 
+// CreatedPolicy is a result of policy creation
 type CreatedPolicy struct {
 	Account        string `json:"account"`
-	ApplianceUrl   string `json:"appliance_url"`
+	ApplianceURL   string `json:"appliance_url"`
 	AuthnLogin     string `json:"authn_login"`
-	AuthnApiKey    string `json:"authn_api_key"`
+	AuthnAPIKey    string `json:"authn_api_key"`
 	SslCertificate string `json:"ssl_certificate"`
 	Version        uint32 `json:"version"`
 }
 
+// Bind allows operations needed for binding an instance
 type Bind interface {
 	CreatePolicy() (*CreatedPolicy, error)
 	HostExists() (bool, error)
 	DeletePolicy() error
 }
 
+// NewBind creates new binding service
 func NewBind(client Client, orgID, spaceID, bindingID string) Bind {
 	res := &bind{
 		orgID:     orgID,
@@ -98,9 +102,9 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*CreatedPolicy, err
 	config := b.client.Config()
 	return &CreatedPolicy{
 		Account:        config.ConjurAccount,
-		ApplianceUrl:   config.ConjurApplianceURL,
+		ApplianceURL:   config.ConjurApplianceURL,
 		AuthnLogin:     dropAccount(roleID),
-		AuthnApiKey:    role.APIKey,
+		AuthnAPIKey:    role.APIKey,
 		SslCertificate: config.ConjurSSLCertificate,
 		Version:        config.ConjurVersion,
 	}, nil

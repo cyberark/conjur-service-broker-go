@@ -16,7 +16,7 @@ contributions.
 
 Report security bugs by emailing the lead maintainers at security@conjur.org.
 
-The maintainers will acknowledge your email within 2 business days. Subsequently, we will 
+The maintainers will acknowledge your email within 2 business days. Subsequently, we will
 send a more detailed response within 2 business days of our acknowledgement indicating
 the next steps in handling your report. After the initial reply to your report, the security
 team will endeavor to keep you informed of the progress towards a fix and full

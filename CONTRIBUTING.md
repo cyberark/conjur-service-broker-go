@@ -17,6 +17,17 @@ For general contribution and community guidelines, please see the [community rep
 TODO:
 [What development tools are required to start working on this project?]
 
+### Pre commit
+
+Install the tool following the instructions:
+https://pre-commit.com/index.html#install
+
+For brew users it should be as simple as:
+``` brew install pre-commit ```
+
+Install tools needed by pre-commit, this script will also use pre-commit tool to install git hooks, for details check:
+``` ./scripts/precommit-init.sh ```
+
 ## Testing
 
 TODO:

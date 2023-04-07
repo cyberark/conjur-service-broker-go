@@ -38,10 +38,7 @@ func str(ctx *Context, name string) string {
 	if !found {
 		return ""
 	}
-	s, ok := v.(string)
-	if !ok {
-		return ""
-	}
+	s, _ := v.(string)
 	return s
 }
 
@@ -53,7 +50,7 @@ func strOrNil(ctx *Context, name string) *string {
 	if !found {
 		return nil
 	}
-	s, ok := v.(string)
+	s, ok := v.(string) // nolint:gocritic,sloppyTypeAssert // this is a false positive
 	if !ok {
 		return nil
 	}

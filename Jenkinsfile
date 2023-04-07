@@ -71,7 +71,7 @@ pipeline {
         // Perform any testing here
       }
     }
-  
+
     stage('Release') {
       when {
         expression {

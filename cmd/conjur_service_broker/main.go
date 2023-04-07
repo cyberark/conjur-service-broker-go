@@ -1,3 +1,4 @@
+// Package main is the conjur service broker main binary
 package main
 
 import (

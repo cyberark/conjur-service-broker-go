@@ -9,17 +9,15 @@ import (
 )
 
 type conjur struct {
-	cfg    config
 	api    *httpFeature
-	apiKey string
 	client *conjurapi.Client
 }
 
 type creds struct {
 	Credentials struct {
 		Account        string `json:"account"`
-		ApplianceUrl   string `json:"appliance_url"`
-		AuthnApiKey    string `json:"authn_api_key"`
+		ApplianceURL   string `json:"appliance_url"`
+		AuthnAPIKey    string `json:"authn_api_key"`
 		AuthnLogin     string `json:"authn_login"`
 		SslCertificate string `json:"ssl_certificate"`
 		Version        int    `json:"version"`
@@ -34,10 +32,10 @@ func (c *conjur) iCreateConjurClient() error {
 	}
 	c.client, _ = conjurapi.NewClientFromKey(conjurapi.Config{
 		Account:      cr.Credentials.Account,
-		ApplianceURL: cr.Credentials.ApplianceUrl,
+		ApplianceURL: cr.Credentials.ApplianceURL,
 	}, authn.LoginPair{
 		Login:  cr.Credentials.AuthnLogin,
-		APIKey: cr.Credentials.AuthnApiKey,
+		APIKey: cr.Credentials.AuthnAPIKey,
 	})
 	_, err = c.client.WhoAmI()
 	if err != nil {

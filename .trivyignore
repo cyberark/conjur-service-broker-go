@@ -3,5 +3,5 @@
 # require Security Architect/Champion approval.
 
 # Format is a CVE identifier number alone on an uncommented line.
-# Put comments just above the CVE identifier explaining why we are 
-# not vulnerable. 
+# Put comments just above the CVE identifier explaining why we are
+# not vulnerable.

@@ -77,23 +77,24 @@ func (a *httpFeature) iSendRequestToWithBody(method, endpoint string, bodyDocStr
 	if err != nil {
 		return
 	}
-	defer a.resp.Body.Close()
+
 	bytes, err := io.ReadAll(a.resp.Body)
 	a.body = string(bytes)
 	if err != nil {
+		_ = a.resp.Body.Close()
 		return
 	}
-
+	_ = a.resp.Body.Close()
 	return nil
 }
 
-func (a *httpFeature) iSendrequestTo(method, endpoint string) (err error) {
+func (a *httpFeature) iSendRequestTo(method, endpoint string) (err error) {
 	return a.iSendRequestToWithBody(method, endpoint, nil)
 }
 
 func (a *httpFeature) theResponseCodeShouldBe(code int) error {
 	if code != a.resp.StatusCode {
-		return fmt.Errorf("expected response code to be: %d, but actual is: %d %s\n\n%v\n", code, a.resp.StatusCode, a.resp.Status, a.body)
+		return fmt.Errorf("expected response code to be: %d, but actual is: %d %s\n\n%vF", code, a.resp.StatusCode, a.resp.Status, a.body)
 	}
 	return nil
 }

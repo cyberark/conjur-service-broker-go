@@ -1510,3 +1510,5 @@ func GetSwagger() (swagger *openapi3.T, err error) {
 	}
 	return
 }
+
+//lint:file-ignore ST1005 Ignore generated file

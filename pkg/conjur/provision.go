@@ -24,7 +24,7 @@ type Provision interface {
 	Exists() (bool, error)
 }
 
-// NewProvision creates an Provision based on provided configuration
+// NewProvision creates a Provision based on provided configuration
 func NewProvision(client Client, orgID, spaceID string, orgName, spaceName *string, spaceHostIdentity bool) Provision {
 	cfg := client.Config()
 	res := &provision{
@@ -67,6 +67,9 @@ func (o *provision) CreatePolicy() error {
 		return err
 	}
 	_, err = o.client.UpsertPolicy(yaml, o.policy)
+	if err != nil {
+		return fmt.Errorf("failed to create policy: %w", err)
+	}
 	if exists, err := o.Exists(); err != nil || !exists {
 		return fmt.Errorf("failed to validate policy exists: %w", err)
 	}
@@ -75,9 +78,12 @@ func (o *provision) CreatePolicy() error {
 	}
 	yaml, err = o.createSpaceHostYAML()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create space host level yaml: %w", err)
 	}
 	policy, err := o.client.UpsertPolicy(yaml, o.orgSpacePolicyID())
+	if err != nil {
+		return fmt.Errorf("failed to create space host level policy: %w", err)
+	}
 	apiKey, err := apiKey(policy)
 	if err != nil {
 		return err
@@ -159,14 +165,14 @@ func (o *provision) createSpaceHostYAML() (io.Reader, error) {
 }
 
 func (o *provision) orgAnnotations() map[string]string {
-	if len(o.orgName) == 0 || len(o.orgName) == 0 {
+	if len(o.orgName) == 0 || len(o.spaceName) == 0 {
 		return nil
 	}
 	return map[string]string{"pcf/type": "org", "pcf/orgName": o.orgName}
 }
 
 func (o *provision) spaceAnnotations() map[string]string {
-	if len(o.orgName) == 0 || len(o.orgName) == 0 {
+	if len(o.orgName) == 0 || len(o.spaceName) == 0 {
 		return nil
 	}
 	return map[string]string{"pcf/type": "space", "pcf/orgName": o.orgName, "pcf/spaceName": o.spaceName}

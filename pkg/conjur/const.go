@@ -27,4 +27,4 @@ const (
 	VariablePrivilegeUpdate // update
 )
 
-const spaceHostAPIKey = "space-host-api-key"
+const spaceHostAPIKey = "space-host-api-key" //#nosec G101
