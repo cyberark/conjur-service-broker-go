@@ -1,12 +1,25 @@
 package http
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/cyberark/conjur-service-broker/internal/servicebroker"
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
+	"github.com/gin-contrib/requestid"
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	httpTimeout     = time.Minute      // http timeout
+	httpIdleTimeout = 15 * time.Minute // keep-alive timeout
 )
 
 // StartHTTPServer starts a new http server to handle requests supported by the service broker
@@ -27,13 +40,12 @@ func StartHTTPServer() error {
 	}
 	srv := servicebroker.NewServerImpl(client)
 
-	// TODO: make this production grade gin
 	if !cfg.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	r := gin.Default()
-
-	r.Use(errorsMiddleware)
+	r := gin.New()
+	r.Use(gin.Logger(), gin.Recovery(), requestid.New(), errorsMiddleware)
+	// TODO: trusted proxies, caching headers
 
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
 		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
@@ -45,10 +57,36 @@ func StartHTTPServer() error {
 	r.Use(ctx.Inject(), validator)
 
 	r = servicebroker.RegisterHandlers(r, srv)
-	// TODO: graceful shutdown
-	err = r.Run()
-	if err != nil {
-		return fmt.Errorf("failed to start server: %w", err)
+	httpSrv := &http.Server{
+		Addr:              ":" + cfg.Port,
+		Handler:           r,
+		ReadTimeout:       httpTimeout,
+		WriteTimeout:      httpTimeout,
+		ReadHeaderTimeout: httpTimeout,
+		IdleTimeout:       httpIdleTimeout,
+		MaxHeaderBytes:    1 << 20,
 	}
+	go func() {
+		if err = httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(fmt.Errorf("failed to start server: %w", err))
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	// kill (no param) default send syscanll.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("shutdown server ...")
+
+	c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := httpSrv.Shutdown(c); err != nil {
+		log.Fatal("failed on server shutdown:", err)
+	}
+	// catching ctx.Done(). timeout of 5 seconds.
+	<-ctx.Done()
+	log.Println("server exit")
 	return nil
 }
