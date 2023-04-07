@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/cyberark/conjur-service-broker/internal/servicebroker"
 	"github.com/getkin/kin-openapi/openapi3"
@@ -13,6 +12,11 @@ import (
 	"github.com/getkin/kin-openapi/routers"
 	"github.com/getkin/kin-openapi/routers/gorillamux"
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	expectedServiceID = "c024e536-6dc4-45c6-8a53-127e7f8275ab"
+	expectedPlanID    = "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community"
 )
 
 func validatorMiddleware(ctx context.Context) (gin.HandlerFunc, error) {
@@ -27,20 +31,21 @@ func validatorMiddleware(ctx context.Context) (gin.HandlerFunc, error) {
 		return nil, fmt.Errorf("failed to validate open api definition: %w", err)
 	}
 
-	validator, err := openAPIValidator(openAPI)
+	validator, err := openAPIValidator(addCustomValidations(openAPI))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create open api validator: %w", err)
 	}
+
 	return validator, nil
 }
 
 func openAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 	ctx := context.Background()
-
 	router, err := gorillamux.NewRouter(spec)
 	if err != nil {
 		return nil, err
 	}
+
 	return func(c *gin.Context) {
 
 		route, pathParams, err := router.FindRoute(c.Request)
@@ -60,44 +65,73 @@ func openAPIValidator(spec *openapi3.T) (gin.HandlerFunc, error) {
 			Options:    validatorOpts(),
 		})
 		if err != nil {
-			errMsg := errMsg(err)
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "ValidationError", "description": errMsg})
+			c.AbortWithStatusJSON(errorCode(err), gin.H{"error": "ValidationError", "description": err.Error()})
 			return
 		}
 		c.Next()
 	}, nil
 }
 
-func errMsg(err error) string {
-	switch e := err.(type) {
-	case openapi3.MultiError:
-		errMsgs := make([]string, 0, len(e))
-		for _, errs := range e {
-			errMsgs = append(errMsgs, errMsg(errs))
+func errorCode(err error) int {
+	var e *openapi3filter.RequestError
+	if errors.Is(err, openapi3filter.ErrInvalidRequired) && errors.As(err, &e) {
+		if e.Parameter != nil && e.Parameter.Name == "X-Broker-API-Version" {
+			return http.StatusPreconditionFailed
 		}
-		return strings.Join(errMsgs, " ")
-	case *openapi3filter.RequestError:
-		if e.Err == nil {
-			return e.Error()
-		}
-		if e.Parameter != nil {
-			return fmt.Sprintf("%s %s", e.Parameter.Name, e.Reason)
-		}
-		return fmt.Sprintf("%s %s", e.Reason, errMsg(e.Err))
-	case *openapi3.SchemaError:
-		return e.Reason
-	default:
-		return err.Error()
 	}
+	return http.StatusBadRequest
 }
 
 func validatorOpts() *openapi3filter.Options {
 	// this is needed to satisfy schema validator since it requires authentication func,
 	// the actual authorization is done in gin, due to the issues on handling http error codes
 	// https://github.com/getkin/kin-openapi/issues/479
-	return &openapi3filter.Options{
+	opts := &openapi3filter.Options{
 		IncludeResponseStatus: true,
 		MultiError:            true,
 		AuthenticationFunc:    openapi3filter.NoopAuthenticationFunc,
 	}
+	opts.WithCustomSchemaErrorFunc(func(err *openapi3.SchemaError) string {
+		return err.Reason
+	})
+	return opts
+}
+
+func addCustomValidations(api *openapi3.T) *openapi3.T {
+	api = addCustomQueryParamValidation(api, "/v2/service_instances/{instance_id}", http.MethodDelete)
+	api = addCustomBodyParamValidation(api, "/v2/service_instances/{instance_id}", http.MethodPut)
+	api = addCustomBodyParamValidation(api, "/v2/service_instances/{instance_id}", http.MethodPatch)
+
+	api = addCustomQueryParamValidation(api, "/v2/service_instances/{instance_id}/service_bindings/{binding_id}", http.MethodDelete)
+	api = addCustomBodyParamValidation(api, "/v2/service_instances/{instance_id}/service_bindings/{binding_id}", http.MethodPut)
+
+	api = addCustomBodyParamEmptyValidation(api, "/v2/service_instances/{instance_id}", http.MethodPut, "parameters")
+	api = addCustomBodyParamEmptyValidation(api, "/v2/service_instances/{instance_id}", http.MethodPatch, "parameters")
+	return api
+}
+
+func addCustomQueryParamValidation(api *openapi3.T, path, method string) *openapi3.T {
+	parameters := api.Paths[path].GetOperation(method).Parameters
+	parameters.GetByInAndName("query", "service_id").Schema.Value.Enum = []interface{}{expectedServiceID}
+	parameters.GetByInAndName("query", "plan_id").Schema.Value.Enum = []interface{}{expectedPlanID}
+	return api
+}
+
+func addCustomBodyParamValidation(api *openapi3.T, path, method string) *openapi3.T {
+	content := api.Paths[path].GetOperation(method).RequestBody.Value.Content
+	content.Get("application/json").Schema.Value.Properties["service_id"].Value.Enum = []interface{}{expectedServiceID}
+	content.Get("application/json").Schema.Value.Properties["plan_id"].Value.Enum = []interface{}{expectedPlanID}
+	return api
+}
+
+func addCustomBodyParamEmptyValidation(api *openapi3.T, path, method, param string) *openapi3.T {
+	var zero uint64
+	content := api.Paths[path].GetOperation(method).RequestBody.Value.Content
+	content.Get("application/json").Schema.Value.Properties[param] = &openapi3.SchemaRef{
+		Value: &openapi3.Schema{
+			Type:     "object",
+			MaxProps: &zero,
+		},
+	}
+	return api
 }

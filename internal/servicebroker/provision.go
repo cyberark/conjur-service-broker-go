@@ -10,12 +10,7 @@ import (
 
 // ServiceInstanceDeprovision deprovision a service instance
 // (DELETE /v2/service_instances/{instance_id})
-func (*server) ServiceInstanceDeprovision(c *gin.Context, _ string, params ServiceInstanceDeprovisionParams) {
-	if err := validateServiceAndPlan(params.ServiceId, &params.PlanId); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
-		return
-	}
-
+func (*server) ServiceInstanceDeprovision(c *gin.Context, _ string, _ ServiceInstanceDeprovisionParams) {
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -36,10 +31,6 @@ func (*server) ServiceInstanceUpdate(c *gin.Context, _ string, _ ServiceInstance
 		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
 		return
 	}
-	if err = validateServiceAndPlan(body.ServiceId, body.PlanId); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
-		return
-	}
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -51,10 +42,6 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, _ string, _ ServiceIns
 	if err != nil {
 		// TODO: handle error from AbortWithError
 		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
-		return
-	}
-	if err = validateServiceAndPlan(body.ServiceId, &body.PlanId); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
 		return
 	}
 

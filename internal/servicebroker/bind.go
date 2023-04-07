@@ -11,12 +11,7 @@ import (
 
 // ServiceBindingUnbinding deprovision a service binding
 // (DELETE /v2/service_instances/{instance_id}/service_bindings/{binding_id})
-func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID string, params ServiceBindingUnbindingParams) {
-	if err := validateServiceAndPlan(params.ServiceId, &params.PlanId); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
-		return
-	}
-
+func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID string, _ ServiceBindingUnbindingParams) {
 	// TODO: how to persist org and space id?
 	bind := conjur.NewBind(s.client, "", "", bindingID)
 
@@ -54,10 +49,6 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 	if err != nil {
 		// TODO: handle error from AbortWithError
 		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
-		return
-	}
-	if err = validateServiceAndPlan(body.ServiceId, &body.PlanId); err != nil {
-		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("validation failed: %w", err))
 		return
 	}
 

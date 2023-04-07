@@ -94,7 +94,7 @@ func (a *httpFeature) iSendRequestTo(method, endpoint string) (err error) {
 
 func (a *httpFeature) theResponseCodeShouldBe(code int) error {
 	if code != a.resp.StatusCode {
-		return fmt.Errorf("expected response code to be: %d, but actual is: %d %s\n\n%vF", code, a.resp.StatusCode, a.resp.Status, a.body)
+		return fmt.Errorf("expected response code to be: %d, but actual is: %d %s\n\n%v", code, a.resp.StatusCode, a.resp.Status, a.body)
 	}
 	return nil
 }

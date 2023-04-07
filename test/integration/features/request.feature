@@ -8,6 +8,6 @@ Scenario: A request is sent without the required X-Broker-API-Version header
       """
       {
         "error": "ValidationError",
-        "description": "X-Broker-API-Version value is required but missing"
+        "description": "parameter \"X-Broker-API-Version\" in header has an error: value is required but missing"
       }
       """

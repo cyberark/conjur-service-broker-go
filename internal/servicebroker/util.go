@@ -2,14 +2,8 @@ package servicebroker
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
-)
-
-const (
-	expectedServiceID = "c024e536-6dc4-45c6-8a53-127e7f8275ab"
-	expectedPlanID    = "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community"
 )
 
 type context struct {
@@ -55,17 +49,6 @@ func strOrNil(ctx *Context, name string) *string {
 		return nil
 	}
 	return &s
-}
-
-// TODO: move this validation to middleware
-func validateServiceAndPlan(serviceID string, planID *string) error {
-	if serviceID != expectedServiceID {
-		return fmt.Errorf("invalid serviceID expected %v, got %v", expectedServiceID, serviceID)
-	}
-	if planID != nil && *planID != expectedPlanID {
-		return fmt.Errorf("invalid planID expected %s, got %s", expectedPlanID, *planID)
-	}
-	return nil
 }
 
 func object(policy *conjur.CreatedPolicy) *Object {

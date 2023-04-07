@@ -34,7 +34,7 @@ Feature: Provisioning
       """
       {
         "error": "ValidationError",
-        "description": "doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody property \"plan_id\" is missing"
+        "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: property \"plan_id\" is missing"
       }
       """
 
@@ -121,7 +121,7 @@ Feature: Provisioning
       """
       {
         "error": "ValidationError",
-        "description": "doesn't match schema #/components/schemas/ServiceInstanceUpdateRequestBody property \"service_id\" is missing"
+        "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceUpdateRequestBody: property \"service_id\" is missing"
       }
       """
 
@@ -147,7 +147,7 @@ Feature: Provisioning
       """
       {
         "error": "ValidationError",
-        "description": "validation failed: invalid serviceID expected c024e536-6dc4-45c6-8a53-127e7f8275ab, got XXXXXXX-6dc4-45c6-8a53-127e7f8275ab"
+        "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceUpdateRequestBody: value is not one of the allowed values [\"c024e536-6dc4-45c6-8a53-127e7f8275ab\"]"
       }
       """
 
@@ -173,7 +173,7 @@ Feature: Provisioning
       """
       {
         "error": "ValidationError",
-        "description": "validation failed: invalid planID expected 3a116ac2-fc8b-496f-a715-e9a1b205d05c.community, got XXXXXXX-fc8b-496f-a715-e9a1b205d05c.community"
+        "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceUpdateRequestBody: value is not one of the allowed values [\"3a116ac2-fc8b-496f-a715-e9a1b205d05c.community\"]"
       }
       """
 
@@ -198,7 +198,7 @@ Feature: Provisioning
       """
       {
         "error": "ValidationError",
-        "description": "validation failed: invalid serviceID expected c024e536-6dc4-45c6-8a53-127e7f8275ab, got XXXXXXX-6dc4-45c6-8a53-127e7f8275ab"
+        "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: value is not one of the allowed values [\"c024e536-6dc4-45c6-8a53-127e7f8275ab\"]"
       }
       """
 
@@ -223,7 +223,7 @@ Feature: Provisioning
     """
     {
       "error": "ValidationError",
-      "description": "validation failed: invalid planID expected 3a116ac2-fc8b-496f-a715-e9a1b205d05c.community, got XXXXXXX-fc8b-496f-a715-e9a1b205d05c.community"
+      "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: value is not one of the allowed values [\"3a116ac2-fc8b-496f-a715-e9a1b205d05c.community\"]"
     }
     """
 
@@ -250,6 +250,6 @@ Feature: Provisioning
     """
     {
       "error": "ValidationError",
-      "description": "The property '#/parameters' had more properties than the allowed 0"
+      "description": "request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: there must be at most 0 properties"
     }
     """
