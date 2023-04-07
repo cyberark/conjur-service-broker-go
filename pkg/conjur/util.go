@@ -8,7 +8,7 @@ import (
 	"github.com/cyberark/conjur-api-go/conjurapi"
 )
 
-//go:generate stringer -type=Kind -linecomment -output kind.gen.go
+//go:generate enumer -type=Kind -linecomment -text -output kind.gen.go
 
 // Kind defines conjur resource kind
 type Kind int
@@ -34,22 +34,9 @@ var conjurIDRegexp = regexp.MustCompile("^(?:(.*?)(?::|$))?(?:(.*?)(?::|$))?(.*?
 
 func parseID(id string) (account string, kind Kind, identifier string) {
 	m := conjurIDRegexp.FindStringSubmatch(id)
-	k := Kind(-1)
-	switch m[2] {
-	case KindUser.String():
-		k = KindUser
-	case KindHost.String():
-		k = KindHost
-	case KindLayer.String():
-		k = KindLayer
-	case KindGroup.String():
-		k = KindGroup
-	case KindPolicy.String():
-		k = KindPolicy
-	case KindVariable.String():
-		k = KindVariable
-	case KindWebservice.String():
-		k = KindWebservice
+	k, err := KindString(m[2])
+	if err != nil {
+		k = Kind(-1)
 	}
 	return m[1], k, m[3]
 }
