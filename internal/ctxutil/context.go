@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const ctxKey = "service-broker-context"
@@ -13,7 +14,8 @@ type Context interface {
 	context.Context
 	WithEnableSpaceIdentity(enabled bool) Context
 	IsEnableSpaceIdentity() bool
-
+	WithLogger(log *zap.SugaredLogger) Context
+	Logger() *zap.SugaredLogger
 	Inject() gin.HandlerFunc
 }
 

@@ -14,7 +14,9 @@ import (
 	"github.com/cyberark/conjur-service-broker/internal/servicebroker"
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-contrib/requestid"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 const (
@@ -23,14 +25,14 @@ const (
 )
 
 // StartHTTPServer starts a new http server to handle requests supported by the service broker
-func StartHTTPServer() error {
+func StartHTTPServer(logger *zap.Logger) error {
 	ctx := ctxutil.NewContext()
-	//TODO: add logger???
 	cfg, err := newConfig()
 	if err != nil {
 		return fmt.Errorf("failed to parse configuration: %w", err)
 	}
-	ctx.WithEnableSpaceIdentity(cfg.EnableSpaceIdentity)
+	ctx = ctx.WithLogger(logger.Sugar())
+	ctx = ctx.WithEnableSpaceIdentity(cfg.EnableSpaceIdentity)
 	client, err := conjur.NewClient(&cfg.Config)
 	if err != nil {
 		return fmt.Errorf("failed to initialize conjur client: %w", err)
@@ -44,7 +46,7 @@ func StartHTTPServer() error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery(), requestid.New(), errorsMiddleware)
+	r.Use(ginzap.Ginzap(logger, time.RFC3339, true), ginzap.RecoveryWithZap(logger, true), requestid.New(), errorsMiddleware)
 	// TODO: trusted proxies, caching headers
 
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
