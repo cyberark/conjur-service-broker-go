@@ -1,3 +1,4 @@
+// Package ctxutil implements custom context tailored for service provider needs
 package ctxutil
 
 import (

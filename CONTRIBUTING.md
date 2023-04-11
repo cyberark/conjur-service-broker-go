@@ -23,10 +23,14 @@ Install the tool following the instructions:
 https://pre-commit.com/index.html#install
 
 For brew users it should be as simple as:
-``` brew install pre-commit ```
+```shell
+brew install pre-commit
+```
 
 Install tools needed by pre-commit, this script will also use pre-commit tool to install git hooks, for details check:
-``` ./scripts/precommit-init.sh ```
+```shell
+./scripts/precommit-init.sh
+```
 
 ## Testing
 
@@ -37,6 +41,16 @@ TODO:
 
 TODO:
 [Instructions for creating a new release]
+
+## Update Open API spec
+
+```shell
+wget https://raw.githubusercontent.com/openservicebrokerapi/servicebroker/master/openapi.yaml -P ./api
+
+go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+go generate ./...
+```
 
 ## Contributing workflow
 

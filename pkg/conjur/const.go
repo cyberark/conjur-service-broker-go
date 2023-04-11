@@ -1,3 +1,4 @@
+// Package conjur provides a wrapper around conjur go SDK
 package conjur
 
 //go:generate enumer -type=Privilege -linecomment -output priviledgestring.gen.go
@@ -27,4 +28,4 @@ const (
 	VariablePrivilegeUpdate // update
 )
 
-const spaceHostAPIKey = "space-host-api-key" //#nosec G101
+const spaceHostAPIKey = "space-host-api-key" // #nosec G101

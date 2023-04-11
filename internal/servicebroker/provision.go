@@ -1,3 +1,4 @@
+// Package servicebroker provides an implementation of the generated service broker server
 package servicebroker
 
 import (

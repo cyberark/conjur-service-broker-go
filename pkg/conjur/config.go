@@ -1,3 +1,4 @@
+// Package conjur provides a wrapper around conjur go SDK
 package conjur
 
 // Config is the part of config that is specific to conjur

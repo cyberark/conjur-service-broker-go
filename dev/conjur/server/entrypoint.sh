@@ -2,7 +2,7 @@
 
 set -e
 
-psql $DATABASE_URL -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
+psql "$DATABASE_URL" -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"
 #export CONJUR_DATA_KEY=$(conjurctl data-key generate)
 #echo "export CONJUR_DATA_KEY=${CONJUR_DATA_KEY}" > /etc/profile.d/02-data-key.sh
 #chmod +x /etc/profile.d/02-data-key.sh

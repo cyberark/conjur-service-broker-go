@@ -1,3 +1,4 @@
+// Package http implements the http communication layer of the conjur service broker
 package http
 
 import (
