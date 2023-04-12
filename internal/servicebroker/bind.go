@@ -13,9 +13,11 @@ import (
 // ServiceBindingUnbinding deprovision a service binding
 // (DELETE /v2/service_instances/{instance_id}/service_bindings/{binding_id})
 func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID string, _ ServiceBindingUnbindingParams) {
-	// TODO: how to persist org and space id?
-	bind := conjur.NewBind(s.client, "", "", bindingID)
-
+	bind, err := conjur.FromBindingID(s.client, bindingID)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
+		return
+	}
 	hostExists, err := bind.HostExists(ctxutil.Ctx(c))
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))

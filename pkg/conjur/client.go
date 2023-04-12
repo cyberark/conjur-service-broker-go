@@ -37,12 +37,37 @@ type Client interface {
 	Config() *Config
 	ClientHostID() string
 	ValidateConnectivity() error
+	OrgSpaceFromBindingID(bindingID string) (string, string, error)
 }
 
 type client struct {
 	client   *conjurapi.Client
 	roClient *conjurapi.Client
 	config   *Config
+}
+
+func (c *client) OrgSpaceFromBindingID(bindingID string) (string, string, error) {
+	res, err := c.roClient.Resources(&conjurapi.ResourceFilter{
+		Kind:   KindHost.String(),
+		Search: bindingID + "^",
+	})
+	if len(res) == 0 {
+		return "", "", nil
+	}
+	if len(res) > 1 {
+		return "", "", fmt.Errorf("expecting exactly one host ending with a given binding id")
+	}
+	id, ok := res[0]["id"]
+	if !ok {
+		return "", "", nil
+	}
+	_, _, identifier := parseID(fmt.Sprintf("%s", id))
+	// TODO: maybe regexp instead of split?
+	split := strings.Split(identifier, "/")
+	if len(split) != 4 {
+		return "", "", fmt.Errorf("expecting exactly three elements")
+	}
+	return split[1], split[2], err
 }
 
 // NewClient creates new conjur API client wrapper

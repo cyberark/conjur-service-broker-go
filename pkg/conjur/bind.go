@@ -15,8 +15,6 @@ type bind struct {
 	orgID     string
 	spaceID   string
 	bindingID string
-	hostID    string
-	policy    string
 	client    Client
 }
 
@@ -44,35 +42,47 @@ func NewBind(client Client, orgID, spaceID, bindingID string) Bind {
 		spaceID:   spaceID,
 		bindingID: bindingID,
 		client:    client,
-		policy:    client.Config().ConjurPolicy,
 	}
-	res.hostID = hostID(res)
 	return res
 }
 
-func hostID(b *bind) string {
-	res := []string{"host"}
-	if b.useSpace() {
-		res = append(res, b.orgID, b.spaceID)
+// FromBindingID creates new binding service based on existing binding by it's ID, org and space IDs would be queried from conjur
+func FromBindingID(client Client, bindingID string) (Bind, error) {
+	orgID, spaceID, err := client.OrgSpaceFromBindingID(bindingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create binding service from binding id: %w", err)
 	}
-	res = append(res, b.policy+"/"+b.bindingID)
-	return strings.Join(res, ":")
+	res := &bind{
+		orgID:     orgID,
+		spaceID:   spaceID,
+		bindingID: bindingID,
+		client:    client,
+	}
+	return res, nil
 }
 
-func (b *bind) CreatePolicy(ctxutil.Context) (*CreatedPolicy, error) {
+func (b *bind) hostID(ctx ctxutil.Context) string {
+	return b.hostPolicyID(ctx) + "/" + b.bindingID
+}
+
+func (b *bind) hostPolicyID(ctx ctxutil.Context) string {
+	return composeID(b.client.Config().ConjurAccount, KindHost, b.policy(ctx))
+}
+
+func (b *bind) CreatePolicy(ctx ctxutil.Context) (*CreatedPolicy, error) {
 	yaml, err := b.createBindYAML()
 	if err != nil {
 		return nil, err
 	}
-	policy, err := b.client.UpsertPolicy(yaml, b.policy)
+	policy, err := b.client.UpsertPolicy(yaml, b.policy(ctx))
 	if err != nil {
 		return nil, err
 	}
 	return b.onlyPolicy(policy)
 }
 
-func (b *bind) DeletePolicy(ctxutil.Context) error {
-	err := b.client.RotateAPIKey(b.hostID)
+func (b *bind) DeletePolicy(ctx ctxutil.Context) error {
+	err := b.client.RotateAPIKey(b.hostID(ctx))
 	if err != nil {
 		return err
 	}
@@ -80,7 +90,7 @@ func (b *bind) DeletePolicy(ctxutil.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = b.client.ReplacePolicy(yaml, b.policy)
+	_, err = b.client.ReplacePolicy(yaml, b.policy(ctx))
 	if err != nil {
 		return err
 	}
@@ -116,8 +126,8 @@ func dropAccount(id string) string {
 	return strings.Join([]string{kind.String(), identifier}, "/")
 }
 
-func (b *bind) HostExists(ctxutil.Context) (bool, error) {
-	return b.client.RoleExists(b.hostID)
+func (b *bind) HostExists(ctx ctxutil.Context) (bool, error) {
+	return b.client.CheckResource(b.hostPolicyID(ctx))
 }
 
 func (b *bind) createBindYAML() (io.Reader, error) {
@@ -155,4 +165,12 @@ func (b *bind) hostAnnotations() map[string]string {
 
 func (b *bind) useSpace() bool {
 	return len(b.orgID) > 0 && len(b.spaceID) > 0
+}
+
+func (b *bind) policy(ctx ctxutil.Context) string {
+	p := []string{b.client.Config().ConjurPolicy}
+	if ctx.IsEnableSpaceIdentity() {
+		p = append(p, b.orgID, b.spaceID)
+	}
+	return strings.Join(p, "/")
 }
