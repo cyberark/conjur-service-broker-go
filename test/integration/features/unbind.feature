@@ -50,7 +50,7 @@ Feature: Unbinding
     And I create conjur client
     And conjur credentials are valid
     When I send "DELETE" request to "/v2/service_instances/6b40649e-331b-424d-afa0-6d569f016f51/service_bindings/5e7a43f2-b3fc-4591-ab19-783389c2cb64?service_id=c024e536-6dc4-45c6-8a53-127e7f8275ab&plan_id=3a116ac2-fc8b-496f-a715-e9a1b205d05c.community"
-    And the response code should be 200
+    Then the response code should be 200
     And conjur credentials are invalid
 
 # TODO: add test for service broker host api key rotation scenario

@@ -67,7 +67,7 @@ func StartHTTPServer(logger *zap.Logger) error {
 		WriteTimeout:      httpTimeout,
 		ReadHeaderTimeout: httpTimeout,
 		IdleTimeout:       httpIdleTimeout,
-		MaxHeaderBytes:    1 << 20,
+		MaxHeaderBytes:    1 << 20, // TODO: is 1MB enough?
 	}
 	go func() {
 		if err = httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
