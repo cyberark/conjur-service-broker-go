@@ -16,3 +16,6 @@ load_dynamic('./test/integration/Tiltfile.dep')
 
 # deploy ruby version of service broker for testing purposes
 load_dynamic('./Tiltfile.ruby')
+
+# unit tests
+local_resource(name='unit-tests', cmd='go test ./...', labels=['conjur-service-broker'])

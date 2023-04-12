@@ -127,7 +127,7 @@ func dropAccount(id string) string {
 }
 
 func (b *bind) HostExists(ctx ctxutil.Context) (bool, error) {
-	return b.client.CheckResource(b.hostPolicyID(ctx))
+	return b.client.ResourceExists(b.hostID(ctx))
 }
 
 func (b *bind) createBindYAML() (io.Reader, error) {
@@ -167,9 +167,9 @@ func (b *bind) useSpace() bool {
 	return len(b.orgID) > 0 && len(b.spaceID) > 0
 }
 
-func (b *bind) policy(ctx ctxutil.Context) string {
+func (b *bind) policy(_ ctxutil.Context) string {
 	p := []string{b.client.Config().ConjurPolicy}
-	if ctx.IsEnableSpaceIdentity() {
+	if len(b.orgID) > 0 && len(b.spaceID) > 0 {
 		p = append(p, b.orgID, b.spaceID)
 	}
 	return strings.Join(p, "/")

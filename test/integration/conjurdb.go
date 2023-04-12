@@ -13,7 +13,7 @@ type conjurdb struct {
 }
 
 func (*conjurdb) conjurResourceExists(id string) error {
-	connStr := "postgres://postgres@localhost:5432/postgres"
+	connStr := "postgres://postgres@postgres:5432/postgres"
 	conn, err := pgx.Connect(context.Background(), connStr)
 	if err != nil {
 		return fmt.Errorf("unable to connect to database: %w", err)

@@ -3,3 +3,5 @@
 conjur_service_broker.exe
 
 .idea/
+
+.run/

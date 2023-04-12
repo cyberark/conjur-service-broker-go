@@ -97,21 +97,21 @@ func (o *provision) CreatePolicy(ctx ctxutil.Context) error {
 
 // Exists checks existence of conjur org and space policies
 func (o *provision) Exists() (bool, error) {
-	ok, err := o.client.CheckResource(o.orgPolicyResourceID())
+	ok, err := o.client.ResourceExists(o.orgPolicyResourceID())
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return ok, nil
 	}
-	ok, err = o.client.CheckResource(o.spacePolicyResourceID())
+	ok, err = o.client.ResourceExists(o.spacePolicyResourceID())
 	if err != nil {
 		return false, err
 	}
 	if !ok {
 		return ok, nil
 	}
-	ok, err = o.client.CheckResource(o.spaceLayerResourceID())
+	ok, err = o.client.ResourceExists(o.spaceLayerResourceID())
 	if err != nil {
 		return false, err
 	}

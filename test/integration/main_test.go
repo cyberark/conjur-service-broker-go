@@ -31,7 +31,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the response should match json "([^"]*)"$`, api.theResponseShouldMatchJSON)
 	ctx.Step(`^conjur credentials are invalid$`, conjur.conjurCredentialsAreInvalid)
 	ctx.Step(`^conjur credentials are valid$`, conjur.conjurCredentialsAreValid)
-	ctx.Step(`^I create conjur client$`, conjur.iCreateConjurClient)
+	ctx.Step(`^I create conjur client$`, conjur.iCreateConjurClientFromAPIResponse)
 	ctx.Step(`^conjur resource "([^"]*)" exists$`, conjurdb.conjurResourceExists)
 }
 
@@ -40,7 +40,7 @@ func TestIntegration(t *testing.T) {
 		ScenarioInitializer: InitializeScenario,
 		Options: &godog.Options{
 			Format:   "pretty",
-			Paths:    []string{"features/provision.feature"},
+			Paths:    []string{"features"},
 			TestingT: t, // Testing instance that will run subtests.
 		},
 	}

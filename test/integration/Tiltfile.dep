@@ -1,7 +1,18 @@
+load('ext://deployment', 'job_yaml')
 
-local_resource(
-    name='integration_tests',
-    cmd='go test',
-    resource_deps=['conjur-service-broker'],
-    labels=['conjur-service-broker'],
-)
+docker_build('integration-tests', '.', dockerfile_contents="""
+FROM golang:alpine
+WORKDIR /opt/integration
+COPY go.* .
+RUN go mod download
+COPY . .
+CMD ["go", "test"]
+""")
+
+job = decode_yaml(job_yaml('integration-tests', 'integration-tests', env=read_yaml('./.env.yaml'), startupProbe={'exec':{'command': ['false']}, 'failureThreshold': 30}))
+job['spec']['backoffLimit'] = 0
+# job['spec']['ttlSecondsAfterFinished'] = 60
+print(job)
+k8s_yaml(encode_yaml(job))
+
+k8s_resource('integration-tests', labels=['conjur-service-broker'], resource_deps=['conjur-service-broker'])

@@ -29,7 +29,7 @@ type Client interface {
 	UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
 	ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
 	SetVariable(variableID, secret string) error
-	CheckResource(resourceID string) (bool, error)
+	ResourceExists(resourceID string) (bool, error)
 	RoleExists(roleID string) (bool, error)
 	RotateAPIKey(roleID string) error
 	Platform() (string, error)
@@ -63,9 +63,9 @@ func (c *client) OrgSpaceFromBindingID(bindingID string) (string, string, error)
 	}
 	_, _, identifier := parseID(fmt.Sprintf("%s", id))
 	// TODO: maybe regexp instead of split?
-	split := strings.Split(identifier, "/")
+	split := strings.SplitN(identifier, "/", 4)
 	if len(split) != 4 {
-		return "", "", fmt.Errorf("expecting exactly three elements")
+		return "", "", nil
 	}
 	return split[1], split[2], err
 }
@@ -179,16 +179,13 @@ func (c *client) ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.Po
 	return res, nil
 }
 
-// CheckResource checks for an existence of a resource with a given id
-func (c *client) CheckResource(resourceID string) (bool, error) {
-	spacePolicy, err := c.roClient.Resource(resourceID)
+// ResourceExists checks for an existence of a resource with a given id
+func (c *client) ResourceExists(resourceID string) (bool, error) {
+	exists, err := c.roClient.ResourceExists(resourceID)
 	if err != nil {
-		return false, fmt.Errorf("unable to find resource %v: %w", resourceID, err)
+		return false, fmt.Errorf("unable to check resource existance %v: %w", resourceID, err)
 	}
-	if len(spacePolicy) == 0 {
-		return false, nil
-	}
-	return true, nil
+	return exists, nil
 }
 
 // RoleExists checks for an existence of a role with a given id

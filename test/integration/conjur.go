@@ -25,7 +25,7 @@ type creds struct {
 	} `json:"credentials"`
 }
 
-func (c *conjur) iCreateConjurClient() error {
+func (c *conjur) iCreateConjurClientFromAPIResponse() error {
 	var cr creds
 	err := json.Unmarshal([]byte(c.api.body), &cr)
 	if err != nil {
@@ -45,12 +45,12 @@ func (c *conjur) iCreateConjurClient() error {
 	return nil
 }
 
-func (c *conjur) conjurCredentialsAreInvalid() error {
+func (c *conjur) conjurCredentialsAreValid() error {
 	err := c.client.RefreshToken()
 	return err
 }
 
-func (c *conjur) conjurCredentialsAreValid() error {
+func (c *conjur) conjurCredentialsAreInvalid() error {
 	err := c.client.RefreshToken()
 	if err != nil {
 		return fmt.Errorf("expecting an error")
