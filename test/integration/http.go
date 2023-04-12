@@ -14,7 +14,7 @@ import (
 )
 
 func init() {
-	http.DefaultClient.Timeout = 5 * time.Minute
+	http.DefaultClient.Timeout = time.Minute
 }
 
 type httpFeature struct {

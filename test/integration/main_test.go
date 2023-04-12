@@ -16,6 +16,8 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	}
 	api := &httpFeature{cfg: cfg}
 	conjur := &conjur{api: api}
+	conjurdb := &conjurdb{cfg}
+
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		api.resetResponse(sc)
 		return ctx, nil
@@ -30,7 +32,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^conjur credentials are invalid$`, conjur.conjurCredentialsAreInvalid)
 	ctx.Step(`^conjur credentials are valid$`, conjur.conjurCredentialsAreValid)
 	ctx.Step(`^I create conjur client$`, conjur.iCreateConjurClient)
-
+	ctx.Step(`^conjur resource "([^"]*)" exists$`, conjurdb.conjurResourceExists)
 }
 
 func TestIntegration(t *testing.T) {

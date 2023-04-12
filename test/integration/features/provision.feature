@@ -59,6 +59,7 @@ Feature: Provisioning
     """
     Then the response code should be 201
     And the response should match json "{}"
+    And conjur resource "dev:policy:cf/e027f3f6-80fe-4d22-9374-da23a035ba0a/8c56f85c-c16e-4158-be79-5dac74f970db" exists
 
   Scenario: Provision resource
     When I send "PUT" request to "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax7" with body:
