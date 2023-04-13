@@ -85,8 +85,9 @@ repos:
         # Style Checkers
         #
         -   id: go-lint
-#        -   id: go-critic
-        #
+        -   id: go-critic
+            args:
+              - -disable=sloppyTypeAssert # this disables a false positives in internal/servicebroker/util.go
         # GolangCI-Lint
         # - Fast Multi-Linter
         # - Can be configured to replace MOST other hooks
