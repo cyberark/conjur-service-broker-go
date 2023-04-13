@@ -34,8 +34,10 @@ Install tools needed by pre-commit, this script will also use pre-commit tool to
 
 ## Testing
 
-TODO:
-[Instructions for running the test suite]
+```shell
+tilt ci
+pre-commit run --all
+```
 
 ## Releases
 
@@ -46,6 +48,7 @@ TODO:
 
 ```shell
 wget https://raw.githubusercontent.com/openservicebrokerapi/servicebroker/master/openapi.yaml -P ./api
+cp ./api/openapi.yaml ./test/integration/
 
 go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
 

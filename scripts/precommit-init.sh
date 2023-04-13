@@ -23,6 +23,6 @@ go install github.com/go-critic/go-critic/cmd/gocritic@latest
 # golangci - FAST linter aggregator
 go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-#pre-commit install
+pre-commit install
 
 set +e

@@ -23,6 +23,7 @@ type httpFeature struct {
 	body                       string
 	authnPass                  string
 	omitBrokerAPIVersionHeader bool
+	validator                  *validator
 }
 
 func (a *httpFeature) resetResponse(_ *godog.Scenario) {
@@ -86,6 +87,9 @@ func (a *httpFeature) iSendRequestToWithBody(method, endpoint string, bodyDocStr
 		return
 	}
 	_ = a.resp.Body.Close()
+	if err = a.validator.validateResponse(req, a.resp, a.body); err != nil {
+		return fmt.Errorf("resonse from service is not valid: %w", err)
+	}
 	return nil
 }
 

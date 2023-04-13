@@ -45,7 +45,7 @@ func strOrNil(ctx *Context, name string) *string {
 	if !found {
 		return nil
 	}
-	s, ok := v.(string) // nolint:gocritic,sloppyTypeAssert // this is a false positive
+	s, ok := v.(string) //nolint:gocritic,sloppyTypeAssert //this is a false positive
 	if !ok {
 		return nil
 	}

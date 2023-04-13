@@ -83,13 +83,14 @@ func StartHTTPServer(logger *zap.Logger) error {
 	<-quit
 	log.Println("shutdown server ...")
 
-	c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	c, cancel := context.WithTimeout(ctx, 5*time.Second)
 	if err := httpSrv.Shutdown(c); err != nil {
+		cancel()
 		log.Fatal("failed on server shutdown:", err)
 	}
 	// catching ctx.Done(). timeout of 5 seconds.
-	<-ctx.Done()
+	<-c.Done()
 	log.Println("server exit")
+	cancel()
 	return nil
 }

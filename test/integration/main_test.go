@@ -14,12 +14,14 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	if err != nil {
 		panic(err)
 	}
-	api := &httpFeature{cfg: cfg}
+
+	api := &httpFeature{cfg: cfg, validator: newValidator()}
 	conjur := &conjur{api: api}
 	conjurdb := &conjurdb{cfg}
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		api.resetResponse(sc)
+		api.validator.ignoreRouteError = false
 		return ctx, nil
 	})
 	ctx.Step(`^my basic auth credentials are incorrect$`, api.myBasicAuthCredentialsAreIncorrect)
@@ -33,6 +35,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^conjur credentials are valid$`, conjur.conjurCredentialsAreValid)
 	ctx.Step(`^I create conjur client$`, conjur.iCreateConjurClientFromAPIResponse)
 	ctx.Step(`^conjur resource "([^"]*)" exists$`, conjurdb.conjurResourceExists)
+	ctx.Step(`^I ignore route error$`, api.validator.iIgnoreRouteNotExists)
 }
 
 func TestIntegration(t *testing.T) {

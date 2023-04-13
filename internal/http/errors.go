@@ -11,6 +11,7 @@ import (
 )
 
 func errorsMiddleware(c *gin.Context) {
+	c.Header("Content-Type", "application/json") // this is needed to avoid basic auth enforcing content type text/plain https://github.com/gin-gonic/gin/issues/1453
 	c.Next()
 	if c.Writer.Size() > 0 { // body was already sent
 		return
