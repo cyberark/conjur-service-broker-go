@@ -52,7 +52,7 @@ func strOrNil(ctx *Context, name string) *string {
 	return &s
 }
 
-func object(policy *conjur.CreatedPolicy) *Object {
+func object(policy *conjur.Policy) *Object {
 	// TODO: would it better to use reflection?
 	bytes, err := json.Marshal(policy)
 	if err != nil {

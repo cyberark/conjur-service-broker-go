@@ -18,8 +18,8 @@ type bind struct {
 	client    Client
 }
 
-// CreatedPolicy is a result of policy creation
-type CreatedPolicy struct {
+// Policy is a result of policy creation
+type Policy struct {
 	Account        string `json:"account"`
 	ApplianceURL   string `json:"appliance_url"`
 	AuthnLogin     string `json:"authn_login"`
@@ -30,7 +30,8 @@ type CreatedPolicy struct {
 
 // Bind allows operations needed for binding an instance
 type Bind interface {
-	CreatePolicy(ctxutil.Context) (*CreatedPolicy, error)
+	CreatePolicy(ctxutil.Context) (*Policy, error)
+	SpacePolicy(ctxutil.Context) (*Policy, error)
 	HostExists(ctxutil.Context) (bool, error)
 	DeletePolicy(ctxutil.Context) error
 }
@@ -62,6 +63,9 @@ func FromBindingID(client Client, bindingID string) (Bind, error) {
 }
 
 func (b *bind) hostID(ctx ctxutil.Context) string {
+	if ctx.IsEnableSpaceIdentity() {
+		return b.hostPolicyID(ctx)
+	}
 	return b.hostPolicyID(ctx) + "/" + b.bindingID
 }
 
@@ -69,7 +73,7 @@ func (b *bind) hostPolicyID(ctx ctxutil.Context) string {
 	return composeID(b.client.Config().ConjurAccount, KindHost, b.policy(ctx))
 }
 
-func (b *bind) CreatePolicy(ctx ctxutil.Context) (*CreatedPolicy, error) {
+func (b *bind) CreatePolicy(ctx ctxutil.Context) (*Policy, error) {
 	yaml, err := b.createBindYAML()
 	if err != nil {
 		return nil, err
@@ -79,6 +83,23 @@ func (b *bind) CreatePolicy(ctx ctxutil.Context) (*CreatedPolicy, error) {
 		return nil, err
 	}
 	return b.onlyPolicy(policy)
+}
+
+func (b *bind) SpacePolicy(_ ctxutil.Context) (*Policy, error) {
+	config := b.client.Config()
+	orgSpaceID := fmt.Sprintf("%s/%s/%s", config.ConjurPolicy, b.orgID, b.spaceID)
+	apiKey, err := b.client.GetVariable(fmt.Sprintf("%s/%s", orgSpaceID, spaceHostAPIKey))
+	if err != nil {
+		return nil, err
+	}
+	return &Policy{
+		Account:        config.ConjurAccount,
+		ApplianceURL:   config.ConjurApplianceURL,
+		AuthnLogin:     fmt.Sprintf("%s/%s", KindHost, orgSpaceID),
+		AuthnAPIKey:    apiKey,
+		SslCertificate: config.ConjurSSLCertificate,
+		Version:        config.ConjurVersion,
+	}, nil
 }
 
 func (b *bind) DeletePolicy(ctx ctxutil.Context) error {
@@ -97,7 +118,7 @@ func (b *bind) DeletePolicy(ctx ctxutil.Context) error {
 	return nil
 }
 
-func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*CreatedPolicy, error) {
+func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
 	if len(policy.CreatedRoles) != 1 {
 		return nil, fmt.Errorf("expecting exactly one created role")
 	}
@@ -111,7 +132,7 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*CreatedPolicy, err
 		return nil, fmt.Errorf("creatred role ID do not match %v != %v", roleID, role.ID)
 	}
 	config := b.client.Config()
-	return &CreatedPolicy{
+	return &Policy{
 		Account:        config.ConjurAccount,
 		ApplianceURL:   config.ConjurApplianceURL,
 		AuthnLogin:     dropAccount(roleID),

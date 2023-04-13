@@ -53,11 +53,11 @@ func (o *provision) orgPolicyResourceID() string {
 }
 
 func (o *provision) spacePolicyResourceID() string {
-	return composeID(o.account, KindPolicy, fmt.Sprintf("%s/%s/%s", o.policy, o.orgID, o.spaceID))
+	return composeID(o.account, KindPolicy, o.orgSpacePolicyID())
 }
 
 func (o *provision) spaceLayerResourceID() string {
-	return composeID(o.account, KindLayer, fmt.Sprintf("%s/%s/%s", o.policy, o.orgID, o.spaceID))
+	return composeID(o.account, KindLayer, o.orgSpacePolicyID())
 }
 
 // CreatePolicy creates all needed conjur polices for given org and space

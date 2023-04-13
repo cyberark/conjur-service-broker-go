@@ -13,6 +13,11 @@ import (
 // ServiceBindingUnbinding deprovision a service binding
 // (DELETE /v2/service_instances/{instance_id}/service_bindings/{binding_id})
 func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID string, _ ServiceBindingUnbindingParams) {
+	if ctxutil.Ctx(c).IsEnableSpaceIdentity() {
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	}
+
 	bind, err := conjur.FromBindingID(s.client, bindingID)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
@@ -58,16 +63,32 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 	ctxParams := parseContext(body.Context)
 
 	bind := conjur.NewBind(s.client, ctxParams.OrgID, ctxParams.SpaceID, bindingID)
-	hostExists, err := bind.HostExists(ctxutil.Ctx(c))
+	ctx := ctxutil.Ctx(c)
+	hostExists, err := bind.HostExists(ctx)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
 		return
 	}
-	if hostExists {
+	if hostExists && !ctx.IsEnableSpaceIdentity() {
 		_ = c.AbortWithError(http.StatusConflict, fmt.Errorf("host already exists"))
 		return
 	}
-	policy, err := bind.CreatePolicy(ctxutil.Ctx(c))
+	if !hostExists && ctx.IsEnableSpaceIdentity() {
+		_ = c.AbortWithError(http.StatusGone, fmt.Errorf("no space host identity found"))
+		return
+	}
+	if ctx.IsEnableSpaceIdentity() {
+		policy, err := bind.SpacePolicy(ctx)
+		if err != nil {
+			_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
+			return
+		}
+		c.JSON(http.StatusCreated, ServiceBindingResponse{
+			Credentials: object(policy),
+		})
+		return
+	}
+	policy, err := bind.CreatePolicy(ctx)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
 		return

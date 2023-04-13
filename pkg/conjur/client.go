@@ -28,6 +28,7 @@ type Client interface {
 	CheckVariablePermission(variableID string, privilege ...VariablePrivilege) (bool, error)
 	UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
 	ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
+	GetVariable(variableID string) (string, error)
 	SetVariable(variableID, secret string) error
 	ResourceExists(resourceID string) (bool, error)
 	RoleExists(roleID string) (bool, error)
@@ -200,6 +201,15 @@ func (c *client) RoleExists(roleID string) (bool, error) {
 // SetVariable sets a secret variable
 func (c *client) SetVariable(variableID, secret string) error {
 	return c.client.AddSecret(variableID, secret)
+}
+
+// GetVariable gets a secret variable
+func (c *client) GetVariable(variableID string) (string, error) {
+	bytes, err := c.client.RetrieveSecret(variableID)
+	if err != nil {
+		return "", err
+	}
+	return string(bytes), nil
 }
 
 // RotateAPIKey checks for an existence of a role with a given id
