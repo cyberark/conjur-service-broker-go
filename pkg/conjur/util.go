@@ -47,7 +47,7 @@ func composeID(account string, kind Kind, identifier string) string {
 	if len(account) > 0 {
 		res = append(res, account)
 	}
-	if len(kind.String()) > 0 {
+	if kind.IsAKind() {
 		res = append(res, kind.String())
 	}
 	if len(identifier) > 0 {
@@ -56,8 +56,12 @@ func composeID(account string, kind Kind, identifier string) string {
 	return strings.Join(res, ":")
 }
 
+func slashJoin(elems ...string) string {
+	return strings.Join(elems, "/")
+}
+
 func apiKey(policy *conjurapi.PolicyResponse) (string, error) {
-	if len(policy.CreatedRoles) < 1 {
+	if policy == nil || len(policy.CreatedRoles) < 1 {
 		return "", fmt.Errorf("expecting at least one created role")
 	}
 	var roleID string

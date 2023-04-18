@@ -18,12 +18,12 @@ func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID str
 		return
 	}
 
-	bind, err := conjur.FromBindingID(s.client, bindingID)
+	bind, err := s.client.FromBindingID(bindingID)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
 		return
 	}
-	hostExists, err := bind.HostExists(ctxutil.Ctx(c))
+	hostExists, err := bind.HostExists()
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
 		return
@@ -33,7 +33,7 @@ func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID str
 		return
 	}
 
-	err = bind.DeletePolicy(ctxutil.Ctx(c))
+	err = bind.DeleteBindHostPolicy()
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to delete policy: %w", err))
 		return
@@ -62,9 +62,9 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 
 	ctxParams := parseContext(body.Context)
 
-	bind := conjur.NewBind(s.client, ctxParams.OrgID, ctxParams.SpaceID, bindingID)
 	ctx := ctxutil.Ctx(c)
-	hostExists, err := bind.HostExists(ctx)
+	bind := s.client.NewBind(ctxParams.OrgID, ctxParams.SpaceID, bindingID, ctx.IsEnableSpaceIdentity())
+	hostExists, err := bind.HostExists()
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to check host existance: %w", err))
 		return
@@ -77,18 +77,12 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 		_ = c.AbortWithError(http.StatusGone, fmt.Errorf("no space host identity found"))
 		return
 	}
+	var policy *conjur.Policy
 	if ctx.IsEnableSpaceIdentity() {
-		policy, err := bind.SpacePolicy(ctx)
-		if err != nil {
-			_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
-			return
-		}
-		c.JSON(http.StatusCreated, ServiceBindingResponse{
-			Credentials: object(policy),
-		})
-		return
+		policy, err = bind.BindSpacePolicy()
+	} else {
+		policy, err = bind.BindHostPolicy()
 	}
-	policy, err := bind.CreatePolicy(ctx)
 	if err != nil {
 		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
 		return

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/doodlesbykumbi/conjur-policy-go/pkg/conjurpolicy"
 )
 
@@ -14,73 +13,54 @@ type provision struct {
 	orgName   string
 	spaceID   string
 	spaceName string
-	account   string
-	policy    string
-	client    Client
+	client    *client
 }
 
 // Provision allows basic operations on the organization and space
 type Provision interface {
-	CreatePolicy(ctx ctxutil.Context) error
-	Exists() (bool, error)
+	ProvisionOrgSpacePolicy() error
+	ProvisionHostPolicy() error
 }
 
-// NewProvision creates a Provision based on provided configuration
-func NewProvision(client Client, orgID, spaceID string, orgName, spaceName *string) Provision {
-	cfg := client.Config()
-	res := &provision{
-		orgID:   orgID,
-		spaceID: spaceID,
-		client:  client,
-		policy:  cfg.ConjurPolicy,
-		account: cfg.ConjurAccount,
-	}
-	if orgName != nil {
-		res.orgName = *orgName
-	}
-	if spaceName != nil {
-		res.spaceName = *spaceName
-	}
-	return res
+func (p *provision) orgSpacePolicyID() string {
+	return slashJoin(p.client.config.ConjurPolicy, p.orgID, p.spaceID)
 }
 
-func (o *provision) orgSpacePolicyID() string {
-	return fmt.Sprintf("%s/%s/%s", o.policy, o.orgID, o.spaceID)
+func (p *provision) orgPolicyResourceID() string {
+	return composeID(p.client.config.ConjurAccount, KindPolicy, slashJoin(p.client.config.ConjurPolicy, p.orgID))
 }
 
-func (o *provision) orgPolicyResourceID() string {
-	return composeID(o.account, KindPolicy, fmt.Sprintf("%s/%s", o.policy, o.orgID))
+func (p *provision) spacePolicyResourceID() string {
+	return composeID(p.client.config.ConjurAccount, KindPolicy, p.orgSpacePolicyID())
 }
 
-func (o *provision) spacePolicyResourceID() string {
-	return composeID(o.account, KindPolicy, o.orgSpacePolicyID())
+func (p *provision) spaceLayerResourceID() string {
+	return composeID(p.client.config.ConjurAccount, KindLayer, p.orgSpacePolicyID())
 }
 
-func (o *provision) spaceLayerResourceID() string {
-	return composeID(o.account, KindLayer, o.orgSpacePolicyID())
-}
-
-// CreatePolicy creates all needed conjur polices for given org and space
-func (o *provision) CreatePolicy(ctx ctxutil.Context) error {
-	yaml, err := o.createOrgSpaceYAML()
+// ProvisionOrgSpacePolicy creates all needed conjur polices for given org and space
+func (p *provision) ProvisionOrgSpacePolicy() error {
+	yaml, err := p.provisionOrgSpaceYAML()
 	if err != nil {
 		return err
 	}
-	_, err = o.client.UpsertPolicy(yaml, o.policy)
+	_, err = p.client.upsertPolicy(yaml, p.client.config.ConjurPolicy)
 	if err != nil {
 		return fmt.Errorf("failed to create policy: %w", err)
 	}
-	if exists, err := o.Exists(); err != nil || !exists {
+	if exists, err := p.orgSpacePolicyExists(); err != nil || !exists {
 		return fmt.Errorf("failed to validate policy exists: %w", err)
 	}
-	if !ctx.IsEnableSpaceIdentity() {
-		return nil
-	}
-	yaml, err = o.createSpaceHostYAML()
+	return nil
+}
+
+// ProvisionHostPolicy creates conjur polices on space host level
+func (p *provision) ProvisionHostPolicy() error {
+	yaml, err := p.provisionHostYAML()
 	if err != nil {
 		return fmt.Errorf("failed to create space host level yaml: %w", err)
 	}
-	policy, err := o.client.UpsertPolicy(yaml, o.orgSpacePolicyID())
+	policy, err := p.client.upsertPolicy(yaml, p.orgSpacePolicyID())
 	if err != nil {
 		return fmt.Errorf("failed to create space host level policy: %w", err)
 	}
@@ -88,56 +68,43 @@ func (o *provision) CreatePolicy(ctx ctxutil.Context) error {
 	if err != nil {
 		return err
 	}
-	err = o.client.SetVariable(fmt.Sprintf("%s/%s", o.orgSpacePolicyID(), spaceHostAPIKey), apiKey)
+	err = p.client.setVariable(fmt.Sprintf("%s/%s", p.orgSpacePolicyID(), spaceHostAPIKey), apiKey)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-// Exists checks existence of conjur org and space policies
-func (o *provision) Exists() (bool, error) {
-	ok, err := o.client.ResourceExists(o.orgPolicyResourceID())
-	if err != nil {
-		return false, err
-	}
-	if !ok {
-		return ok, nil
-	}
-	ok, err = o.client.ResourceExists(o.spacePolicyResourceID())
-	if err != nil {
-		return false, err
-	}
-	if !ok {
-		return ok, nil
-	}
-	ok, err = o.client.ResourceExists(o.spaceLayerResourceID())
-	if err != nil {
-		return false, err
-	}
-	if !ok {
-		return ok, nil
+func (p *provision) orgSpacePolicyExists() (bool, error) {
+	for _, id := range []string{p.orgPolicyResourceID(), p.spacePolicyResourceID(), p.spaceLayerResourceID()} {
+		ok, err := p.client.resourceExists(id)
+		if err != nil {
+			return false, err
+		}
+		if !ok {
+			return ok, nil
+		}
 	}
 	return true, nil
 }
 
-func (o *provision) createOrgSpaceYAML() (io.Reader, error) {
+func (p *provision) provisionOrgSpaceYAML() (io.Reader, error) {
 	policy := conjurpolicy.PolicyStatements{
 		conjurpolicy.Policy{
-			Id:          o.orgID,
-			Annotations: o.orgAnnotations(),
+			Id:          p.orgID,
+			Annotations: p.orgAnnotations(),
 			Body: conjurpolicy.PolicyStatements{
 				conjurpolicy.Layer{},
 				conjurpolicy.Policy{
-					Id: o.spaceID,
+					Id: p.spaceID,
 					Body: conjurpolicy.PolicyStatements{
 						conjurpolicy.Layer{},
 					},
-					Annotations: o.spaceAnnotations(),
+					Annotations: p.spaceAnnotations(),
 				},
 				conjurpolicy.Grant{
 					Role:   conjurpolicy.LayerRef(""),
-					Member: conjurpolicy.LayerRef(o.spaceID),
+					Member: conjurpolicy.LayerRef(p.spaceID),
 				},
 			},
 		},
@@ -145,7 +112,7 @@ func (o *provision) createOrgSpaceYAML() (io.Reader, error) {
 	return policyReader(policy)
 }
 
-func (o *provision) createSpaceHostYAML() (io.Reader, error) {
+func (p *provision) provisionHostYAML() (io.Reader, error) {
 	policy := conjurpolicy.PolicyStatements{
 		conjurpolicy.Host{},
 		conjurpolicy.Grant{
@@ -156,7 +123,7 @@ func (o *provision) createSpaceHostYAML() (io.Reader, error) {
 			Id: spaceHostAPIKey,
 		},
 		conjurpolicy.Permit{
-			Role:       conjurpolicy.HostRef("/" + o.client.ClientHostID()),
+			Role:       conjurpolicy.HostRef("/" + p.client.clientHostID()),
 			Privileges: []conjurpolicy.Privilege{conjurpolicy.PrivilegeRead},
 			Resources:  conjurpolicy.VariableRef(spaceHostAPIKey),
 		},
@@ -164,16 +131,16 @@ func (o *provision) createSpaceHostYAML() (io.Reader, error) {
 	return policyReader(policy)
 }
 
-func (o *provision) orgAnnotations() map[string]string {
-	if len(o.orgName) == 0 || len(o.spaceName) == 0 {
+func (p *provision) orgAnnotations() map[string]string {
+	if len(p.orgName) == 0 || len(p.spaceName) == 0 {
 		return nil
 	}
-	return map[string]string{"pcf/type": "org", "pcf/orgName": o.orgName}
+	return map[string]string{"pcf/type": "org", "pcf/orgName": p.orgName}
 }
 
-func (o *provision) spaceAnnotations() map[string]string {
-	if len(o.orgName) == 0 || len(o.spaceName) == 0 {
+func (p *provision) spaceAnnotations() map[string]string {
+	if len(p.orgName) == 0 || len(p.spaceName) == 0 {
 		return nil
 	}
-	return map[string]string{"pcf/type": "space", "pcf/orgName": o.orgName, "pcf/spaceName": o.spaceName}
+	return map[string]string{"pcf/type": "space", "pcf/orgName": p.orgName, "pcf/spaceName": p.spaceName}
 }

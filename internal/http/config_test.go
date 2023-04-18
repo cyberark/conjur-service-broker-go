@@ -82,10 +82,10 @@ func configMap(cfg ...interface{}) map[string]interface{} {
 	return res
 }
 
-func parseEnvs(s string) map[string]string {
+func parseEnvs(envs string) map[string]string {
 	res := map[string]string{}
-	for _, env := range strings.Split(s, ";") {
-		v := strings.SplitN(env, "=", 2)
+	for _, e := range strings.Split(envs, ";") {
+		v := strings.SplitN(e, "=", 2)
 		res[v[0]] = v[1]
 	}
 	return res
@@ -132,13 +132,13 @@ func Test_validate(t *testing.T) {
 }
 
 func cleanupEnv() func() {
-	vals := os.Environ()
+	values := os.Environ()
 	os.Clearenv()
 	return func() {
 		os.Clearenv()
-		for _, v := range vals {
+		for _, v := range values {
 			parts := strings.SplitN(v, "=", 2)
-			os.Setenv(parts[0], parts[1])
+			_ = os.Setenv(parts[0], parts[1])
 		}
 	}
 }

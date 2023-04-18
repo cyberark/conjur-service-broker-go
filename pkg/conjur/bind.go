@@ -4,10 +4,8 @@ package conjur
 import (
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
-	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/doodlesbykumbi/conjur-policy-go/pkg/conjurpolicy"
 )
 
@@ -15,7 +13,8 @@ type bind struct {
 	orgID     string
 	spaceID   string
 	bindingID string
-	client    Client
+	hostID    string
+	client    *client
 }
 
 // Policy is a result of policy creation
@@ -30,80 +29,48 @@ type Policy struct {
 
 // Bind allows operations needed for binding an instance
 type Bind interface {
-	CreatePolicy(ctxutil.Context) (*Policy, error)
-	SpacePolicy(ctxutil.Context) (*Policy, error)
-	HostExists(ctxutil.Context) (bool, error)
-	DeletePolicy(ctxutil.Context) error
+	// BindHostPolicy creates policy needed for binding on host identity level
+	BindHostPolicy() (*Policy, error)
+	// BindSpacePolicy creates policy needed for binding on space identity level
+	BindSpacePolicy() (*Policy, error)
+	// DeleteBindHostPolicy deletes policy created for binding on host identity level
+	DeleteBindHostPolicy() error
+
+	// HostExists checks for host existence for space and host level identity
+	HostExists() (bool, error)
 }
 
-// NewBind creates new binding service
-func NewBind(client Client, orgID, spaceID, bindingID string) Bind {
-	res := &bind{
-		orgID:     orgID,
-		spaceID:   spaceID,
-		bindingID: bindingID,
-		client:    client,
-	}
-	return res
-}
-
-// FromBindingID creates new binding service based on existing binding by it's ID, org and space IDs would be queried from conjur
-func FromBindingID(client Client, bindingID string) (Bind, error) {
-	orgID, spaceID, err := client.OrgSpaceFromBindingID(bindingID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create binding service from binding id: %w", err)
-	}
-	res := &bind{
-		orgID:     orgID,
-		spaceID:   spaceID,
-		bindingID: bindingID,
-		client:    client,
-	}
-	return res, nil
-}
-
-func (b *bind) hostID(ctx ctxutil.Context) string {
-	if ctx.IsEnableSpaceIdentity() {
-		return b.hostPolicyID(ctx)
-	}
-	return b.hostPolicyID(ctx) + "/" + b.bindingID
-}
-
-func (b *bind) hostPolicyID(ctx ctxutil.Context) string {
-	return composeID(b.client.Config().ConjurAccount, KindHost, b.policy(ctx))
-}
-
-func (b *bind) CreatePolicy(ctx ctxutil.Context) (*Policy, error) {
+func (b *bind) BindHostPolicy() (*Policy, error) {
 	yaml, err := b.createBindYAML()
 	if err != nil {
 		return nil, err
 	}
-	policy, err := b.client.UpsertPolicy(yaml, b.policy(ctx))
+	policy, err := b.client.upsertPolicy(yaml, b.policy())
 	if err != nil {
 		return nil, err
 	}
 	return b.onlyPolicy(policy)
 }
 
-func (b *bind) SpacePolicy(_ ctxutil.Context) (*Policy, error) {
-	config := b.client.Config()
-	orgSpaceID := fmt.Sprintf("%s/%s/%s", config.ConjurPolicy, b.orgID, b.spaceID)
-	apiKey, err := b.client.GetVariable(fmt.Sprintf("%s/%s", orgSpaceID, spaceHostAPIKey))
+func (b *bind) BindSpacePolicy() (*Policy, error) {
+	config := b.client.config
+	orgSpaceID := slashJoin(config.ConjurPolicy, b.orgID, b.spaceID)
+	apiKey, err := b.client.getVariable(slashJoin(orgSpaceID, spaceHostAPIKey))
 	if err != nil {
 		return nil, err
 	}
 	return &Policy{
 		Account:        config.ConjurAccount,
 		ApplianceURL:   config.ConjurApplianceURL,
-		AuthnLogin:     fmt.Sprintf("%s/%s", KindHost, orgSpaceID),
+		AuthnLogin:     slashJoin(KindHost.String(), orgSpaceID),
 		AuthnAPIKey:    apiKey,
 		SslCertificate: config.ConjurSSLCertificate,
 		Version:        config.ConjurVersion,
 	}, nil
 }
 
-func (b *bind) DeletePolicy(ctx ctxutil.Context) error {
-	err := b.client.RotateAPIKey(b.hostID(ctx))
+func (b *bind) DeleteBindHostPolicy() error {
+	err := b.client.rotateAPIKey(b.hostID)
 	if err != nil {
 		return err
 	}
@@ -111,7 +78,7 @@ func (b *bind) DeletePolicy(ctx ctxutil.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = b.client.ReplacePolicy(yaml, b.policy(ctx))
+	_, err = b.client.replacePolicy(yaml, b.policy())
 	if err != nil {
 		return err
 	}
@@ -131,7 +98,7 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
 	if roleID != role.ID {
 		return nil, fmt.Errorf("creatred role ID do not match %v != %v", roleID, role.ID)
 	}
-	config := b.client.Config()
+	config := b.client.config
 	return &Policy{
 		Account:        config.ConjurAccount,
 		ApplianceURL:   config.ConjurApplianceURL,
@@ -144,11 +111,22 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
 
 func dropAccount(id string) string {
 	_, kind, identifier := parseID(id)
-	return strings.Join([]string{kind.String(), identifier}, "/")
+	return slashJoin(kind.String(), identifier)
 }
 
-func (b *bind) HostExists(ctx ctxutil.Context) (bool, error) {
-	return b.client.ResourceExists(b.hostID(ctx))
+func (b *bind) HostExists() (bool, error) {
+	return b.client.resourceExists(b.hostID)
+}
+
+func (b *bind) useSpace() bool {
+	return len(b.orgID) > 0 && len(b.spaceID) > 0
+}
+
+func (b *bind) policy() string {
+	if b.useSpace() {
+		return slashJoin(b.client.config.ConjurPolicy, b.orgID, b.spaceID)
+	}
+	return b.client.config.ConjurPolicy
 }
 
 func (b *bind) createBindYAML() (io.Reader, error) {
@@ -177,21 +155,9 @@ func (b *bind) deleteBindYAML() (io.Reader, error) {
 }
 
 func (b *bind) hostAnnotations() map[string]string {
-	platform, err := b.client.Platform()
+	platform, err := b.client.platformAnnotation()
 	if len(platform) == 0 || err != nil {
 		return nil
 	}
 	return map[string]string{platform: "true"}
-}
-
-func (b *bind) useSpace() bool {
-	return len(b.orgID) > 0 && len(b.spaceID) > 0
-}
-
-func (b *bind) policy(_ ctxutil.Context) string {
-	p := []string{b.client.Config().ConjurPolicy}
-	if len(b.orgID) > 0 && len(b.spaceID) > 0 {
-		p = append(p, b.orgID, b.spaceID)
-	}
-	return strings.Join(p, "/")
 }

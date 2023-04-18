@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
-	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,15 +40,23 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, _ string, _ ServiceIns
 	}
 
 	ctxParams := parseContext(body.Context)
-	orgSpace := conjur.NewProvision(
-		s.client,
+	provision := s.client.NewProvision(
 		ctxParams.OrgID,
 		ctxParams.SpaceID,
 		ctxParams.OrgName,
 		ctxParams.SpaceName,
 	)
-	if err = orgSpace.CreatePolicy(ctxutil.Ctx(c)); err != nil {
-		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create policy: %w", err))
+	ctx := ctxutil.Ctx(c)
+	if err = provision.ProvisionOrgSpacePolicy(); err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create org space policy: %w", err))
+		return
+	}
+	if !ctx.IsEnableSpaceIdentity() {
+		c.JSON(http.StatusCreated, gin.H{})
+		return
+	}
+	if err = provision.ProvisionHostPolicy(); err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, fmt.Errorf("failed to create space host policy: %w", err))
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{})

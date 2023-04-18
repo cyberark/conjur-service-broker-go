@@ -11,23 +11,13 @@ import (
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
 )
 
-// Client allows interactions with conjure instance
+// Client is a wrapper on conjur go sdk allowing creation of bind and provision objects
 type Client interface {
-	CheckPermission(resourceID string, privilege ...Privilege) (bool, error)
-	CheckVariablePermission(variableID string, privilege ...VariablePrivilege) (bool, error)
-	UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
-	ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error)
-	GetVariable(variableID string) (string, error)
-	SetVariable(variableID, secret string) error
-	ResourceExists(resourceID string) (bool, error)
-	RoleExists(roleID string) (bool, error)
-	RotateAPIKey(roleID string) error
-	Platform() (string, error)
+	NewBind(orgID, spaceID, bindingID string, enableSpaceIdentity bool) Bind
+	FromBindingID(bindingID string) (Bind, error)
+	NewProvision(orgID, spaceID string, orgName, spaceName *string) Provision
 
-	Config() *Config
-	ClientHostID() string
 	ValidateConnectivity() error
-	OrgSpaceFromBindingID(bindingID string) (string, string, error)
 }
 
 type client struct {
@@ -36,32 +26,8 @@ type client struct {
 	config   *Config
 }
 
-func (c *client) OrgSpaceFromBindingID(bindingID string) (string, string, error) {
-	res, err := c.roClient.Resources(&conjurapi.ResourceFilter{
-		Kind:   KindHost.String(),
-		Search: bindingID + "^",
-	})
-	if len(res) == 0 {
-		return "", "", nil
-	}
-	if len(res) > 1 {
-		return "", "", fmt.Errorf("expecting exactly one host ending with a given binding id")
-	}
-	id, ok := res[0]["id"]
-	if !ok {
-		return "", "", nil
-	}
-	_, _, identifier := parseID(fmt.Sprintf("%s", id))
-	// TODO: maybe regexp instead of split?
-	split := strings.SplitN(identifier, "/", 4)
-	if len(split) != 4 {
-		return "", "", nil
-	}
-	return split[1], split[2], err
-}
-
 // NewClient creates new conjur API client wrapper
-func NewClient(config *Config) (Client, error) {
+func (config *Config) NewClient() (Client, error) {
 	clientConf, err := conjurapi.LoadConfig()
 	if err != nil {
 		panic(err)
@@ -85,66 +51,96 @@ func NewClient(config *Config) (Client, error) {
 		roClient = conjur
 	}
 	if conjur == nil {
-		return nil, fmt.Errorf("failed to create conjur conjur")
+		return nil, fmt.Errorf("failed to create conjur client")
 	}
 	return &client{conjur, roClient, config}, nil
 }
 
+// NewBind creates new binding service
+func (c *client) NewBind(orgID, spaceID, bindingID string, enableSpaceIdentity bool) Bind {
+	res := &bind{
+		orgID:     orgID,
+		spaceID:   spaceID,
+		bindingID: bindingID,
+		client:    c,
+	}
+	if enableSpaceIdentity {
+		res.hostID = composeID(c.config.ConjurAccount, KindHost, res.policy())
+	} else {
+		res.hostID = slashJoin(composeID(c.config.ConjurAccount, KindHost, res.policy()), bindingID)
+	}
+	return res
+}
+
+// FromBindingID creates new binding service based on existing binding by its ID, org and space IDs would be queried from conjur
+func (c *client) FromBindingID(bindingID string) (Bind, error) {
+	orgID, spaceID, err := c.orgSpaceFromBindingID(bindingID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create binding service from binding id: %w", err)
+	}
+	return c.NewBind(orgID, spaceID, bindingID, false), nil // false is safe since this method is only used in context of disabled space identity
+}
+
+func (c *client) orgSpaceFromBindingID(bindingID string) (string, string, error) {
+	res, err := c.roClient.Resources(&conjurapi.ResourceFilter{
+		Kind:   KindHost.String(),
+		Search: bindingID + "^",
+	})
+	if len(res) == 0 {
+		return "", "", nil
+	}
+	if len(res) > 1 {
+		return "", "", fmt.Errorf("expecting exactly one host ending with a given binding id")
+	}
+	id, ok := res[0]["id"]
+	if !ok {
+		return "", "", nil
+	}
+	_, _, identifier := parseID(fmt.Sprintf("%s", id))
+	// TODO: maybe regexp instead of split?
+	split := strings.SplitN(identifier, "/", 4)
+	if len(split) != 4 {
+		return "", "", nil
+	}
+	return split[1], split[2], err
+}
+
+// NewProvision creates a Provision based on provided configuration
+func (c *client) NewProvision(orgID, spaceID string, orgName, spaceName *string) Provision {
+	res := &provision{
+		orgID:   orgID,
+		spaceID: spaceID,
+		client:  c,
+	}
+	if orgName != nil {
+		res.orgName = *orgName
+	}
+	if spaceName != nil {
+		res.spaceName = *spaceName
+	}
+	return res
+}
+
 // ValidateConnectivity validates conjur client configuration by checking read access permission to the policy
 func (c *client) ValidateConnectivity() error {
-	_, err := c.client.CheckPermission(c.basePolicy(), PrivilegeRead.String())
+	_, err := c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
 	if err != nil {
-		return fmt.Errorf("validation failed, missing read permissions on policy %v: %w", c.basePolicy(), err)
+		return fmt.Errorf("validation failed, missing read permissions on policy %v: %w", c.basePolicyID(), err)
 	}
-	_, err = c.roClient.CheckPermission(c.basePolicy(), PrivilegeRead.String())
+	_, err = c.roClient.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
 	if err != nil {
-		return fmt.Errorf("validation failed, ro missing read permissions on policy %v: %w", c.basePolicy(), err)
+		return fmt.Errorf("validation failed, ro missing read permissions on policy %v: %w", c.basePolicyID(), err)
 	}
 	return nil
 }
 
-// ClientHostID returns host ID of the client
-func (c *client) ClientHostID() string {
+// clientHostID returns host ID of the client
+func (c *client) clientHostID() string {
 	return strings.TrimPrefix(c.config.ConjurAuthNLogin, "host/")
 }
 
-func (c *client) checkPermission(resourceID string, privilege string) (bool, error) {
-	ok, err := c.roClient.CheckPermission(resourceID, privilege)
-	if err != nil {
-		return false, fmt.Errorf("validation failed, missing read permissions on policy: %w", err)
-	}
-	if !ok {
-		return false, nil
-	}
-	return true, nil
-}
-
-// CheckPermission checks permissions for a given resource id
-func (c *client) CheckPermission(resourceID string, privilege ...Privilege) (bool, error) {
-	// TODO: check if resource is not a variable
-	for _, p := range privilege {
-		ok, err := c.checkPermission(resourceID, p.String())
-		if err != nil || !ok {
-			return ok, err
-		}
-	}
-	return true, nil
-}
-
-// CheckVariablePermission checks permissions for a given variable id
-func (c *client) CheckVariablePermission(variableID string, privilege ...VariablePrivilege) (bool, error) {
-	// TODO: check if variableID is actually a variable id
-	for _, p := range privilege {
-		ok, err := c.checkPermission(variableID, p.String())
-		if err != nil || !ok {
-			return ok, err
-		}
-	}
-	return true, nil
-}
-
-// UpsertPolicy creates or updates (appends) a policy
-func (c *client) UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
+// upsertPolicy creates or updates (appends) a policy
+func (c *client) upsertPolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
 	res, err := c.client.LoadPolicy(
 		conjurapi.PolicyModePost,
 		policyID,
@@ -156,8 +152,8 @@ func (c *client) UpsertPolicy(policy io.Reader, policyID string) (*conjurapi.Pol
 	return res, nil
 }
 
-// ReplacePolicy completely replaces an existing policy, implicitly deleting data which is not present in the new policy
-func (c *client) ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
+// replacePolicy completely replaces an existing policy, implicitly deleting data which is not present in the new policy
+func (c *client) replacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
 	res, err := c.client.LoadPolicy(
 		conjurapi.PolicyModePut,
 		policyID,
@@ -169,8 +165,8 @@ func (c *client) ReplacePolicy(policy io.Reader, policyID string) (*conjurapi.Po
 	return res, nil
 }
 
-// ResourceExists checks for an existence of a resource with a given id
-func (c *client) ResourceExists(resourceID string) (bool, error) {
+// resourceExists checks for an existence of a resource with a given id
+func (c *client) resourceExists(resourceID string) (bool, error) {
 	exists, err := c.roClient.ResourceExists(resourceID)
 	if err != nil {
 		return false, fmt.Errorf("unable to check resource existance %v: %w", resourceID, err)
@@ -178,22 +174,13 @@ func (c *client) ResourceExists(resourceID string) (bool, error) {
 	return exists, nil
 }
 
-// RoleExists checks for an existence of a role with a given id
-func (c *client) RoleExists(roleID string) (bool, error) {
-	roleExists, err := c.roClient.RoleExists(roleID)
-	if err != nil {
-		return false, fmt.Errorf("unable to find role %v: %w", roleID, err)
-	}
-	return roleExists, nil
-}
-
-// SetVariable sets a secret variable
-func (c *client) SetVariable(variableID, secret string) error {
+// setVariable sets a secret variable
+func (c *client) setVariable(variableID, secret string) error {
 	return c.client.AddSecret(variableID, secret)
 }
 
-// GetVariable gets a secret variable
-func (c *client) GetVariable(variableID string) (string, error) {
+// getVariable gets a secret variable
+func (c *client) getVariable(variableID string) (string, error) {
 	bytes, err := c.client.RetrieveSecret(variableID)
 	if err != nil {
 		return "", err
@@ -201,8 +188,8 @@ func (c *client) GetVariable(variableID string) (string, error) {
 	return string(bytes), nil
 }
 
-// RotateAPIKey checks for an existence of a role with a given id
-func (c *client) RotateAPIKey(roleID string) error {
+// rotateAPIKey checks for an existence of a role with a given id
+func (c *client) rotateAPIKey(roleID string) error {
 	_, err := c.client.RotateAPIKey(roleID)
 	if err != nil {
 		return fmt.Errorf("unable to rotate API key for role %v: %w", roleID, err)
@@ -210,13 +197,13 @@ func (c *client) RotateAPIKey(roleID string) error {
 	return nil
 }
 
-func (c *client) basePolicy() string {
-	return fmt.Sprintf("%v:policy:%v", c.config.ConjurAccount, c.config.ConjurPolicy)
+func (c *client) basePolicyID() string {
+	return composeID(c.config.ConjurAccount, KindPolicy, c.config.ConjurPolicy)
 }
 
-// Platform checks for platform annotation on host used for service broker authentication
-func (c *client) Platform() (string, error) {
-	hostID := composeID(c.config.ConjurAccount, KindHost, c.ClientHostID())
+// platformAnnotation checks for platform annotation on host used for service broker authentication
+func (c *client) platformAnnotation() (string, error) {
+	hostID := composeID(c.config.ConjurAccount, KindHost, c.clientHostID())
 	clientHost, err := c.roClient.Resource(hostID)
 	if err != nil {
 		return "", fmt.Errorf("unable to find resource %v: %w", hostID, err)
@@ -241,9 +228,4 @@ func (c *client) Platform() (string, error) {
 		}
 	}
 	return "", nil
-}
-
-// Config returns a conjur client config
-func (c *client) Config() *Config {
-	return c.config
 }

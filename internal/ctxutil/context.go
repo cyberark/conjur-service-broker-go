@@ -38,9 +38,12 @@ func (c *ctx) Inject() gin.HandlerFunc {
 
 // Ctx unwraps previously injected custom context from gin context
 func Ctx(c *gin.Context) Context {
-	context, ok := c.Value(ctxKey).(*ctx)
-	if !ok {
-		context = &ctx{} // avoid nil pointer
+	if c == nil {
+		return NewContext() // avoid nil pointer
 	}
-	return context
+	res, ok := c.Value(ctxKey).(*ctx)
+	if !ok {
+		return NewContext() // avoid nil pointer
+	}
+	return res
 }

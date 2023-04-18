@@ -11,6 +11,10 @@ import (
 
 func policyReader(policy conjurpolicy.PolicyStatements) (io.Reader, error) {
 	res := new(bytes.Buffer)
+	if len(policy) == 0 {
+		res.WriteString("\n")
+		return res, nil
+	}
 	encoder := yaml.NewEncoder(res)
 	err := encoder.Encode(policy)
 	if err != nil {

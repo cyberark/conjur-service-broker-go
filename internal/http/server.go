@@ -13,7 +13,6 @@ import (
 	"github.com/cyberark/conjur-api-go/conjurapi/logging"
 	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/cyberark/conjur-service-broker/internal/servicebroker"
-	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-contrib/requestid"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
@@ -66,7 +65,7 @@ func startServer() (logger *zap.Logger, err error) {
 
 	ctx = ctx.WithLogger(logger.Sugar())
 	ctx = ctx.WithEnableSpaceIdentity(cfg.EnableSpaceIdentity)
-	client, err := conjur.NewClient(&cfg.Config)
+	client, err := cfg.NewClient()
 	if err != nil {
 		err = fmt.Errorf("failed to initialize conjur client: %w", err)
 		return
@@ -111,7 +110,7 @@ func startServer() (logger *zap.Logger, err error) {
 	quit := make(chan os.Signal, 1)
 	// kill (no param) default send syscanll.SIGTERM
 	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+	// kill -9 is syscall. SIGKILL can't be caught, no need to add it
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	logger.Info("shutdown server...")

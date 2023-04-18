@@ -1,6 +1,11 @@
 package conjur
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/cyberark/conjur-api-go/conjurapi"
+	"github.com/stretchr/testify/require"
+)
 
 func Test_parseID(t *testing.T) {
 	tests := []struct {
@@ -46,6 +51,121 @@ func Test_parseID(t *testing.T) {
 			if gotIdentifier != tt.wantIdentifier {
 				t.Errorf("parseID() gotIdentifier = %v, want %v", gotIdentifier, tt.wantIdentifier)
 			}
+		})
+	}
+}
+
+func Test_composeID(t *testing.T) {
+	type args struct {
+		account    string
+		kind       Kind
+		identifier string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{{
+		"full",
+		args{
+			account:    "account",
+			kind:       KindHost,
+			identifier: "id",
+		},
+		"account:host:id",
+	}, {
+		"no account",
+		args{
+			account:    "",
+			kind:       KindHost,
+			identifier: "id",
+		},
+		"host:id",
+	}, {
+		"no kind",
+		args{
+			account:    "account",
+			kind:       -1,
+			identifier: "id",
+		},
+		"account:id",
+	}, {
+		"no id",
+		args{
+			account:    "account",
+			kind:       KindPolicy,
+			identifier: "",
+		},
+		"account:policy",
+	}, {
+		"just account",
+		args{
+			account:    "account",
+			kind:       -1,
+			identifier: "",
+		},
+		"account",
+	}, {
+		"empty",
+		args{
+			account:    "",
+			kind:       -1,
+			identifier: "",
+		},
+		"",
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := composeID(tt.args.account, tt.args.kind, tt.args.identifier)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func Test_apiKey(t *testing.T) {
+	tests := []struct {
+		name    string
+		policy  *conjurapi.PolicyResponse
+		want    string
+		wantErr bool
+	}{{
+		"positive",
+		&conjurapi.PolicyResponse{
+			CreatedRoles: map[string]conjurapi.CreatedRole{"role": {
+				APIKey: "api-key",
+				ID:     "role",
+			}},
+		},
+		"api-key",
+		false,
+	}, {
+		"mismatched id",
+		&conjurapi.PolicyResponse{
+			CreatedRoles: map[string]conjurapi.CreatedRole{"role": {
+				APIKey: "api-key",
+				ID:     "id",
+			}},
+		},
+		"",
+		true,
+	}, {
+		"empty",
+		nil,
+		"",
+		true,
+	}, {
+		"no role",
+		&conjurapi.PolicyResponse{},
+		"",
+		true,
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := apiKey(tt.policy)
+			if tt.wantErr {
+				require.Error(t, err)
+			}
+			require.Equal(t, tt.want, got)
 		})
 	}
 }
