@@ -5,22 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
-	"github.com/cyberark/conjur-api-go/conjurapi/logging"
-	"github.com/sirupsen/logrus"
 )
-
-// TODO: make this better
-func init() {
-	// this is just to enable debug in conjur SDK
-	if debug := os.Getenv("DEBUG"); debug == "true" {
-		logging.ApiLog.Level = logrus.DebugLevel
-	}
-}
 
 // Client allows interactions with conjure instance
 type Client interface {
