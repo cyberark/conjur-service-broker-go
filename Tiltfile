@@ -1,3 +1,4 @@
+load('ext://tests/golang', 'test_go')
 load('ext://ko', 'ko_build')
 load('ext://deployment', 'deployment_create')
 
@@ -18,4 +19,4 @@ load_dynamic('./test/integration/Tiltfile.dep')
 load_dynamic('./Tiltfile.ruby')
 
 # unit tests
-local_resource(name='unit-tests', cmd='go test ./...', labels=['conjur-service-broker'])
+test_go('unit-tests', './...', '.', timeout='30s', extra_args=['-cover'], labels=['conjur-service-broker'])
