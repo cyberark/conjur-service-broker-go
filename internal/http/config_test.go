@@ -11,6 +11,8 @@ import (
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 )
 
+const validEnvs = "CONJUR_ACCOUNT=dev;CONJUR_APPLIANCE_URL=http://localhost:8082;CONJUR_AUTHN_API_KEY=api-key;CONJUR_AUTHN_LOGIN=host/service-broker;CONJUR_POLICY=cf;DEBUG=true;ENABLE_SPACE_IDENTITY=true;SECURITY_USER_NAME=test;SECURITY_USER_PASSWORD=test"
+
 func Test_newConfig(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -29,9 +31,14 @@ func Test_newConfig(t *testing.T) {
 		env.EmptyEnvVarError{},
 	}, {
 		"positive",
-		parseEnvs("CONJUR_ACCOUNT=dev;CONJUR_APPLIANCE_URL=http://localhost:8082;CONJUR_AUTHN_API_KEY=api-key;CONJUR_AUTHN_LOGIN=host/service-broker;CONJUR_POLICY=cf;DEBUG=true;ENABLE_SPACE_IDENTITY=true;SECURITY_USER_NAME=test;SECURITY_USER_PASSWORD=test"),
+		parseEnvs(validEnvs),
 		map[string]interface{}{"CONJUR_VERSION": uint32(5)},
 		nil,
+	}, {
+		"invalid conjur version",
+		parseEnvs("CONJUR_VERSION=4;" + validEnvs),
+		nil,
+		ErrInvalidConjurVersion,
 	}}
 	for _, tt := range tests {
 		t.Cleanup(cleanupEnv())

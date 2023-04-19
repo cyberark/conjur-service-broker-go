@@ -7,9 +7,39 @@ repos:
 #      - id: check-yaml
       - id: check-added-large-files
       - id: check-shebang-scripts-are-executable
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.16.1
+    hooks:
+      - id: gitleaks
+  - repo: local
+    hooks:
+      - id: remarklint
+        name: remarklint
+        language: node
+        entry: remark
+        types: [markdown]
+        args: ["--frail", "--quiet"]
+        additional_dependencies: [remark, remark-lint, remark-cli, remark-preset-lint-recommended, remark-lint-list-item-indent]
   -   repo: https://github.com/tekwizely/pre-commit-golang
       rev: v1.0.0-rc.1
       hooks:
+        #
+        # Invoking Custom Go Tools
+        # - Configured *entirely* through the `args` attribute, ie:
+        #   args: [ go, test, ./... ]
+        # - Use arg `--hook:error-on-output` to indicate that any output from the tool
+        #   should be treated as an error.
+        # - Use the `name` attribute to provide better messaging when the hook runs
+        # - Use the `alias` attribute to be able to invoke your hook via `pre-commit run`
+        #
+        #        -   id: my-cmd
+        #        -   id: my-cmd-mod
+        #        -   id: my-cmd-pkg
+        -   id: my-cmd-repo
+            name: go-generate
+            args: [ go, generate, ./... ]
+        #        -   id: my-cmd-repo-mod
+        #        -   id: my-cmd-repo-pkg
         #
         # Go Build
         #
@@ -99,18 +129,3 @@ repos:
 #        -   id: golangci-lint-pkg
         -   id: golangci-lint-repo-mod
 #        -   id: golangci-lint-repo-pkg
-        #
-        # Invoking Custom Go Tools
-        # - Configured *entirely* through the `args` attribute, ie:
-        #   args: [ go, test, ./... ]
-        # - Use arg `--hook:error-on-output` to indicate that any output from the tool
-        #   should be treated as an error.
-        # - Use the `name` attribute to provide better messaging when the hook runs
-        # - Use the `alias` attribute to be able to invoke your hook via `pre-commit run`
-        #
-#        -   id: my-cmd
-#        -   id: my-cmd-mod
-#        -   id: my-cmd-pkg
-#        -   id: my-cmd-repo
-#        -   id: my-cmd-repo-mod
-#        -   id: my-cmd-repo-pkg

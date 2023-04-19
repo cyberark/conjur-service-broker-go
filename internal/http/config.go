@@ -9,6 +9,9 @@ import (
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 )
 
+// ErrInvalidConjurVersion error indicating invalid conjur version parameter value
+var ErrInvalidConjurVersion = errors.New("conjur enterprise v4 is no longer supported, please use conjur service broker v1.1.4 or earlier")
+
 type config struct {
 	conjur.Config
 
@@ -40,7 +43,7 @@ func newConfig() (*config, error) {
 
 func validate(cfg config) error {
 	if cfg.ConjurVersion != 5 {
-		return errors.New("conjur enterprise v4 is no longer supported, please use conjur service broker v1.1.4 or earlier")
+		return ErrInvalidConjurVersion
 	}
 	//TODO: validate certificate if present
 	return nil
