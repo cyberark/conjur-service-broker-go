@@ -9,9 +9,12 @@ import (
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
+	"github.com/cyberark/conjur-service-broker/pkg/conjur/api"
 )
 
 // Client is a wrapper on conjur go sdk allowing creation of bind and provision objects
+//
+//go:generate mockery --name=Client
 type Client interface {
 	NewBind(orgID, spaceID, bindingID string, enableSpaceIdentity bool) Bind
 	FromBindingID(bindingID string) (Bind, error)
@@ -21,14 +24,15 @@ type Client interface {
 }
 
 type client struct {
-	client   *conjurapi.Client
-	roClient *conjurapi.Client
+	client   api.Client
+	roClient api.Client
 	config   *Config
 }
 
 // NewClient creates new conjur API client wrapper
 func (config *Config) NewClient() (Client, error) {
 	clientConf, err := conjurapi.LoadConfig()
+	clientConf = config.mergeConfig(clientConf)
 	if err != nil {
 		panic(err)
 	}

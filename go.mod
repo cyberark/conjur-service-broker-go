@@ -7,11 +7,12 @@ require (
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/cyberark/conjur-api-go v0.11.0
 	github.com/deepmap/oapi-codegen v1.12.4
-	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230405120131-ed927473ba87
-	github.com/getkin/kin-openapi v0.115.0
+	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230412104742-12c1cdd324f4
+	github.com/getkin/kin-openapi v0.116.0
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
 	github.com/gin-gonic/gin v1.9.0
+	github.com/jarcoal/httpmock v1.3.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.2
 	go.uber.org/zap v1.24.0
@@ -50,13 +51,14 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/zalando/go-keyring v0.2.2 // indirect
-	go.opentelemetry.io/otel v1.10.0 // indirect
-	go.opentelemetry.io/otel/trace v1.10.0 // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.opentelemetry.io/otel v1.14.0 // indirect
+	go.opentelemetry.io/otel/trace v1.14.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
 	golang.org/x/net v0.9.0 // indirect

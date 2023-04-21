@@ -28,6 +28,8 @@ type Policy struct {
 }
 
 // Bind allows operations needed for binding an instance
+//
+//go:generate mockery --name=Bind
 type Bind interface {
 	// BindHostPolicy creates policy needed for binding on host identity level
 	BindHostPolicy() (*Policy, error)

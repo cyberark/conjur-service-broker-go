@@ -1,6 +1,10 @@
 // Package conjur provides a wrapper around conjur go SDK
 package conjur
 
+import (
+	"github.com/cyberark/conjur-api-go/conjurapi"
+)
+
 // Config is the part of config that is specific to conjur
 type Config struct {
 	// CONJUR_VERSION: the version of Conjur enterprise, currently only version '5' is supported. Any other, non-empty value would raise an error.
@@ -40,4 +44,17 @@ type Config struct {
 	// ...
 	// -----END CERTIFICATE-----
 	ConjurSSLCertificate string `env:"CONJUR_SSL_CERTIFICATE"`
+}
+
+func (config *Config) mergeConfig(conf conjurapi.Config) conjurapi.Config {
+	if len(config.ConjurAccount) > 0 {
+		conf.Account = config.ConjurAccount
+	}
+	if len(config.ConjurApplianceURL) > 0 {
+		conf.ApplianceURL = config.ConjurApplianceURL
+	}
+	if len(config.ConjurSSLCertificate) > 0 {
+		conf.SSLCert = config.ConjurSSLCertificate
+	}
+	return conf
 }
