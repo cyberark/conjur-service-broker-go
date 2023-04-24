@@ -35,9 +35,9 @@ repos:
         #        -   id: my-cmd
         #        -   id: my-cmd-mod
         #        -   id: my-cmd-pkg
-#        -   id: my-cmd-repo
-#            name: go-generate
-#            args: [ go, generate, ./... ]
+        -   id: my-cmd-repo
+            name: go-generate
+            args: [ go, generate, ./... ]
         #        -   id: my-cmd-repo-mod
         #        -   id: my-cmd-repo-pkg
         #
