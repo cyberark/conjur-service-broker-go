@@ -57,7 +57,20 @@ func composeID(account string, kind Kind, identifier string) string {
 }
 
 func slashJoin(elems ...string) string {
-	return strings.Join(elems, "/")
+	length := len(elems)
+	if length == 0 {
+		return ""
+	}
+	if length == 1 {
+		return elems[0]
+	}
+	trimmed := make([]string, length)
+	trimmed[0] = strings.TrimRight(elems[0], "/")
+	for i := 1; i < length-1; i++ {
+		trimmed[i] = strings.Trim(elems[i], "/")
+	}
+	trimmed[length-1] = strings.TrimLeft(elems[length-1], "/")
+	return strings.Join(trimmed, "/")
 }
 
 func apiKey(policy *conjurapi.PolicyResponse) (string, error) {

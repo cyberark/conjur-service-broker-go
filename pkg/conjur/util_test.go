@@ -169,3 +169,42 @@ func Test_apiKey(t *testing.T) {
 		})
 	}
 }
+
+func Test_slashJoin(t *testing.T) {
+	tests := []struct {
+		name  string
+		elems []string
+		want  string
+	}{{
+		"simple",
+		[]string{"a", "b", "c"},
+		"a/b/c",
+	}, {
+		"single",
+		[]string{"abc"},
+		"abc",
+	}, {
+		"single with slashes",
+		[]string{"/abc/"},
+		"/abc/",
+	}, {
+		"empty",
+		[]string{},
+		"",
+	}, {
+		"nil",
+		nil,
+		"",
+	}, {
+		"with slash",
+		[]string{"/a/b/", "/c"},
+		"/a/b/c",
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := slashJoin(tt.elems...); got != tt.want {
+				t.Errorf("slashJoin() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

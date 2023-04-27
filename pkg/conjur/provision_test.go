@@ -115,6 +115,7 @@ func Test_provision_provisionSpaceHostYAML(t *testing.T) {
 			got, err := tt.args.provisionHostYAML()
 			if tt.wantErr {
 				require.Error(t, err)
+				return
 			}
 			bytes, err := io.ReadAll(got)
 			require.NoError(t, err)
