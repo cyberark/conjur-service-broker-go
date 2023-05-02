@@ -8,6 +8,7 @@ import (
 //go:generate oapi-codegen --config ./oapi-codegen.yaml ../../api/openapi.yaml
 //go:generate sh -c "echo '//lint:file-ignore ST1005 Ignore generated file' >> servicebroker.gen.go"
 //go:generate goimports -w servicebroker.gen.go
+//go:generate mockery --name=ServerInterface
 type server struct {
 	client conjur.Client
 }

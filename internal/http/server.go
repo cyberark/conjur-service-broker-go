@@ -4,6 +4,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,27 +30,52 @@ const (
 
 // StartHTTPServer starts a new http server to handle requests supported by the service broker
 func StartHTTPServer() {
-	if logger, err := startServer(); err != nil {
-		logger.Sugar().Fatal("failed to start http server: ", err)
-	}
+	cfg, err := newConfig()
+	checkFatalErr(err)
+	logger, cleanup, err := initLogger(cfg)
+	checkFatalErr(err)
+	defer cleanup()
+
+	ctx := initCtx(logger, cfg)
+
+	srv, err := initServer(cfg)
+	checkFatalErr(err)
+
+	err = startServer(ctx, cfg, srv, logger)
+	checkFatalErr(err)
 }
 
-func startServer() (logger *zap.Logger, err error) {
-	ctx := ctxutil.NewContext()
-	logCfg := zap.NewProductionConfig()
-	cfg, err := newConfig()
+func initServer(cfg *config) (servicebroker.ServerInterface, error) {
+	client, err := cfg.NewClient()
 	if err != nil {
-		err = fmt.Errorf("failed to parse configuration: %w", err)
-		logger, _ = logCfg.Build()
-		return
+		return nil, fmt.Errorf("failed to initialize conjur client: %w", err)
 	}
+	if err = client.ValidateConnectivity(); err != nil {
+		return nil, fmt.Errorf("failed to validate conjur client: %w", err)
+	}
+	return servicebroker.NewServerImpl(client), nil
+}
+
+func initCtx(logger *zap.Logger, cfg *config) ctxutil.Context {
+	ctx := ctxutil.NewContext()
+	if logger != nil {
+		ctx = ctx.WithLogger(logger.Sugar())
+	}
+	if cfg != nil {
+		ctx = ctx.WithEnableSpaceIdentity(cfg.EnableSpaceIdentity)
+	}
+	return ctx
+}
+
+func initLogger(cfg *config) (logger *zap.Logger, cleanup func(), err error) {
+	logCfg := zap.NewProductionConfig()
+	logCfg.Encoding = "console"
 	if !cfg.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	} else {
 		logging.ApiLog.Level = logrus.DebugLevel
 		logCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
-
 	logger, err = logCfg.Build(zap.Fields(zap.String("service", serviceName)))
 	if err != nil {
 		err = fmt.Errorf("failed to init logger: %w", err)
@@ -57,25 +83,20 @@ func startServer() (logger *zap.Logger, err error) {
 		return
 	}
 	undo := zap.RedirectStdLog(logger)
-	defer undo()
 	writer := &zapio.Writer{Log: logger, Level: zap.DebugLevel}
-	defer writer.Close()
 	gin.DefaultWriter = writer
 	logging.ApiLog.Out = writer
 
-	ctx = ctx.WithLogger(logger.Sugar())
-	ctx = ctx.WithEnableSpaceIdentity(cfg.EnableSpaceIdentity)
-	client, err := cfg.NewClient()
-	if err != nil {
-		err = fmt.Errorf("failed to initialize conjur client: %w", err)
-		return
+	cleanup = func() {
+		_ = logger.Sync()
+		undo()
+		_ = writer.Close()
 	}
-	if err = client.ValidateConnectivity(); err != nil {
-		err = fmt.Errorf("failed to validate conjur client: %w", err)
-		return
-	}
-	srv := servicebroker.NewServerImpl(client)
 
+	return logger, cleanup, err
+}
+
+func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInterface, logger *zap.Logger) error {
 	r := gin.New()
 	r.Use(ginzap.Ginzap(logger, time.RFC3339, true), ginzap.RecoveryWithZap(logger, true), requestid.New(), errorsMiddleware)
 	// TODO: trusted proxies, caching headers
@@ -85,8 +106,7 @@ func startServer() (logger *zap.Logger, err error) {
 	}
 	validator, err := validatorMiddleware(ctx)
 	if err != nil {
-		err = fmt.Errorf("failed to initialize validateion middleware: %w", err)
-		return
+		return fmt.Errorf("failed to initialize validateion middleware: %w", err)
 	}
 	r.Use(ctx.Inject(), validator)
 
@@ -126,5 +146,11 @@ func startServer() (logger *zap.Logger, err error) {
 	// catching ctx.Done(). timeout of 5 seconds.
 	<-c.Done()
 	logger.Info("server exit")
-	return
+	return nil
+}
+
+func checkFatalErr(err error) {
+	if err != nil {
+		log.Fatal(fmt.Errorf("failed to start server: %w", err))
+	}
 }
