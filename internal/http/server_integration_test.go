@@ -31,6 +31,7 @@ func Test_startServer_gracefulShutdown(t *testing.T) {
 	err := syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	require.NoError(t, err)
 	require.Eventually(t, func() bool { return exited }, 5*time.Second, 50*time.Millisecond)
+	srv.AssertExpectations(t)
 }
 
 func getCatalog(t *testing.T) bool {

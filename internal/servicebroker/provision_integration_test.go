@@ -42,6 +42,7 @@ func Test_server_ServiceInstanceProvisionOrgSpacePolicy(t *testing.T) {
 	require.Empty(t, c.Errors.Errors())
 	require.Equal(t, "{}", w.Body.String())
 	require.Equal(t, http.StatusCreated, w.Code)
+	mockAPI.AssertExpectations(t)
 }
 
 var loadPolicyResp = &conjurapi.PolicyResponse{
@@ -71,4 +72,5 @@ func Test_server_ServiceInstanceProvisionHostPolicy(t *testing.T) {
 	require.Empty(t, c.Errors.Errors())
 	require.Equal(t, "{}", w.Body.String())
 	require.Equal(t, http.StatusCreated, w.Code)
+	mockAPI.AssertExpectations(t)
 }

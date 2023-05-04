@@ -14,6 +14,7 @@ import (
 
 func ginTestCtx(t *testing.T, method, url string, body string, enableSpaceIdentity bool) (*httptest.ResponseRecorder, *gin.Context) {
 	w := httptest.NewRecorder()
+	gin.SetMode(gin.TestMode)
 	c, _ := gin.CreateTestContext(w)
 	ctx := ctxutil.NewContext()
 	ctx = ctx.WithEnableSpaceIdentity(enableSpaceIdentity)
