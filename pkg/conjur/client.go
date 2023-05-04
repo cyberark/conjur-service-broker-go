@@ -127,12 +127,12 @@ func (c *client) NewProvision(orgID, spaceID string, orgName, spaceName *string)
 
 // ValidateConnectivity validates conjur client configuration by checking read access permission to the policy
 func (c *client) ValidateConnectivity() error {
-	_, err := c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
-	if err != nil {
+	res, err := c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
+	if err != nil || !res {
 		return fmt.Errorf("validation failed, missing read permissions on policy %v: %w", c.basePolicyID(), err)
 	}
-	_, err = c.roClient.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
-	if err != nil {
+	res, err = c.roClient.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
+	if err != nil || !res {
 		return fmt.Errorf("validation failed, ro missing read permissions on policy %v: %w", c.basePolicyID(), err)
 	}
 	return nil
