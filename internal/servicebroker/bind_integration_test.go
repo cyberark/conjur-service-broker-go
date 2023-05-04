@@ -28,7 +28,7 @@ func Test_server_ServiceBindingBinding(t *testing.T) {
 			s := &server{
 				client: client,
 			}
-			w, c := mockRequest(t, "PUT", "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax8/service_bindings/bb841d2b-8287-47a9-ac8f-eef4c16106f2", `{
+			w, c := ginTestCtx(t, "PUT", "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax8/service_bindings/bb841d2b-8287-47a9-ac8f-eef4c16106f2", `{
     "service_id": "c024e536-6dc4-45c6-8a53-127e7f8275ab",
     "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
       "bind_resource": {
@@ -42,7 +42,7 @@ func Test_server_ServiceBindingBinding(t *testing.T) {
         "parameter1": 1,
         "parameter2": "foo"
       }
-}`)
+}`, false)
 			s.ServiceBindingBinding(c, "", "bb841d2b-8287-47a9-ac8f-eef4c16106f2", ServiceBindingBindingParams{})
 			require.Empty(t, c.Errors.Errors())
 			require.Equal(t, `{"credentials":{"account":"","appliance_url":"","authn_api_key":"","authn_login":"","ssl_certificate":"","version":0}}`, w.Body.String())
