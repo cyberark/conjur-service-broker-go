@@ -17,6 +17,8 @@ type provision struct {
 }
 
 // Provision allows basic operations on the organization and space
+//
+//go:generate mockery --name=Provision
 type Provision interface {
 	ProvisionOrgSpacePolicy() error
 	ProvisionHostPolicy() error
