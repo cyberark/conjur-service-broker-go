@@ -51,7 +51,6 @@ func (*server) ServiceBindingGet(c *gin.Context, _ string, _ string, _ ServiceBi
 // ServiceBindingBinding generate a service binding
 // (PUT /v2/service_instances/{instance_id}/service_bindings/{binding_id})
 func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID string, _ ServiceBindingBindingParams) {
-	// TODO: Implement me
 	body := ServiceBindingBindingJSONRequestBody{}
 	err := c.BindJSON(&body)
 	if err != nil {
