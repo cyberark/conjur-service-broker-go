@@ -6,29 +6,25 @@ import (
 	"testing"
 
 	"github.com/cyberark/conjur-service-broker/pkg/conjur"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
 )
 
 func Test_client_ValidateConnectivity(t *testing.T) {
 	tests := []struct {
-		name string
-		// fields  fields
-		wantErr bool
+		name          string
+		hasPermission bool
+		wantErr       assert.ErrorAssertionFunc
 	}{
-		{"positive", false},
-		{"negative", true},
+		{"positive", true, assert.NoError},
+		{"negative", false, assert.Error},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client, mockAPI := conjur.NewMockClient()
-			mockAPI.On("CheckPermission", mock.Anything, mock.Anything).Return(!tt.wantErr, nil)
+			mockAPI.On("CheckPermission", mock.Anything, mock.Anything).Return(tt.hasPermission, nil)
 			err := client.ValidateConnectivity()
-			if tt.wantErr {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
-			}
+			tt.wantErr(t, err)
 		})
 	}
 }

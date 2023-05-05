@@ -6,7 +6,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_provisionOrgSpaceYAML(t *testing.T) {
@@ -64,16 +64,10 @@ func Test_provisionOrgSpaceYAML(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.args.provisionOrgSpaceYAML()
-			if err != nil {
-				t.Error(err)
-			}
+			assert.NoError(t, err)
 			bytes, err := io.ReadAll(got)
-			if err != nil {
-				t.Error(err)
-			}
-			if string(bytes) != tt.want {
-				t.Errorf("provisionOrgSpaceYAML() = \n%v\n, want \n%v\n", string(bytes), tt.want)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, string(bytes))
 		})
 	}
 }
@@ -83,7 +77,7 @@ func Test_provision_provisionSpaceHostYAML(t *testing.T) {
 		name    string
 		args    *provision
 		want    string
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"positive",
 		&provision{
@@ -110,18 +104,15 @@ func Test_provision_provisionSpaceHostYAML(t *testing.T) {
   privileges: [read]
   resource: !variable space-host-api-key
 `,
-		false,
+		assert.NoError,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.args.provisionHostYAML()
-			if tt.wantErr {
-				require.Error(t, err)
-				return
-			}
+			tt.wantErr(t, err)
 			bytes, err := io.ReadAll(got)
-			require.NoError(t, err)
-			require.Equal(t, tt.want, string(bytes))
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, string(bytes))
 		})
 	}
 }

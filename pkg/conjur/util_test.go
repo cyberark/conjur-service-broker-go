@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_parseID(t *testing.T) {
@@ -118,7 +118,7 @@ func Test_composeID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := composeID(tt.args.account, tt.args.kind, tt.args.identifier)
-			require.Equal(t, tt.want, got)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -128,7 +128,7 @@ func Test_apiKey(t *testing.T) {
 		name    string
 		policy  *conjurapi.PolicyResponse
 		want    string
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"positive",
 		&conjurapi.PolicyResponse{
@@ -138,7 +138,7 @@ func Test_apiKey(t *testing.T) {
 			}},
 		},
 		"api-key",
-		false,
+		assert.NoError,
 	}, {
 		"mismatched id",
 		&conjurapi.PolicyResponse{
@@ -148,25 +148,23 @@ func Test_apiKey(t *testing.T) {
 			}},
 		},
 		"",
-		true,
+		assert.Error,
 	}, {
 		"empty",
 		nil,
 		"",
-		true,
+		assert.Error,
 	}, {
 		"no role",
 		&conjurapi.PolicyResponse{},
 		"",
-		true,
+		assert.Error,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := apiKey(tt.policy)
-			if tt.wantErr {
-				require.Error(t, err)
-			}
-			require.Equal(t, tt.want, got)
+			tt.wantErr(t, err)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -203,9 +201,8 @@ func Test_slashJoin(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := slashJoin(tt.elems...); got != tt.want {
-				t.Errorf("slashJoin() = %v, want %v", got, tt.want)
-			}
+			got := slashJoin(tt.elems...)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

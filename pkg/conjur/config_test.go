@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfig_mergeConfig(t *testing.T) {
@@ -41,7 +41,7 @@ func TestConfig_mergeConfig(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.config.mergeConfig(tt.original)
-			require.Equal(t, tt.want, got)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

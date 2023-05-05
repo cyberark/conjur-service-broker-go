@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_createBindYAML(t *testing.T) {
@@ -14,30 +15,22 @@ func Test_createBindYAML(t *testing.T) {
 		name    string
 		args    *bind
 		want    string
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"simple bind",
 		&bind{bindingID: "test", client: &client{roClient: &conjurapi.Client{}, config: &Config{}}},
 		`- !host
   id: test
 `,
-		false,
+		assert.NoError,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.args.createBindYAML()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("createBindYAML() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			tt.wantErr(t, err)
 			gotBytes, err := io.ReadAll(got)
-			if err != nil {
-				t.Errorf("createBindYAML() error = %v", err)
-				return
-			}
-			if string(gotBytes) != tt.want {
-				t.Errorf("createBindYAML() got = \n%v\n, want \n%v\n", string(gotBytes), tt.want)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, string(gotBytes))
 		})
 	}
 }
@@ -47,30 +40,22 @@ func Test_deleteBindYAML(t *testing.T) {
 		name    string
 		args    *bind
 		want    string
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"simple delete",
 		&bind{bindingID: "test"},
 		`- !delete
   record: !host test
 `,
-		false,
+		assert.NoError,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.args.deleteBindYAML()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("deleteBindYAML() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			tt.wantErr(t, err)
 			gotBytes, err := io.ReadAll(got)
-			if err != nil {
-				t.Errorf("deleteBindYAML() error = %v", err)
-				return
-			}
-			if string(gotBytes) != tt.want {
-				t.Errorf("deleteBindYAML() got = \n%v\n, want \n%v\n", string(gotBytes), tt.want)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, string(gotBytes))
 		})
 	}
 }

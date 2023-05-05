@@ -21,7 +21,7 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 	tests := []struct {
 		name    string
 		client  mockParams
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"positive",
 		mockParams{
@@ -32,20 +32,20 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 				{args: p{"dev:layer:cf/orgID/spaceID"}, returns: p{true, nil}},
 			},
 		},
-		false,
+		assert.NoError,
 	}, {
 		"error in policy",
 		mockParams{
 			"LoadPolicy": []m{{args: p{conjurapi.PolicyModePost, "cf", mock.Anything}, returns: p{nil, errors.New("error")}}},
 		},
-		true,
+		assert.Error,
 	}, {
 		"error in existence check",
 		mockParams{
 			"LoadPolicy":     []m{{args: p{conjurapi.PolicyModePost, "cf", mock.Anything}, returns: p{nil, nil}}},
 			"ResourceExists": []m{{args: p{"dev:policy:cf/orgID"}, returns: p{false, errors.New("error")}}},
 		},
-		true,
+		assert.Error,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -57,11 +57,7 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 			}
 			p := c.NewProvision("orgID", "spaceID", nil, nil)
 			err := p.ProvisionOrgSpacePolicy()
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
+			tt.wantErr(t, err)
 			mockAPI.AssertExpectations(t)
 		})
 	}
@@ -83,7 +79,7 @@ func Test_provision_ProvisionHostPolicy(t *testing.T) {
 	tests := []struct {
 		name    string
 		client  mockParams
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"positive",
 		mockParams{
@@ -92,26 +88,26 @@ func Test_provision_ProvisionHostPolicy(t *testing.T) {
 				returns: policyResp},
 			"AddSecret": m{args: p{"cf/orgID/spaceID/space-host-api-key", "my-api-key"}, returns: p{nil}},
 		},
-		false,
+		assert.NoError,
 	}, {
 		"error in policy",
 		mockParams{
 			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, errors.New("error")}},
 		},
-		true,
+		assert.Error,
 	}, {
 		"empty response from load policy",
 		mockParams{
 			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, nil}},
 		},
-		true,
+		assert.Error,
 	}, {
 		"error in secret add",
 		mockParams{
 			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything}, returns: policyResp},
 			"AddSecret":  m{args: p{"cf/orgID/spaceID/space-host-api-key", "my-api-key"}, returns: p{errors.New("error")}},
 		},
-		true,
+		assert.Error,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -121,11 +117,7 @@ func Test_provision_ProvisionHostPolicy(t *testing.T) {
 			}
 			p := c.NewProvision("orgID", "spaceID", nil, nil)
 			err := p.ProvisionHostPolicy()
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
+			tt.wantErr(t, err)
 			mockAPI.AssertExpectations(t)
 		})
 	}

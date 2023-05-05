@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/doodlesbykumbi/conjur-policy-go/pkg/conjurpolicy"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
 )
@@ -22,40 +23,41 @@ func Test_policyReader(t *testing.T) {
 		name    string
 		policy  conjurpolicy.PolicyStatements
 		want    string
-		wantErr bool
+		wantErr assert.ErrorAssertionFunc
 	}{{
 		"empty",
 		[]conjurpolicy.Resource{},
 		"\n",
-		false,
+		assert.NoError,
 	}, {
 		"non empty",
 		[]conjurpolicy.Resource{conjurpolicy.Layer{}},
 		"- !layer\n",
-		false,
+		assert.NoError,
 	}, {
 		"nil",
 		nil,
 		"\n",
-		false,
+		assert.NoError,
 	}, {
 		"invalid",
 		[]conjurpolicy.Resource{invalidType{
 			Fail: yaml.Node{Kind: yaml.Kind(math.MaxUint32)},
 		}},
 		"",
-		true,
+		assert.Error,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := policyReader(tt.policy)
-			if tt.wantErr {
-				require.Error(t, err)
+			tt.wantErr(t, err)
+			if got == nil {
+				require.Empty(t, tt.want)
 				return
 			}
 			bytes, err := io.ReadAll(got)
-			require.NoError(t, err)
-			require.Equal(t, string(bytes), tt.want)
+			assert.NoError(t, err)
+			assert.Equal(t, string(bytes), tt.want)
 		})
 	}
 }
