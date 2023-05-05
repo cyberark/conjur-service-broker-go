@@ -343,7 +343,7 @@ func Test_server_ServiceBinding(t *testing.T) {
 			for method, v := range tt.args.client {
 				client.On(method, v.args...).Return(append(p{bind}, v.returns...)...).Once()
 			}
-			s := &server{client: client}
+			s := NewServerImpl(client)
 			w, c := ginTestCtx(t, "", "", tt.args.body, tt.args.enableSpaceIdentity)
 			reflect.ValueOf(s).MethodByName(tt.args.method.name).Call(toValues(c, tt.args.method.params))
 			c.Writer.Flush()
