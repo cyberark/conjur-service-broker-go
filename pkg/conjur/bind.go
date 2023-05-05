@@ -88,7 +88,7 @@ func (b *bind) DeleteBindHostPolicy() error {
 }
 
 func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
-	if len(policy.CreatedRoles) != 1 {
+	if policy == nil || len(policy.CreatedRoles) != 1 {
 		return nil, fmt.Errorf("expecting exactly one created role")
 	}
 	var roleID string
@@ -113,6 +113,9 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
 
 func dropAccount(id string) string {
 	_, kind, identifier := parseID(id)
+	if !kind.IsAKind() {
+		return identifier
+	}
 	return slashJoin(kind.String(), identifier)
 }
 
