@@ -90,6 +90,9 @@ func (c *client) orgSpaceFromBindingID(bindingID string) (string, string, error)
 		Kind:   KindHost.String(),
 		Search: bindingID + "^",
 	})
+	if err != nil {
+		return "", "", err
+	}
 	if len(res) == 0 {
 		return "", "", nil
 	}

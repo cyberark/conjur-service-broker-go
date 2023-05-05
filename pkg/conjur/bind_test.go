@@ -59,3 +59,28 @@ func Test_deleteBindYAML(t *testing.T) {
 		})
 	}
 }
+
+func Test_dropAccount(t *testing.T) {
+	tests := []struct {
+		name string
+		id   string
+		want string
+	}{{
+		"empty",
+		"",
+		"",
+	}, {
+		"full",
+		"dev:host:cf/orgID/spaceID",
+		"host/cf/orgID/spaceID",
+	}, {
+		"invalid kind",
+		"dev:invalid:cf/orgID/spaceID",
+		"cf/orgID/spaceID",
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, dropAccount(tt.id), "dropAccount(%v)", tt.id)
+		})
+	}
+}
