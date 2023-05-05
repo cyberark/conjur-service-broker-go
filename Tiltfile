@@ -1,12 +1,11 @@
 #load('ext://tests/golang', 'test_go')
-load('ext://ko', 'ko_build')
 load('ext://deployment', 'deployment_create')
 
 # load dev dependencies
 load_dynamic('./dev/Tiltfile.dep')
 
 # service build and deploy
-ko_build('conjur-service-broker', './cmd/conjur_service_broker')
+docker_build('conjur-service-broker', '.')
 
 deployment_create('conjur-service-broker', 'conjur-service-broker', ports=['8080:8080'], env=read_yaml('./.env.yaml'))
 

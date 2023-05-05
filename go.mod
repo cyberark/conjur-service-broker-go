@@ -67,4 +67,4 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
-replace github.com/doodlesbykumbi/conjur-policy-go => ../conjur-policy-go
+//replace github.com/doodlesbykumbi/conjur-policy-go => ../conjur-policy-go
