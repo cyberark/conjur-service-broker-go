@@ -6,3 +6,5 @@ conjur_service_broker.exe
 
 .run/
 /coverage
+
+junit.xml

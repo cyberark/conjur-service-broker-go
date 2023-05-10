@@ -7,7 +7,7 @@ properties([
   // Include the automated release parameters for the build
   release.addParams(),
   // Dependencies of the project that should trigger builds
-  dependencies(['cyberark/conjur-base-image', 'cyberark/conjur-api-ruby'])
+  dependencies(['cyberark/conjur-api-go'])
 ])
 
 // Performs release promotion.  No other stages will be run
@@ -53,22 +53,76 @@ pipeline {
         }
       }
     }
+
+    stage('Get InfraPool ExecutorV2 Agent(s)') {
+      steps{
+        script {
+          // Request ExecutorV2 agents for 1 hour(s)
+          INFRAPOOL_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "ExecutorV2", quantity: 1, duration: 1)
+          INFRAPOOL_EXECUTORV2_AGENT_0 = INFRAPOOL_EXECUTORV2_AGENTS[0]
+        }
+      }
+    }
+
     // Generates a VERSION file based on the current build number and latest version in CHANGELOG.md
     stage('Validate Changelog and set version') {
       steps {
-        updateVersion("CHANGELOG.md", "${BUILD_NUMBER}")
+        script {
+          infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
+            updateVersion(infrapool, "CHANGELOG.md", "${BUILD_NUMBER}")
+          }
+        }
       }
     }
 
-    stage('Build') {
-      steps {
-        // Perform any builds here
-      }
-    }
+//     stage('Get latest upstream dependencies') {
+//       steps {
+//         updateGoDependencies("${WORKSPACE}/go.mod")
+//       }
+//     }
 
-    stage('Test') {
-      steps {
-        // Perform any testing here
+    stage('Build and Unit tests') {
+      parallel {
+        stage('Build binary') {
+          steps {
+            script {
+              infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
+                infrapool.agentSh './scripts/build'
+              }
+            }
+          }
+        }
+
+        stage('Unit tests') {
+          steps {
+            script {
+              infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
+                infrapool.agentSh './scripts/test_in_docker'
+                infrapool.agentStash name: 'test-results', includes: 'coverage/*.xml'
+              }
+            }
+          }
+          post {
+            always {
+              unstash 'test-results'
+              junit 'coverage/junit.xml'
+              cobertura(
+               autoUpdateHealth: false,
+               autoUpdateStability: false,
+               coberturaReportFile: 'coverage/cobertura.xml',
+               conditionalCoverageTargets: '70, 0, 0',
+               failUnhealthy: false,
+               failUnstable: false,
+               lineCoverageTargets: '70, 0, 0',
+               maxNumberOfBuilds: 0,
+               methodCoverageTargets: '70, 0, 0',
+               onlyStable: false,
+               sourceEncoding: 'ASCII',
+               zoomCoverageChart: false
+             )
+            }
+          }
+        }
       }
     }
 
@@ -78,11 +132,12 @@ pipeline {
           MODE == "RELEASE"
         }
       }
-
       steps {
-        release { billOfMaterialsDirectory, assetDirectory ->
-          // Publish release artifacts to all the appropriate locations
-          // Copy any artifacts to assetDirectory to attach them to the Github release
+        script {
+          infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
+            release(infrapool) { bomDirectory, assetDirectory ->
+            }
+          }
         }
       }
     }
@@ -90,7 +145,8 @@ pipeline {
 
   post {
     always {
-      cleanupAndNotify(currentBuild.currentResult)
+//       cleanupAndNotify(currentBuild.currentResult)
+      releaseInfraPoolAgent(".infrapool/release_agents")
     }
   }
 }
