@@ -11,6 +11,12 @@ repos:
     rev: v8.16.1
     hooks:
       - id: gitleaks
+  - repo: https://github.com/syntaqx/git-hooks
+    rev: v0.0.17
+    hooks:
+      - id: shellcheck
+      - id: shfmt
+        args: ["-w"]
   - repo: local
     hooks:
       - id: remarklint
