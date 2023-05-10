@@ -10,9 +10,9 @@ psql "$DATABASE_URL" -c "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA pub
 conjurctl server &
 conjurctl wait
 
-conjurctl account create dev || true > /dev/null 2>&1
+conjurctl account create dev || true >/dev/null 2>&1
 
-conjurctl policy load dev /init/service-broker.yaml || true > /dev/null 2>&1
+conjurctl policy load dev /init/service-broker.yaml || true >/dev/null 2>&1
 
 touch up
 
