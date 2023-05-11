@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
-	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/gin-gonic/gin"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/ctxutil"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
 )
 
 // ServiceBindingUnbinding deprovision a service binding

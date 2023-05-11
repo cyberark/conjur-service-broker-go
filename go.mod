@@ -1,5 +1,4 @@
-// TODO: what should be the actual module?
-module github.com/cyberark/conjur-service-broker
+module github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go
 
 go 1.20
 
@@ -66,5 +65,3 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
-
-//replace github.com/doodlesbykumbi/conjur-policy-go => ../conjur-policy-go

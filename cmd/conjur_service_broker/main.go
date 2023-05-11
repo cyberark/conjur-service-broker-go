@@ -2,7 +2,7 @@
 package main
 
 import (
-	"github.com/cyberark/conjur-service-broker/internal/http"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/http"
 )
 
 func main() {

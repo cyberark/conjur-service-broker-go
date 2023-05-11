@@ -5,8 +5,8 @@ package servicebroker
 import (
 	"testing"
 
-	"github.com/cyberark/conjur-service-broker/pkg/conjur"
 	"github.com/stretchr/testify/require"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
 )
 
 func Test_parseContext(t *testing.T) {

@@ -12,12 +12,12 @@ import (
 	"time"
 
 	"github.com/cyberark/conjur-api-go/conjurapi/logging"
-	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
-	"github.com/cyberark/conjur-service-broker/internal/servicebroker"
 	"github.com/gin-contrib/requestid"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/ctxutil"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/servicebroker"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapio"
 )

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
 	"github.com/gin-gonic/gin"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/ctxutil"
 )
 
 // ServiceInstanceDeprovision deprovision a service instance

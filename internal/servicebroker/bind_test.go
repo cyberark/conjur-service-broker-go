@@ -8,10 +8,10 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/cyberark/conjur-service-broker/pkg/conjur"
-	"github.com/cyberark/conjur-service-broker/pkg/conjur/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur/mocks"
 )
 
 func Test_server_ServiceBinding(t *testing.T) {

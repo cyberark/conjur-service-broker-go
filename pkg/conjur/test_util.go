@@ -4,8 +4,8 @@
 package conjur
 
 import (
-	"github.com/cyberark/conjur-service-broker/pkg/conjur/api/mocks"
 	"github.com/stretchr/testify/mock"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur/api/mocks"
 )
 
 // NewMockClient creates a new client with mocked methods and a handle to the mockery mock to allow testing

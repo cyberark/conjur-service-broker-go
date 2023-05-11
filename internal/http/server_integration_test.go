@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cyberark/conjur-service-broker/internal/ctxutil"
-	"github.com/cyberark/conjur-service-broker/internal/servicebroker/mocks"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/ctxutil"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/servicebroker/mocks"
 	"go.uber.org/zap"
 )
 

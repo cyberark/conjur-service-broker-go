@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v7"
-	"github.com/cyberark/conjur-service-broker/pkg/conjur"
+	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
 )
 
 // ErrInvalidConjurVersion error indicating invalid conjur version parameter value
