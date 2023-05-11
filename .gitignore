@@ -8,3 +8,5 @@ conjur_service_broker.exe
 /coverage
 
 junit.xml
+
+dist/

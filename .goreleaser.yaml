@@ -1,0 +1,114 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+project_name: cyberark-conjur-service-broker
+builds:
+  - id: default
+    env:
+      - CGO_ENABLED=0
+    main: ./cmd/conjur_service_broker
+    ldflags:
+      - -s -w
+    goos:
+      - linux
+    goarch:
+      - amd64
+    no_unique_dist_dir: true
+
+archives:
+  -
+    # ID of this archive.
+    id: cyberark-conjur-service-broker
+
+    # Builds reference which build instances should be archived in this archive.
+    builds:
+      - default
+
+    # Archive format. Valid options are `tar.gz`, `tgz`, `tar.xz`, `txz`, tar`, `gz`, `zip` and `binary`.
+    # If format is `binary`, no archives are created and the binaries are instead
+    # uploaded directly.
+    #
+    # Default: 'tar.gz'
+    format: zip
+
+    # This will create an archive without any binaries, only the files are there.
+    # The name template must not contain any references to `Os`, `Arch` and etc, since the archive will be meta.
+    #
+    # Since: v1.9
+    # Templates: allowed
+    meta: true
+
+    # Archive name.
+    #
+    # Default:
+    # - if format is `binary`:
+    #   - `{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}`
+    # - if format is anything else:
+    #   - `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}`
+    # Templates: allowed
+    name_template: "{{ .ProjectName }}_{{ .Version }}"
+
+    # If set to true, will strip the parent directories away from binary files.
+    #
+    # This might be useful if you have your binary be built with a subdir for some reason, but do no want that subdir inside the archive.
+    #
+    # Since: v1.11
+    strip_parent_binary_folder: true
+
+    # This will make the destination paths be relative to the longest common
+    # path prefix between all the files matched and the source glob.
+    # Enabling this essentially mimic the behavior of nfpm's contents section.
+    # It will be the default by June 2023.
+    #
+    # Since: v1.14
+    rlcp: true
+
+    # Additional files/globs you want to add to the archive.
+    #
+    # Default: [ 'LICENSE*', 'README*', 'CHANGELOG', 'license*', 'readme*', 'changelog']
+    # Templates: allowed
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - NOTICES.txt
+      - SECURITY.md
+      - VERSION
+      - src: configs/manifest.yml
+        strip_parent: true
+      - src: dist/cyberark-conjur-service-broker
+        strip_parent: true
+    # Before and after hooks for each archive.
+    # Skipped if archive format is binary.
+    # This feature is only available in GoReleaser Pro.
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+upx:
+  -
+    # Whether to enable it or not.
+    enabled: true
+
+    # Compress argument.
+    # Valid options are from '1' (faster) to '9' (better), and 'best'.
+    compress: best
+
+    # Whether to try LZMA (slower).
+    lzma: true
+
+sboms:
+  - artifacts: archive
