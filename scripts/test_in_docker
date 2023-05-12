@@ -9,7 +9,7 @@ set -ex
 
 TOPLEVEL_DIR="$(repo_root)"
 
-DOCKER_FLAGS=("--build-arg" "BUILDER_IMAGE=golang:$(go_version)-alpine")
+DOCKER_FLAGS=("--build-arg" "BUILDER_IMAGE_VERSION=$(go_version)-alpine")
 
 function main() {
 	test_in_docker

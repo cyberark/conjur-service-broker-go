@@ -11,7 +11,7 @@ TOPLEVEL_DIR="$(repo_root)"
 
 FULL_VERSION_TAG="$(full_version_tag)"
 
-DOCKER_FLAGS=("--build-arg" "TAG=$(git_tag)" "--build-arg" "BUILDER_IMAGE=golang:$(go_version)-alpine")
+DOCKER_FLAGS=("--build-arg" "TAG=$(git_tag)" "--build-arg" "BUILDER_IMAGE_VERSION=$(go_version)-alpine")
 
 function main() {
 	#  retrieve_cyberark_ca_cert
