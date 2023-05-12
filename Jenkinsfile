@@ -87,17 +87,17 @@ pipeline {
           steps {
             script {
               infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
-                infrapool.agentSh './scripts/build'
+                infrapool.agentSh './scripts/build.sh'
               }
             }
           }
         }
 
-        stage('Unit tests') {
+        stage('Test') {
           steps {
             script {
               infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
-                infrapool.agentSh './scripts/test_in_docker'
+                infrapool.agentSh './scripts/test_in_docker.sh'
                 infrapool.agentStash name: 'test-results', includes: 'coverage/*.xml'
               }
             }
@@ -145,7 +145,6 @@ pipeline {
 
   post {
     always {
-//       cleanupAndNotify(currentBuild.currentResult)
       releaseInfraPoolAgent(".infrapool/release_agents")
     }
   }

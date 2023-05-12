@@ -2,7 +2,7 @@
 
 #
 # executes conjur-service-broker tests in docker
-# usage: ./scripts/build
+# usage: ./scripts/test_in_docker.sh
 set -ex
 
 . scripts/build_utils
