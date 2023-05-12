@@ -99,7 +99,6 @@ func initLogger(cfg *config) (logger *zap.Logger, cleanup func(), err error) {
 func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInterface, logger *zap.Logger) error {
 	r := gin.New()
 	r.Use(ginzap.Ginzap(logger, time.RFC3339, true), ginzap.RecoveryWithZap(logger, true), requestid.New(), errorsMiddleware)
-	// TODO: trusted proxies, caching headers
 
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
 		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
@@ -118,7 +117,7 @@ func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInter
 		WriteTimeout:      httpTimeout,
 		ReadHeaderTimeout: httpTimeout,
 		IdleTimeout:       httpIdleTimeout,
-		MaxHeaderBytes:    1 << 20, // TODO: is 1MB enough?
+		MaxHeaderBytes:    1 << 20,
 	}
 	logger.Info("server starting...")
 	go func() {

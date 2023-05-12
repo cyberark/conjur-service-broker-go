@@ -13,7 +13,6 @@ import (
 )
 
 func Test_errorsMiddleware(t *testing.T) {
-	// TODO: validate responses
 	type want struct {
 		code int
 		body string

@@ -26,8 +26,6 @@ type config struct {
 
 	// DEBUG: Enables debug mode
 	Debug bool `env:"DEBUG" envDefault:"false"`
-
-	//TODO: logger config
 }
 
 func newConfig() (*config, error) {
@@ -45,6 +43,5 @@ func validate(cfg config) error {
 	if cfg.ConjurVersion != 5 {
 		return ErrInvalidConjurVersion
 	}
-	//TODO: validate certificate if present
 	return nil
 }

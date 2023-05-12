@@ -32,6 +32,23 @@ Feature: Unbinding
       """
 
   Scenario: Successful unbinding
+    Given I send "PUT" request to "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax7" with body:
+    """
+      {
+        "context": {
+          "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0b",
+          "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970de",
+          "organization_name": "my-organization",
+          "space_name": "my-space"
+        },
+        "service_id": "c024e536-6dc4-45c6-8a53-127e7f8275ab",
+        "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
+        "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0a",
+        "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970db",
+        "parameters": {
+        }
+      }
+    """
     Given I send "PUT" request to "/v2/service_instances/6b40649e-331b-424d-afa0-6d569f016f51/service_bindings/5e7a43f2-b3fc-4591-ab19-783389c2cb64" with body:
     """
     {
@@ -39,6 +56,10 @@ Feature: Unbinding
       "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
       "bind_resource": {
         "app_guid": "5e7a43f2-b3fc-4591-ab19-783389c2cb64"
+      },
+      "context": {
+        "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0b",
+        "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970de"
       },
       "parameters": {
         "parameter1-name-here": 1,

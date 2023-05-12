@@ -23,6 +23,16 @@ func Test_createBindYAML(t *testing.T) {
   id: test
 `,
 		assert.NoError,
+	}, {
+		"advanced bind",
+		&bind{bindingID: "test", client: &client{roClient: &conjurapi.Client{}, config: &Config{}}, orgID: "orgID", spaceID: "spaceID"},
+		`- !host
+  id: test
+- !grant
+  role: !layer
+  member: !host test
+`,
+		assert.NoError,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

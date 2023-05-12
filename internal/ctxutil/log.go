@@ -19,6 +19,5 @@ func (c *ctx) Logger() *zap.SugaredLogger {
 	if log, ok := context.Context(*c).Value(logKey{}).(*zap.SugaredLogger); ok {
 		return log
 	}
-	// TODO: should we return new logger?
 	return nil
 }

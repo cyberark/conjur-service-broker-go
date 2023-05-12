@@ -144,7 +144,7 @@ func (b *bind) createBindYAML() (io.Reader, error) {
 	if b.useSpace() {
 		policy = append(policy, conjurpolicy.Grant{
 			Role:   conjurpolicy.LayerRef(""),
-			Member: conjurpolicy.LayerRef(b.bindingID),
+			Member: conjurpolicy.HostRef(b.bindingID),
 		})
 	}
 	return policyReader(policy)

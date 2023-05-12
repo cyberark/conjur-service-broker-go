@@ -104,11 +104,12 @@ func (c *client) orgSpaceFromBindingID(bindingID string) (string, string, error)
 		return "", "", nil
 	}
 	_, _, identifier := parseID(fmt.Sprintf("%s", id))
-	// TODO: maybe regexp instead of split?
 	split := strings.SplitN(identifier, "/", 4)
 	if len(split) != 4 {
 		return "", "", nil
 	}
+	// expected identifier contains org id on second position and space id on third
+	// dev:host:cf/{orgID}/{spaceID}/{bindingID}
 	return split[1], split[2], err
 }
 

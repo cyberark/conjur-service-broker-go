@@ -53,7 +53,7 @@ func strOrNil(ctx *Context, name string) *string {
 }
 
 func object(policy *conjur.Policy) *Object {
-	// TODO: would it better to use reflection?
+	// we convert to map[string]interface{} using json library, it might not be the most readable implementation but on the other hand reflection wouldn't be readable either
 	bytes, err := json.Marshal(policy)
 	if err != nil {
 		panic(err)

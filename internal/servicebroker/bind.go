@@ -44,7 +44,6 @@ func (s *server) ServiceBindingUnbinding(c *gin.Context, _ string, bindingID str
 // ServiceBindingGet get a service binding
 // (GET /v2/service_instances/{instance_id}/service_bindings/{binding_id})
 func (*server) ServiceBindingGet(c *gin.Context, _ string, _ string, _ ServiceBindingGetParams) {
-	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
@@ -54,7 +53,6 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 	body := ServiceBindingBindingJSONRequestBody{}
 	err := c.BindJSON(&body)
 	if err != nil {
-		// TODO: handle error from AbortWithError
 		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
 		return
 	}
@@ -94,6 +92,5 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 // ServiceBindingLastOperationGet get the last requested operation state for service binding
 // (GET /v2/service_instances/{instance_id}/service_bindings/{binding_id}/last_operation)
 func (*server) ServiceBindingLastOperationGet(c *gin.Context, _ string, _ string, _ ServiceBindingLastOperationGetParams) {
-	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }

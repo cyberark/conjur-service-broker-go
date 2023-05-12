@@ -18,7 +18,6 @@ func (*server) ServiceInstanceDeprovision(c *gin.Context, _ string, _ ServiceIns
 // ServiceInstanceGet get a service instance
 // (GET /v2/service_instances/{instance_id})
 func (*server) ServiceInstanceGet(c *gin.Context, _ string, _ ServiceInstanceGetParams) {
-	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
 
@@ -34,7 +33,6 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, _ string, _ ServiceIns
 	body := ServiceInstanceProvisionJSONRequestBody{}
 	err := c.BindJSON(&body)
 	if err != nil {
-		// TODO: handle error from AbortWithError
 		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("failed to parse request body: %w", err))
 		return
 	}
@@ -65,6 +63,5 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, _ string, _ ServiceIns
 // ServiceInstanceLastOperationGet get the last requested operation state for service instance
 // (GET /v2/service_instances/{instance_id}/last_operation)
 func (*server) ServiceInstanceLastOperationGet(c *gin.Context, _ string, _ ServiceInstanceLastOperationGetParams) {
-	// TODO: Implement me
 	c.Status(http.StatusNotImplemented)
 }
