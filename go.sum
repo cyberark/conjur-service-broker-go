@@ -28,6 +28,8 @@ github.com/deepmap/oapi-codegen v1.12.4 h1:pPmn6qI9MuOtCz82WY2Xaw46EQjgvxednXXrP
 github.com/deepmap/oapi-codegen v1.12.4/go.mod h1:3lgHGMu6myQ2vqbbTXH2H1o4eXFTGnFiDaOaKKl5yas=
 github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230412104742-12c1cdd324f4 h1:i62eNee1Vtv6y6rhFDGLY1bmVQuoVAUAW3USYZVcBao=
 github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230412104742-12c1cdd324f4/go.mod h1:3M6KY0++RSAgFkJlFYAkl2/kLdwT7j2Pr4L33dMAtrw=
+github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87 h1:PgHDNNVqAwjDXhHnE7x2HfBW4qdFS2VDSaL8GIK121Q=
+github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87/go.mod h1:3M6KY0++RSAgFkJlFYAkl2/kLdwT7j2Pr4L33dMAtrw=
 github.com/getkin/kin-openapi v0.116.0 h1:o986hwgMzR972JzOG5j6+WTwWqllZLs1EJKMKCivs2E=
 github.com/getkin/kin-openapi v0.116.0/go.mod h1:l5e9PaFUo9fyLJCPGQeXI2ML8c3P8BHOEV2VaAVf/pc=
 github.com/gin-contrib/requestid v0.0.6 h1:mGcxTnHQ45F6QU5HQRgQUDsAfHprD3P7g2uZ4cSZo9o=
