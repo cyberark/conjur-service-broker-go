@@ -128,14 +128,19 @@ pipeline {
 
     stage('Release') {
       when {
-        expression {
-          MODE == "RELEASE"
-        }
+        buildingTag()
       }
+
+      environment {
+        GITHUB_TOKEN = credentials('github-token')
+      }
+
       steps {
         script {
           infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
             release(infrapool) { bomDirectory, assetDirectory ->
+              infrapool.agentSh 'curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin'
+              infrapool.agentSh 'curl -sfL https://goreleaser.com/static/run | bash'
             }
           }
         }
