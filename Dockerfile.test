@@ -11,4 +11,4 @@ COPY go.* .
 RUN go mod download
 COPY . .
 
-CMD ./scripts/test
+CMD ./scripts/test.sh

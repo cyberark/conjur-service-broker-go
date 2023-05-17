@@ -4,12 +4,14 @@ package http
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/caarlos0/env/v7"
+	"github.com/stretchr/testify/assert"
 	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
 )
 
@@ -115,18 +117,39 @@ func Test_validate(t *testing.T) {
 		args    args
 		wantErr bool
 	}{{
-		"validate positive",
+		"validate version positive",
 		args{cfg: config{
 			Config: conjur.Config{
-				ConjurVersion: 5,
+				ConjurVersion:      5,
+				ConjurApplianceURL: "http://conjur.local",
 			},
 		}},
 		false,
 	}, {
-		"validate negative",
+		"validate version negative",
 		args{cfg: config{
 			Config: conjur.Config{
-				ConjurVersion: 4,
+				ConjurVersion:      4,
+				ConjurApplianceURL: "http://conjur.local",
+			},
+		}},
+		true,
+	}, {
+		"validate appliance url",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:      5,
+				ConjurApplianceURL: "",
+			},
+		}},
+		true,
+	}, {
+		"validate follower url",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:      5,
+				ConjurApplianceURL: "http://conjur",
+				ConjurFollowerURL:  "conjur",
 			},
 		}},
 		true,
@@ -149,5 +172,86 @@ func cleanupEnv() func() {
 			parts := strings.SplitN(v, "=", 2)
 			_ = os.Setenv(parts[0], parts[1])
 		}
+	}
+}
+
+func Test_normalizeURLs(t *testing.T) {
+	tests := []struct {
+		name string
+		cfg  config
+		want config
+	}{{
+		"appliance url with back slash",
+		config{
+			Config: conjur.Config{
+				ConjurApplianceURL: "http://conjur.local/",
+				ConjurFollowerURL:  "http://follower.local",
+			}},
+		config{
+			Config: conjur.Config{
+				ConjurApplianceURL: "http://conjur.local",
+				ConjurFollowerURL:  "http://follower.local",
+			}},
+	}, {
+		"no follower",
+		config{
+			Config: conjur.Config{
+				ConjurApplianceURL: "http://conjur.local/",
+			}},
+		config{
+			Config: conjur.Config{
+				ConjurApplianceURL: "http://conjur.local",
+			},
+		},
+	}, {
+		"no change",
+		config{
+			Config: conjur.Config{
+				ConjurApplianceURL: "http://conjur.local",
+			}},
+		config{
+			Config: conjur.Config{
+				ConjurApplianceURL: "http://conjur.local",
+			},
+		},
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := normalizeURLs(tt.cfg)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func Test_validateURL(t *testing.T) {
+	tests := []struct {
+		url     string
+		wantErr assert.ErrorAssertionFunc
+	}{{
+		"hi/there?",
+		assert.Error,
+	}, {
+		"http://conjur.local/path/",
+		assert.NoError,
+	}, {
+		"conjur.local/path",
+		assert.Error,
+	}, {
+		"https",
+		assert.Error,
+	}, {
+		"http://",
+		assert.Error,
+	}, {
+		"http\\://conjur",
+		assert.Error,
+	}, {
+		"ftp://conjur/x",
+		assert.Error,
+	}}
+	for _, tt := range tests {
+		t.Run(tt.url, func(t *testing.T) {
+			tt.wantErr(t, validateURL(tt.url), fmt.Sprintf("validateURL(%v)", tt.url))
+		})
 	}
 }

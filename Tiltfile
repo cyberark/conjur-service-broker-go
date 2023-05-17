@@ -20,8 +20,8 @@ load_dynamic('./Tiltfile.ruby')
 
 # tests
 #test_go('tests', './...', '.', timeout='30s', extra_args=['-cover'], labels=['conjur-service-broker'])
-local_resource(name='test_in_docker', cmd='./scripts/test_in_docker', labels=['conjur-service-broker'])
-local_resource(name='tests', cmd='./scripts/test', labels=['conjur-service-broker'])
+local_resource(name='test_in_docker', cmd='./scripts/test_in_docker.sh', labels=['conjur-service-broker'])
+local_resource(name='tests', cmd='./scripts/test.sh', labels=['conjur-service-broker'])
 
 cmd_button(name='coverage report',
            resource='tests',

@@ -25,7 +25,7 @@ import (
 const (
 	httpTimeout     = time.Minute      // http timeout
 	httpIdleTimeout = 15 * time.Minute // keep-alive timeout
-	serviceName     = "conjure-service-broker"
+	serviceName     = "conjur-service-broker"
 )
 
 // StartHTTPServer starts a new http server to handle requests supported by the service broker
