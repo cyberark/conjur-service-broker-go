@@ -48,10 +48,10 @@ func StartHTTPServer() {
 func initServer(cfg *config) (servicebroker.ServerInterface, error) {
 	client, err := cfg.NewClient()
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize conjur client: %w", err)
+		return nil, fmt.Errorf("failed to initialize conjur client: %s", err)
 	}
 	if err = client.ValidateConnectivity(); err != nil {
-		return nil, fmt.Errorf("failed to validate conjur client: %w", err)
+		return nil, fmt.Errorf("failed to validate conjur client: %s", err)
 	}
 	return servicebroker.NewServerImpl(client), nil
 }
@@ -76,9 +76,9 @@ func initLogger(cfg *config) (logger *zap.Logger, cleanup func(), err error) {
 		logging.ApiLog.Level = logrus.DebugLevel
 		logCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	}
-	logger, err = logCfg.Build(zap.Fields(zap.String("service", serviceName)))
+	logger, err = logCfg.Build()
 	if err != nil {
-		err = fmt.Errorf("failed to init logger: %w", err)
+		err = fmt.Errorf("failed to init logger: %s", err)
 		logger, _ = logCfg.Build()
 		return
 	}
@@ -105,7 +105,7 @@ func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInter
 	}
 	validator, err := validatorMiddleware(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to initialize validateion middleware: %w", err)
+		return fmt.Errorf("failed to initialize validateion middleware: %s", err)
 	}
 	r.Use(ctx.Inject(), validator)
 
@@ -150,6 +150,6 @@ func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInter
 
 func checkFatalErr(err error) {
 	if err != nil {
-		log.Fatal(fmt.Errorf("failed to start server: %w", err))
+		log.Fatal(fmt.Errorf("failed to start server: %s", err))
 	}
 }
