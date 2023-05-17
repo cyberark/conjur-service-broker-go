@@ -131,13 +131,32 @@ func (c *client) NewProvision(orgID, spaceID string, orgName, spaceName *string)
 
 // ValidateConnectivity validates conjur client configuration by checking read access permission to the policy
 func (c *client) ValidateConnectivity() error {
-	res, err := c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
-	if err != nil || !res {
-		return fmt.Errorf("validation failed, missing read permissions on policy %v: %w", c.basePolicyID(), err)
+	res, err := c.client.ResourceExists(func() string {
+		kind := KindUser
+		if strings.HasPrefix(c.config.ConjurAuthNLogin, "host/") {
+			kind = KindHost
+		}
+		return composeID(c.config.ConjurAccount, kind, c.clientHostID())
+	}())
+	if err != nil {
+		return fmt.Errorf("failed checking login resource %v: %w", c.config.ConjurAuthNLogin, err)
+	}
+	if !res {
+		return fmt.Errorf("validation failed, identity %v not privileged to read itself", c.config.ConjurAuthNLogin)
+	}
+	res, err = c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
+	if err != nil {
+		return fmt.Errorf("failed checking read permissions on policy %v: %w", c.basePolicyID(), err)
+	}
+	if !res {
+		return fmt.Errorf("validation failed, missing read permissions on policy %v, verify your credentials are correct", c.basePolicyID())
 	}
 	res, err = c.roClient.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
-	if err != nil || !res {
-		return fmt.Errorf("validation failed, ro missing read permissions on policy %v: %w", c.basePolicyID(), err)
+	if err != nil {
+		return fmt.Errorf("failed checking follower read permissions on policy %v: %w", c.basePolicyID(), err)
+	}
+	if !res {
+		return fmt.Errorf("validation failed follower, missing read permissions on policy %v, verify your credentials are correct", c.basePolicyID())
 	}
 	return nil
 }
@@ -189,7 +208,7 @@ func (c *client) setVariable(variableID, secret string) error {
 
 // getVariable gets a secret variable
 func (c *client) getVariable(variableID string) (string, error) {
-	bytes, err := c.client.RetrieveSecret(variableID)
+	bytes, err := c.roClient.RetrieveSecret(variableID)
 	if err != nil {
 		return "", err
 	}

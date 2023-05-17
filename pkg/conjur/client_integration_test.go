@@ -87,22 +87,27 @@ func Test_client_FromBindingID(t *testing.T) {
 
 func Test_client_ValidateConnectivity(t *testing.T) {
 	tests := []struct {
-		name            string
-		hasPermissionRW bool
-		hasPermissionRO bool
-		withErrRW       error
-		withErrRO       error
-		wantErr         assert.ErrorAssertionFunc
+		name                string
+		hasIdentityResource bool
+		hasPermissionRW     bool
+		hasPermissionRO     bool
+		withErrIdentity     error
+		withErrRW           error
+		withErrRO           error
+		wantErr             assert.ErrorAssertionFunc
 	}{
-		{"positive", true, true, nil, nil, assert.NoError},
-		{"missing permission rw", false, true, nil, nil, assert.Error},
-		{"missing permission ro", true, false, nil, nil, assert.Error},
-		{"with error on rw client", true, true, errors.New("error"), nil, assert.Error},
-		{"with error on ro client", true, true, nil, errors.New("error"), assert.Error},
+		{"positive", true, true, true, nil, nil, nil, assert.NoError},
+		{"missing permission rw", true, false, true, nil, nil, nil, assert.Error},
+		{"missing permission ro", true, true, false, nil, nil, nil, assert.Error},
+		{"with error on rw client", true, true, true, nil, errors.New("error"), nil, assert.Error},
+		{"with error on ro client", true, true, true, nil, nil, errors.New("error"), assert.Error},
+		{"missing identity resource", false, true, true, nil, nil, nil, assert.Error},
+		{"with identity resource error", true, true, true, errors.New("error"), nil, nil, assert.Error},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			client, mockAPI := NewMockClient()
+			mockAPI.On("ResourceExists", "dev:user:test").Return(tt.hasIdentityResource, tt.withErrIdentity).Once()
 			mockAPI.On("CheckPermission", mock.Anything, mock.Anything).Return(tt.hasPermissionRW, tt.withErrRW).Once()
 			mockAPI.On("CheckPermission", mock.Anything, mock.Anything).Return(tt.hasPermissionRO, tt.withErrRO).Once()
 			err := client.ValidateConnectivity()
