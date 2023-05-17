@@ -48,13 +48,13 @@ func validate(cfg config) error {
 		return ErrInvalidConjurVersion
 	}
 	if err := validateURL(cfg.ConjurApplianceURL); err != nil {
-		return err
+		return fmt.Errorf("conjur appliance url validation failed: %w", err)
 	}
 	if len(cfg.ConjurFollowerURL) == 0 {
 		return nil
 	}
 	if err := validateURL(cfg.ConjurFollowerURL); err != nil {
-		return err
+		return fmt.Errorf("conjur follower url validation failed: %w", err)
 	}
 	return nil
 }
