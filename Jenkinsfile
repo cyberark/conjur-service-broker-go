@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+@Library("product-pipelines-shared-library") _
+
 // This is a template Jenkinsfile for builds and the automated release project
 
 // Automated release, promotion and dependencies
@@ -81,7 +83,7 @@ pipeline {
 //       }
 //     }
 
-    stage('Build and Unit tests') {
+    stage('Build and tests') {
       parallel {
         stage('Build binary') {
           steps {
@@ -98,7 +100,7 @@ pipeline {
             script {
               infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
                 infrapool.agentSh './scripts/test_in_docker.sh'
-                infrapool.agentStash name: 'test-results', includes: 'coverage/*.xml'
+                infrapool.agentStash name: 'test-results', includes: 'coverage/*'
               }
             }
           }
@@ -107,20 +109,46 @@ pipeline {
               unstash 'test-results'
               junit 'coverage/junit.xml'
               cobertura(
-               autoUpdateHealth: false,
-               autoUpdateStability: false,
-               coberturaReportFile: 'coverage/cobertura.xml',
-               conditionalCoverageTargets: '70, 0, 0',
-               failUnhealthy: false,
-               failUnstable: false,
-               lineCoverageTargets: '70, 0, 0',
-               maxNumberOfBuilds: 0,
-               methodCoverageTargets: '70, 0, 0',
-               onlyStable: false,
-               sourceEncoding: 'ASCII',
-               zoomCoverageChart: false
-             )
+                autoUpdateHealth: false,
+                autoUpdateStability: false,
+                coberturaReportFile: 'coverage/cobertura.xml',
+                conditionalCoverageTargets: '70, 0, 0',
+                failUnhealthy: false,
+                failUnstable: false,
+                lineCoverageTargets: '70, 0, 0',
+                maxNumberOfBuilds: 0,
+                methodCoverageTargets: '70, 0, 0',
+                onlyStable: false,
+                sourceEncoding: 'ASCII',
+                zoomCoverageChart: false
+              )
+              // Don't fail builds if we can't upload coverage information to Codacy
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                retry (2) {
+                  codacy action: 'reportCoverage', language: 'Go', filePath: 'coverage/all_no_gen', extraArgs: '--force-coverage-parser go'
+                }
+              }
             }
+          }
+        }
+      }
+    }
+
+    stage('End-to-End testing') {
+      steps {
+        script {
+          infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
+            allocateTas(infrapool, 'isv_ci_tas_srt_2_13')
+            sh './test/e2e/test.sh'
+            junit 'test/e2e/reports/**/*.xml'
+          }
+        }
+      }
+
+      post {
+        always {
+          infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
+            destroyTas(infrapool)
           }
         }
       }
