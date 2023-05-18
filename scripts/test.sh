@@ -1,11 +1,10 @@
 #!/bin/bash
 
 set -ex
+cd "$(dirname "$0")"
+. utils
 
-. scripts/build_utils
-
-CURRENT_DIR="$(abs_path "${BASH_SOURCE[0]}")"
-TOPLEVEL_DIR=$(cd "$CURRENT_DIR/.." && pwd)
+TOPLEVEL_DIR=$(abs_path "./../..")
 
 rm -f "$TOPLEVEL_DIR"/coverage/unit/* "$TOPLEVEL_DIR"/coverage/integration/* "$TOPLEVEL_DIR"/coverage/merged/* "$TOPLEVEL_DIR"/coverage/all "$TOPLEVEL_DIR"/coverage/all_no_gen &>/dev/null || true
 
@@ -13,7 +12,7 @@ rm -f "$TOPLEVEL_DIR"/coverage/unit/* "$TOPLEVEL_DIR"/coverage/integration/* "$T
 PACKAGES=()
 while IFS=$'\n' read -r pkg; do
 	PACKAGES+=("$pkg")
-done < <(go list ./... | grep -v /mocks)
+done < <(go list "$TOPLEVEL_DIR"/... | grep -v /mocks)
 
 echo "unit tests"
 { go test -v -covermode=count -cover "${PACKAGES[@]}" -args -test.gocoverdir="$TOPLEVEL_DIR/coverage/unit" >"$TOPLEVEL_DIR"/coverage/results; } 2>&1
@@ -35,7 +34,7 @@ go tool covdata textfmt -i="$TOPLEVEL_DIR"/coverage/merged -o "$TOPLEVEL_DIR"/co
 # ignore generated code
 grep -v ".gen.go" "$TOPLEVEL_DIR"/coverage/all | grep -v "test_util.go" >"$TOPLEVEL_DIR"/coverage/all_no_gen
 
-go tool cover -func coverage/all_no_gen
+go tool cover -func "$TOPLEVEL_DIR"/coverage/all_no_gen
 
 go-junit-report -in "$TOPLEVEL_DIR"/coverage/results -out "$TOPLEVEL_DIR"/coverage/junit.xml
 

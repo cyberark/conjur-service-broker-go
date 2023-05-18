@@ -4,8 +4,8 @@
 # executes conjur-service-broker tests in docker
 # usage: ./scripts/test_in_docker.sh
 set -ex
-
-. scripts/build_utils
+cd "$(dirname "$0")"
+. utils
 
 TOPLEVEL_DIR="$(repo_root)"
 

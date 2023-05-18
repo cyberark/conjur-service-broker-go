@@ -4,8 +4,8 @@
 # Builds conjur-service-broker binaries
 # usage: ./scripts/build.sh
 set -ex
-
-. scripts/build_utils
+cd "$(dirname "$0")"
+. utils
 
 TOPLEVEL_DIR="$(repo_root)"
 
