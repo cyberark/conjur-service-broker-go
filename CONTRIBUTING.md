@@ -13,12 +13,6 @@ environment.
 2.  [Docker][get-docker] to manage dependencies and runtime environments
 3.  [Tilt][get-tilt] to orchestrate Docker environments
 
-[get-docker]: https://docs.docker.com/engine/installation
-
-[get-git]: https://git-scm.com/downloads
-
-[get-tilt]: https://docs.tilt.dev/install.html
-
 To test the usage of the Conjur Service Broker within a CF deployment, you can
 follow the demo scripts in the [Cloud Foundry demo repo](https://github.com/conjurinc/cloudfoundry-conjur-demo).
 
@@ -92,6 +86,7 @@ TODO
         ```
         If there is new dependency having unsupported license, such license should be included to [notices.tpl](./notices.tpl)
         file in order to get generated in NOTICES.txt.
+
     *   If no errors occur, proceed to generate updated NOTICES.txt:
         ```shell
          go-licenses report ./... --template notices.tpl > NOTICES.txt
@@ -116,14 +111,20 @@ TODO
 ### Release and Promote
 
 1.  Jenkins build parameters can be utilized to release and promote successful builds.
+
 2.  Merging into main/master branches will automatically trigger a release.
+
 3.  Reference the [internal automated release doc](https://github.com/conjurinc/docs/blob/master/reference/infrastructure/automated_releases.md#release-and-promotion-process)
     for releasing and promoting.
 
-## Contributing
+## Contributing steps
 
 1.  Fork it
 2.  Create your feature branch (`git checkout -b my-new-feature`)
 3.  Commit your changes (`git commit -am 'Added some feature'`)
 4.  Push to the branch (`git push origin my-new-feature`)
 5.  Create new Pull Request
+
+[get-docker]: https://docs.docker.com/engine/installation
+[get-git]: https://git-scm.com/downloads
+[get-tilt]: https://docs.tilt.dev/install.html

@@ -6,7 +6,7 @@ You need a Conjur installation accessible by Cloud Foundry in order to use the C
 
 The Conjur Service Broker is an implementation of the [Open Service Broker API](https://www.openservicebrokerapi.org/) (version 2.13).
 
-#### Table of Contents
+## Table of Contents
 
 *   [Installation](#installation)
 *   [Usage](#usage)
@@ -33,13 +33,13 @@ to use the Conjur Service Broker when deploying applications, see the
 
 **IMPORTANT:** *Before you begin, ensure you are logged into your CF deployment via the CF CLI as an admin.*
 
-1.  **Target the org and space where you want the Service Broker application to run**
+1.  #### Target the org and space where you want the Service Broker application to run
 
     ```sh
     cf target -o cyberark-conjur -s conjur-service-broker
     ```
 
-2.  **Download and push the Service Broker application**
+2.  #### Download and push the Service Broker application
 
     ```sh
     unzip conjur-service-broker-go.zip
@@ -51,7 +51,7 @@ to use the Conjur Service Broker when deploying applications, see the
     > **NOTE:** For Service Broker versions pre-1.1.0, the release will not include a ZIP file. Instead of downloading
     > the release ZIP you can clone the repository itself.
 
-3.  **Configure the Service Broker application**
+3.  #### Configure the Service Broker application
 
     The Conjur Service Broker uses HTTP basic authentication, and the credentials it uses must be stored as environment variables in the Service Broker app:
 
@@ -135,7 +135,7 @@ to use the Conjur Service Broker when deploying applications, see the
     cf set-env conjur-service-broker ENABLE_SPACE_IDENTITY [value]
     ```
 
-4.  **Start the Service Broker application**
+4.  #### Start the Service Broker application
 
     ```sh
     cf start conjur-service-broker
@@ -144,7 +144,7 @@ to use the Conjur Service Broker when deploying applications, see the
     > **NOTE:** When the Service Broker application is started, it runs a health
     > check that validates its connection to your Conjur instance.
 
-5.  **Register the Service Broker in Cloud Foundry**
+5.  #### Register the Service Broker in Cloud Foundry
 
     Use the same Basic Auth credentials specified in your environment variables:
 
@@ -153,7 +153,7 @@ to use the Conjur Service Broker when deploying applications, see the
     cf create-service-broker conjur-service-broker "[username value]" "[password value]" $APP_URL
     ```
 
-6.  **List the Conjust service in the marketplace for all Orgs and Spaces**
+6.  #### List the Conjust service in the marketplace for all Orgs and Spaces
     ```sh
     cf enable-service-access cyberark-conjur
     ```
@@ -174,7 +174,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
 ### <a name="prepare-space"> Creating a Conjur Service Instance
 
-1.  **Confirm Conjur Service is in the Marketplace**
+1.  #### Confirm Conjur Service is in the Marketplace
 
     Once the Service Broker is installed, you should see the service listing from any
     org / space:
@@ -190,7 +190,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     TIP:  Use 'cf marketplace -s SERVICE' to view descriptions of individual plans of a given service.
     ```
 
-2.  **Create a Conjur Service Instance**
+2.  #### Create a Conjur Service Instance
 
     When you are ready to use the Conjur Service Broker, you can create a Conjur
     service instance under the `community` plan in the org / space where you are
@@ -204,7 +204,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     > service instance must be created in each space where apps retrieve secrets
     > from Conjur.
 
-    #### Organization and Space Layers
+    ##### Organization and Space Layers
 
     For VMWare Tanzu Application Service (TAS) or Pivotal Cloud Foundry (PCF)
     2.0+, when the service broker is provisioned in a space, it automatically
@@ -248,7 +248,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
           member: !layer 8bf39f4a-ebde-437b-9c38-3d234b80631a
     ```
 
-    #### Application vs Space Host Identity
+    ##### Application vs Space Host Identity
 
     When an application is bound to the Conjur service, it receives an identity in Conjur
     and credentials to authenticate to Conjur.
@@ -290,7 +290,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
 ### <a name="connect-app"> Using Conjur with a Cloud Foundry Application
 
-1.  **Create a `secrets.yml` File**
+1.  #### Create a `secrets.yml` File
 
     To leverage the Conjur Buildpack so that secret values are automatically
     injected into your application's environment at runtime, your application needs
@@ -298,34 +298,36 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     to a **location where a secret is stored in Conjur**. For more information about
     creating this file, [see the Summon documentation](https://cyberark.github.io/summon/#secrets.yml).
 
-2.  **Bind Your Application to the Conjur Service**
+2.  #### Bind Your Application to the Conjur Service
 
     Binding your application to the `conjur` service instance provides the application with an
     identity in Conjur, and credentials that it may use to retrieve secrets.
 
-    *   **Using the Cloud Foundry CLI**
+    *   ##### Using the Cloud Foundry CLI
 
         To bind your application to the `conjur` service using the CLI, run the command:
 
         ```sh
         cf bind-service my-app conjur
         ```
-    *   **Using the Application Manifest**
+
+    *   ##### Using the Application Manifest
 
         Alternatively you can specify the conjur service in your application manifest:
+        ```yaml
+        ---
+        applications:
+        - name: my-app
+          services:
+          - conjur
+        ```
 
-            ---
-            applications:
-            - name: my-app
-              services:
-              - conjur
-
-3.  **Permit the Application to Access Secrets in Conjur**
+3.  #### Permit the Application to Access Secrets in Conjur
 
     TAS applications can be granted access to secrets using either the Org and Space layers,
     or with the application host identity.
 
-    #### <a name="permit-org-space"> Privilege Org and Space Layers
+    ##### <a name="permit-org-space"> Privilege Org and Space Layers
 
     Applications can be granted access to secrets by privileging the Org or Space layers
     to read secrets using Conjur policy.
@@ -350,7 +352,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
       privileges: [ read, execute ]
     ```
 
-    #### <a name="permit-app"> Privilege Application Host Identity
+    ##### <a name="permit-app"> Privilege Application Host Identity
 
     > **NOTE:** Application Host identity permissions are not available when using Space Host Identies.
 
@@ -370,9 +372,9 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     > **NOTE**: In TAS or PCF version 2.0+, the host identity includes the
     > Organization and Space GUIDs in the Host identity, for example:
 
-        host/cf/prod/cbd7a05a-b304-42a9-8f66-6827ae6f78a1/8bf39f4a-ebde-437b-9c38-3d234b80631a/c363669e-e43b-40b9-b650-493d3bdb4663
+    `host/cf/prod/cbd7a05a-b304-42a9-8f66-6827ae6f78a1/8bf39f4a-ebde-437b-9c38-3d234b80631a/c363669e-e43b-40b9-b650-493d3bdb4663`
 
-4.  **Run Your Application**
+4.  #### Run Your Application
 
     > **NOTE**: If you use the Org and Space layers to permit access to secrets, and those
     > permissions are granted before pushing your application, this step is not required.
