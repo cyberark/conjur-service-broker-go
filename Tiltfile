@@ -6,7 +6,19 @@ load('ext://uibutton', 'cmd_button', 'location', 'text_input')
 load_dynamic('./dev/Tiltfile.dep')
 
 # service build and deploy
-docker_build('conjur-service-broker', '.')
+docker_build('conjur-service-broker', '.', dockerfile_contents="""
+FROM golang:alpine as builder
+WORKDIR /src
+COPY go.* .
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
+
+FROM busybox
+WORKDIR /opt/conjur_service_broker
+COPY --from=builder /src/conjur_service_broker /opt/conjur_service_broker
+CMD /opt/conjur_service_broker/conjur_service_broker
+""")
 
 deployment_create('conjur-service-broker', 'conjur-service-broker', ports=['8080:8080'], env=read_yaml('./.env.yaml'))
 
@@ -20,7 +32,6 @@ load_dynamic('./Tiltfile.ruby')
 
 # tests
 #test_go('tests', './...', '.', timeout='30s', extra_args=['-cover'], labels=['conjur-service-broker'])
-local_resource(name='test_in_docker', cmd='./scripts/test_in_docker.sh', labels=['conjur-service-broker'])
 local_resource(name='tests', cmd='./scripts/test.sh', labels=['conjur-service-broker'])
 
 cmd_button(name='coverage report',
