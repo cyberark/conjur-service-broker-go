@@ -64,7 +64,7 @@ repos:
         -   id: go-test-mod
 #        -   id: go-test-pkg
 #        -   id: go-test-repo-mod
-            exclude: test/*
+            exclude: test/(e2e|integration)
 #        -   id: go-test-repo-pkg
         #
         # Go Vet
