@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e
+
+cd "$(dirname "$0")"
+. ../../scripts/utils
+
+# Add or remove IP from IPManager's allow list
+function ip_manager() {
+	verb="${1:-add}"
+	curl \
+		--silent \
+		--show-error \
+		--fail \
+		-X POST \
+		-H "Content-Type: application/json" \
+		-d "{\"sharedsecret\":\"$(summon printenv IPMANAGER_TOKEN)\", \"ip\":\"${CF_WORKER_IP}\", \"expiry_hours\": \"2\"}" \
+		"https://ipmanager.itp.conjur.net/${verb}ip"
+}
+
+function allow_ip() {
+	announce "allowing ip ${CF_WORKER_IP} access to test conjur"
+	for i in {1..5}; do
+		if ip_manager "add"; then
+			banner "successfully added ip ${CF_WORKER_IP} in the ip manager"
+			break
+		else
+			if [[ "$i" -eq 5 ]]; then
+				banner "failed retrying to allow ip ${CF_WORKER_IP} in the ip manager"
+				exit 1
+			fi
+			sleep 1
+		fi
+	done
+}
+
+function remove_ip() {
+	announce "removing ip ${CF_WORKER_IP} from ip manager"
+	for i in {1..5}; do
+		if ip_manager "remove"; then
+			banner "successfully removed ${CF_WORKER_IP} in the ip manager"
+			break
+		else
+			if [[ "$i" -eq 5 ]]; then
+				banner "failed retrying to remove ip ${CF_WORKER_IP} in the ip manager - it should get removed automatically in some time"
+			fi
+			sleep 1
+		fi
+	done
+}
+
+set +e

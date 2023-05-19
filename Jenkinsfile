@@ -140,7 +140,7 @@ pipeline {
           infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
             allocateTas(infrapool, 'isv_ci_tas_srt_2_13')
             sh './test/e2e/test.sh'
-            junit 'test/e2e/reports/**/*.xml'
+            infrapool.agentStash name: 'e2e-test-results', includes: 'test/e2e/reports/junit.xml'
           }
         }
       }
@@ -149,6 +149,8 @@ pipeline {
         always {
           infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0) { infrapool ->
             destroyTas(infrapool)
+            unstash 'e2e-test-results'
+            junit 'test/e2e/reports/junit.xml'
           }
         }
       }

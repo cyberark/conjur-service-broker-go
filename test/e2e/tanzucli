@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+. ../../scripts/utils
+
+function tanzucli() {
+	set -e
+	banner "running ${*} in docker tanzuclis"
+	pushd "$(repo_root)" >/dev/null
+	docker run \
+		--rm \
+		-e HAMMER_TARGET_CONFIG \
+		--volume "${PWD}:${PWD}" \
+		--workdir "${PWD}" \
+		registry.tld/tanzuclis \
+		"${@}"
+	popd >/dev/null
+}
