@@ -9,12 +9,14 @@ These are not required to deploy the Conjur Service Broker but
 they will let you develop using a standardized, expertly configured
 environment.
 
-1. [git][get-git] to manage source code
-2. [Docker][get-docker] to manage dependencies and runtime environments
-3. [Tilt][get-tilt] to orchestrate Docker environments
+1.  [git][get-git] to manage source code
+2.  [Docker][get-docker] to manage dependencies and runtime environments
+3.  [Tilt][get-tilt] to orchestrate Docker environments
 
 [get-docker]: https://docs.docker.com/engine/installation
+
 [get-git]: https://git-scm.com/downloads
+
 [get-tilt]: https://docs.tilt.dev/install.html
 
 To test the usage of the Conjur Service Broker within a CF deployment, you can
@@ -52,11 +54,11 @@ tilt up
 ```
 
 Then, unit tests will execute automatically. If you make any changes to the code, it will automatically update.
-Then re-run test_in_docker in the dashboard.
+Then re-run test\_in\_docker in the dashboard.
 
 ### Running Local Integration Tests
 
-The [test/integration/main_test.go](./test/integration/main_test.go) file provides a full
+The [test/integration/main\_test.go](./test/integration/main_test.go) file provides a full
 suite of integration tests for testing Service Broker functionality
 against Conjur. To run these test application must be deployed using Tilt.
 
@@ -81,43 +83,47 @@ TODO
 ## Releases
 
 ### Verify and update dependencies
-1. Review the changes to `go.mod` since the last release and make any needed
-   updates to [NOTICES.txt](./NOTICES.txt):
-   - Verify that dependencies fit into supported licenses types:
-       ```shell
-        go-licenses check ./... --allowed_licenses="MIT,ISC,Apache-2.0,BSD-3-Clause"
-       ```
-        If there is new dependency having unsupported license, such license should be included to [notices.tpl](./notices.tpl) 
-        file in order to get generated in NOTICES.txt. 
-    - If no errors occur, proceed to generate updated NOTICES.txt:
-       ```shell
-        go-licenses report ./... --template notices.tpl > NOTICES.txt 
-       ```
+
+1.  Review the changes to `go.mod` since the last release and make any needed
+    updates to [NOTICES.txt](./NOTICES.txt):
+    *   Verify that dependencies fit into supported licenses types:
+        ```shell
+         go-licenses check ./... --allowed_licenses="MIT,ISC,Apache-2.0,BSD-3-Clause"
+        ```
+        If there is new dependency having unsupported license, such license should be included to [notices.tpl](./notices.tpl)
+        file in order to get generated in NOTICES.txt.
+    *   If no errors occur, proceed to generate updated NOTICES.txt:
+        ```shell
+         go-licenses report ./... --template notices.tpl > NOTICES.txt
+        ```
 
 ### Update the version and changelog
 
-1. Create a new branch for the version bump.
-1. Based on the unreleased content, determine the new version number and update
-   the [VERSION](VERSION) file. This project uses [semantic versioning](https://semver.org/).
-1. Ensure the [changelog](CHANGELOG.md) is up to date with the changes included in the release.
-1. Ensure the [open source acknowledgements](NOTICES.txt) are up to date with the dependencies,
-   and update the file if there have been any new or changed dependencies since the last release.
+1.  Create a new branch for the version bump.
 
-1. Commit these changes - `Bump version to x.y.z` is an acceptable commit message - and open a PR
-   for review. Your PR should include updates to
-   `CHANGELOG.md`, and if there are any license updates, to `NOTICES.txt`.
+2.  Based on the unreleased content, determine the new version number and update
+    the [VERSION](VERSION) file. This project uses [semantic versioning](https://semver.org/).
+
+3.  Ensure the [changelog](CHANGELOG.md) is up to date with the changes included in the release.
+
+4.  Ensure the [open source acknowledgements](NOTICES.txt) are up to date with the dependencies,
+    and update the file if there have been any new or changed dependencies since the last release.
+
+5.  Commit these changes - `Bump version to x.y.z` is an acceptable commit message - and open a PR
+    for review. Your PR should include updates to
+    `CHANGELOG.md`, and if there are any license updates, to `NOTICES.txt`.
 
 ### Release and Promote
 
-1. Jenkins build parameters can be utilized to release and promote successful builds.
-1. Merging into main/master branches will automatically trigger a release.
-1. Reference the [internal automated release doc](https://github.com/conjurinc/docs/blob/master/reference/infrastructure/automated_releases.md#release-and-promotion-process)
-   for releasing and promoting.
+1.  Jenkins build parameters can be utilized to release and promote successful builds.
+2.  Merging into main/master branches will automatically trigger a release.
+3.  Reference the [internal automated release doc](https://github.com/conjurinc/docs/blob/master/reference/infrastructure/automated_releases.md#release-and-promotion-process)
+    for releasing and promoting.
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+1.  Fork it
+2.  Create your feature branch (`git checkout -b my-new-feature`)
+3.  Commit your changes (`git commit -am 'Added some feature'`)
+4.  Push to the branch (`git push origin my-new-feature`)
+5.  Create new Pull Request
