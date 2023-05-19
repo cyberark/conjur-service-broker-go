@@ -21,7 +21,7 @@ function test_in_docker() {
 		--pull \
 		-q \
 		"${DOCKER_FLAGS[@]}" \
-		--file "$TOPLEVEL_DIR/Dockerfile.test" \
+		--file "Dockerfile.test" \
 		"$TOPLEVEL_DIR" || exit 1)
 	docker run -v "$TOPLEVEL_DIR"/coverage:/src/coverage --rm "$IMAGE_ID"
 }
