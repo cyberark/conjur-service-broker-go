@@ -17,3 +17,5 @@ isv_env.json
 cf-login.sh
 test/e2e/tanzu_data
 test/e2e/reports
+
+VERSION
