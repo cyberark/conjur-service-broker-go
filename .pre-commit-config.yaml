@@ -87,6 +87,8 @@ repos:
             args:
               - -exclude-dir
               - test/integration
+              - -exclude-dir
+              - test/e2e
 #        -   id: go-sec-pkg
 #        -   id: go-sec-repo-mod
 #        -   id: go-sec-repo-pkg

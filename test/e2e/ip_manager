@@ -2,7 +2,7 @@
 
 set -e
 
-cd "$(dirname "$0")"
+#cd "$(dirname "$0")"
 . ../../scripts/utils
 
 # Add or remove IP from IPManager's allow list

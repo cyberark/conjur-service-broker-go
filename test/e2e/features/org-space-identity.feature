@@ -1,17 +1,17 @@
 @e2e
 Feature: End to End test of service broker with org space identity
 
-#  @enable-space-host
   Scenario: Space Host Identity
   Given I create an org and space
-  And I install the Conjur service broker
+  And I create space developer user and login
+  And I install the Conjur service broker with space host identity
 
   When I create a service instance for Conjur
-  Then the policy for the org and space exists
+  Then the policies for the org and space exists
   And the space host exists
   And the space host api key variable exists
 
-  When I load a secret into Conjur
+  When I load the secrets into Conjur
   And I privilege the org layer to access a secret in Conjur
   And I privilege the space layer to access a secret in Conjur
 

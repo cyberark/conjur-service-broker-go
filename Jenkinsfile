@@ -146,31 +146,31 @@ pipeline {
       }
     }
 
-    stage('Integration test while scanning') {
+    stage('End to end test while scanning') {
       parallel {
-//         stage('End-to-End testing') {
-//           steps {
-//             script {
-//               allocateTas(infrapool, 'isv_ci_tas_srt_2_13')
-//               infrapool.agentSh './test/e2e/test.sh'
-//               infrapool.agentStash name: 'e2e-test-results', includes: 'test/e2e/reports/junit.xml'
-//             }
-//           }
-//
-//           post {
-//             always {
-//               destroyTas(infrapool)
-//               unstash 'e2e-test-results'
-//               junit 'test/e2e/reports/junit.xml'
-//             }
-//           }
-//         }
+        stage('End-to-End testing') {
+          steps {
+            script {
+              allocateTas(infrapool, 'isv_ci_tas_srt_3_0')
+              infrapool.agentSh './test/e2e/test.sh'
+              infrapool.agentStash name: 'e2e-test-results', includes: 'test/e2e/reports/junit.xml'
+            }
+          }
 
-         stage("Scan container images for fixable issues") {
-           steps {
+          post {
+            always {
+              destroyTas(infrapool)
+              unstash 'e2e-test-results'
+              junit 'test/e2e/reports/junit.xml'
+            }
+          }
+        }
+
+        stage("Scan container images for fixable issues") {
+          steps {
              scanAndReport(infrapool, "${containerImageWithTag()}", "HIGH", false)
-           }
-         }
+          }
+        }
 
         stage("Scan container images for total issues") {
           steps {

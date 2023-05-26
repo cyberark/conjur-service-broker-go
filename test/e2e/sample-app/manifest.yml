@@ -1,0 +1,10 @@
+---
+applications:
+  - name: sample-app
+    random-route: true
+    memory: 32MB
+    services:
+      - conjur
+    buildpacks:
+      - https://github.com/cyberark/cloudfoundry-conjur-buildpack
+      - go_buildpack
