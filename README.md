@@ -119,6 +119,9 @@ to use the Conjur Service Broker when deploying applications, see the
         -----END CERTIFICATE-----
         ```
 
+    *   `CONJUR_FOLLOWER_SSL_CERTIFICATE` (HA only):
+        If using high availability, this should be the SSL certificate chain of a load balancer for the cluster's Follower instances. It can be retrieved the same way as the `CONJUR_SSL_CERTIFICATE`. If not provided the value of `CONJUR_SSL_CERTIFICATE` will be used.
+
     *   `ENABLE_SPACE_IDENTITY`:
         When set to `true`, the service broker provides applications with a Space-level `host` identity, rather than create a new `host` identity for each application in Conjur at bind time. This allows the broker to use a Conjur follower for application binding, rather than the Conjur master.
 

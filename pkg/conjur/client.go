@@ -47,6 +47,9 @@ func (config *Config) NewClient() (Client, error) {
 	var roClient *conjurapi.Client
 	if len(config.ConjurFollowerURL) > 0 {
 		clientConf.ApplianceURL = config.ConjurFollowerURL
+		if len(config.ConjurFollowerSSLCertificate) > 0 {
+			clientConf.SSLCert = config.ConjurFollowerSSLCertificate
+		}
 		roClient, err = conjurapi.NewClientFromKey(clientConf, loginPair)
 		if err != nil {
 			return nil, err

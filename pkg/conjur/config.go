@@ -44,6 +44,8 @@ type Config struct {
 	// ...
 	// -----END CERTIFICATE-----
 	ConjurSSLCertificate string `env:"CONJUR_SSL_CERTIFICATE"`
+	// CONJUR_FOLLOWER_SSL_CERTIFICATE: the x509 certificate for the follower
+	ConjurFollowerSSLCertificate string `env:"CONJUR_FOLLOWER_SSL_CERTIFICATE"`
 }
 
 func (config *Config) mergeConfig(conf conjurapi.Config) conjurapi.Config {
