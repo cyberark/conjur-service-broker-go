@@ -28,4 +28,4 @@ const (
 	VariablePrivilegeUpdate // update
 )
 
-const spaceHostAPIKey = "space-host-api-key" // #nosec G101
+const spaceHostAPIKey = "space-host-api-key" // #nosec G101 this is not a hardcoded credential but a key name for the API Key

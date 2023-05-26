@@ -120,7 +120,7 @@ func dropAccount(id string) string {
 }
 
 func (b *bind) HostExists() (bool, error) {
-	return b.client.resourceExists(b.hostID)
+	return b.client.roleExists(b.hostID)
 }
 
 func (b *bind) useSpace() bool {

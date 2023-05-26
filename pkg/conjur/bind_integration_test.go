@@ -197,14 +197,14 @@ func Test_bind_HostExists(t *testing.T) {
 	}{{
 		"positive",
 		mockParams{
-			"ResourceExists": m{args: p{"dev:host:cf/orgID/spaceID"}, returns: p{true, nil}},
+			"RoleExists": m{args: p{"dev:host:cf/orgID/spaceID"}, returns: p{true, nil}},
 		},
 		true,
 		assert.NoError,
 	}, {
 		"error from resource exists",
 		mockParams{
-			"ResourceExists": m{args: p{"dev:host:cf/orgID/spaceID"}, returns: p{false, errors.New("error")}},
+			"RoleExists": m{args: p{"dev:host:cf/orgID/spaceID"}, returns: p{false, errors.New("error")}},
 		},
 		false,
 		assert.Error,

@@ -201,6 +201,15 @@ func (c *client) resourceExists(resourceID string) (bool, error) {
 	return exists, nil
 }
 
+// roleExists checks for an existence of a role with a given id
+func (c *client) roleExists(resourceID string) (bool, error) {
+	exists, err := c.roClient.RoleExists(resourceID)
+	if err != nil {
+		return false, fmt.Errorf("unable to check role existance %v: %w", resourceID, err)
+	}
+	return exists, nil
+}
+
 // setVariable sets a secret variable
 func (c *client) setVariable(variableID, secret string) error {
 	return c.client.AddSecret(variableID, secret)
