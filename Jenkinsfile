@@ -208,6 +208,11 @@ pipeline {
       }
     }
   }
+  post {
+    always {
+      releaseInfraPoolAgent(".infrapool/release_agents")
+    }
+  }
 }
 
 def containerImageWithTag() {
