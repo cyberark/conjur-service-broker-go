@@ -9,36 +9,35 @@ cd "$(dirname "$0")"
 . ./build_utils.sh
 
 function main() {
-    local REPO_ROOT
-    local PROJECT_WD
-    local VERSION
-    local GO_VERSION
-    local GORELEASER_IMAGE
+	local REPO_ROOT
+	local PROJECT_WD
+	local VERSION
+	local GO_VERSION
+	local GORELEASER_IMAGE
 
-    # Use a GoReleaser Docker image containing cross-compilation tools
-    # This image is recommended by the official GoReleaser docs
-    # https://goreleaser.com/cookbooks/cgo-and-crosscompiling/
-    GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.20"
+	# Use a GoReleaser Docker image containing cross-compilation tools
+	# This image is recommended by the official GoReleaser docs
+	# https://goreleaser.com/cookbooks/cgo-and-crosscompiling/
+	GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.20"
 
-    REPO_ROOT="$(repo_root)"
-    PROJECT_WD="github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go"
-    VERSION="$(project_semantic_version)"
+	REPO_ROOT="$(repo_root)"
+	PROJECT_WD="github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go"
+	VERSION="$(project_semantic_version)"
 
-    # Get the version of Go specified by the "go directive" in go.mod
-    # Grep it to avoid Go binary dependency
-    GO_VERSION="v$(grep "^\bgo\b" "${REPO_ROOT}/go.mod" | awk '{print $2}')"
+	# Get the version of Go specified by the "go directive" in go.mod
+	# Grep it to avoid Go binary dependency
+	GO_VERSION="v$(grep "^\bgo\b" "${REPO_ROOT}/go.mod" | awk '{print $2}')"
 
-
-    # Compile binaries with Go Releaser
-    #
-    echo "Docker image for release build: ${GORELEASER_IMAGE}"
-    docker run --rm \
-      --env VERSION="${VERSION}" \
-      --env GO_VERSION="${GO_VERSION}" \
-      --volume "${REPO_ROOT}:/${PROJECT_WD}" \
-      --workdir "/${PROJECT_WD}" \
-      "${GORELEASER_IMAGE}" --clean "$@"
-    echo "Releases built. Archives can be found in dist/goreleaser"
+	# Compile binaries with Go Releaser
+	#
+	echo "Docker image for release build: ${GORELEASER_IMAGE}"
+	docker run --rm \
+		--env VERSION="${VERSION}" \
+		--env GO_VERSION="${GO_VERSION}" \
+		--volume "${REPO_ROOT}:/${PROJECT_WD}" \
+		--workdir "/${PROJECT_WD}" \
+		"${GORELEASER_IMAGE}" --clean "$@"
+	echo "Releases built. Archives can be found in dist/goreleaser"
 }
 
 main "$@"

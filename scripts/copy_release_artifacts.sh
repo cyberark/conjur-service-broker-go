@@ -12,68 +12,68 @@ set -eo pipefail
 ###################################
 
 print_help() {
-    echo "About $0: Copies release files into Github release asset directory."
-    echo "Usage: $0 path/to/asset/release/directory"
-    exit 1
+	echo "About $0: Copies release files into Github release asset directory."
+	echo "Usage: $0 path/to/asset/release/directory"
+	exit 1
 }
 
 if [[ "$#" -lt 1 ]]; then
-    print_help
+	print_help
 fi
 
 asset_dir="$1"
 
 if [[ ! -d "${asset_dir}" ]]; then
-    echo "${asset_dir} directory does not exist."
-    print_help
+	echo "${asset_dir} directory does not exist."
+	print_help
 fi
 
 root_assets() {
-    local dir
-    dir=$(git rev-parse --show-toplevel)
-    local assets=(
-        'LICENSE'
-        'README.md'
-        'CHANGELOG.md'
-        'NOTICES.txt'
-        'SECURITY.md'
-        'VERSION'
-    )
+	local dir
+	dir=$(git rev-parse --show-toplevel)
+	local assets=(
+		'LICENSE'
+		'README.md'
+		'CHANGELOG.md'
+		'NOTICES.txt'
+		'SECURITY.md'
+		'VERSION'
+	)
 
-    # shellcheck disable=SC2086
-    for asset in "${assets[@]}"; do
-        # globbing is intentional for assets
-        echo "${dir}"/${asset}
-    done
+	# shellcheck disable=SC2086
+	for asset in "${assets[@]}"; do
+		# globbing is intentional for assets
+		echo "${dir}"/${asset}
+	done
 }
 
 goreleaser_assets() {
-    local dir=dist/goreleaser
-    local assets=(
-        'SHA256SUMS.txt'
-        *.zip
-        'manifest.yml'
-    )
+	local dir=dist/goreleaser
+	local assets=(
+		'SHA256SUMS.txt'
+		*.zip
+		'manifest.yml'
+	)
 
-    # shellcheck disable=SC2086
-    for asset in "${assets[@]}"; do
-        # globbing is intentional for assets
-        echo "${dir}"/${asset}
-    done
+	# shellcheck disable=SC2086
+	for asset in "${assets[@]}"; do
+		# globbing is intentional for assets
+		echo "${dir}"/${asset}
+	done
 }
 
 function main() {
-    local assets=(
-        $(root_assets)
-        $(goreleaser_assets)
-    )
+	local assets=(
+		"${root_assets[@]}"
+		"${goreleaser_assets[@]}"
+	)
 
-    # Copy assets into Github release asset dir
-    for asset in "${assets[@]}"; do
-        cp "${asset}" "$asset_dir"
-    done
+	# Copy assets into Github release asset dir
+	for asset in "${assets[@]}"; do
+		cp "${asset}" "$asset_dir"
+	done
 
-    rename_assets
+	rename_assets
 }
 
 ###################################
@@ -89,11 +89,11 @@ function main() {
 # release process.
 ###################################
 function rename_assets() {
-    # Find all assets ending with _v1
-    for file in "${asset_dir}"/*_v1; do
-        # Rename file, removing _v1 from asset
-        mv "$file" "${file/_v1/}"
-    done
+	# Find all assets ending with _v1
+	for file in "${asset_dir}"/*_v1; do
+		# Rename file, removing _v1 from asset
+		mv "$file" "${file/_v1/}"
+	done
 }
 
 main

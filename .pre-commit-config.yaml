@@ -25,7 +25,7 @@ repos:
         entry: remark
         types: [markdown]
         args: ["--frail", "--quiet"]
-        additional_dependencies: [remark, remark-lint, remark-cli, remark-preset-lint-recommended, remark-lint-list-item-indent]
+        additional_dependencies: [remark, remark-lint, remark-cli, remark-preset-lint-recommended, remark-lint-list-item-indent, remark-preset-lint-consistent]
   -   repo: https://github.com/tekwizely/pre-commit-golang
       rev: v1.0.0-rc.1
       hooks:

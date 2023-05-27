@@ -73,7 +73,7 @@ Alternatively, you can re-run integration-test in the Tilt dashboard.
 ### End-to-End (E2E) Integration Testing
 
 End-to-End testing is automatically triggered during pipeline. <br>
-It is not supported and possibly not impossible to run these locally due to infrastructure dependencies. 
+It is not supported and possibly not impossible to run these locally due to infrastructure dependencies.
 
 E2E integration tests are being executed in Tanzu virtual machine based on binary that is built during Jenkins pipeline.
 

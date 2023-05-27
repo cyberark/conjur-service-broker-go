@@ -9,20 +9,20 @@ cd "$(dirname "$0")"
 . ./build_utils.sh
 
 function main() {
-    local REPO_ROOT
-    local CONTAINER_IMAGE_AND_TAG
+	local REPO_ROOT
+	local CONTAINER_IMAGE_AND_TAG
 
-    REPO_ROOT="$(repo_root)"
-    CONTAINER_IMAGE_AND_TAG="conjur-service-broker:$(project_version_with_commit)"
+	REPO_ROOT="$(repo_root)"
+	CONTAINER_IMAGE_AND_TAG="conjur-service-broker:$(project_version_with_commit)"
 
-    # Build container image/s by copying binaries
-    #
-    echo "Building ${CONTAINER_IMAGE_AND_TAG} container image"
-    docker build \
-        --tag "${CONTAINER_IMAGE_AND_TAG}" \
-        --rm \
-        --file "${REPO_ROOT}/Dockerfile" \
-        "${REPO_ROOT}"
+	# Build container image/s by copying binaries
+	#
+	echo "Building ${CONTAINER_IMAGE_AND_TAG} container image"
+	docker build \
+		--tag "${CONTAINER_IMAGE_AND_TAG}" \
+		--rm \
+		--file "${REPO_ROOT}/Dockerfile" \
+		"${REPO_ROOT}"
 }
 
 main

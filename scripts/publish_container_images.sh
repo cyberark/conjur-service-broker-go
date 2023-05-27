@@ -9,19 +9,19 @@ cd "$(dirname "${0}")"
 . build_utils.sh
 
 function print_help() {
-  echo "Internal Release Usage: ${0} --internal"
-  echo "External Release Usage: ${0} --edge"
-  echo "Promote Usage: ${0} --promote --source <VERSION> --target <VERSION>"
-  echo " --internal: publish images to registry.tld"
-  echo " --edge: publish docker images to docker hub"
-  echo " --source <VERSION>: specify version number of local image"
-  echo " --target <VERSION>: specify version number of remote image"
+	echo "Internal Release Usage: ${0} --internal"
+	echo "External Release Usage: ${0} --edge"
+	echo "Promote Usage: ${0} --promote --source <VERSION> --target <VERSION>"
+	echo " --internal: publish images to registry.tld"
+	echo " --edge: publish docker images to docker hub"
+	echo " --source <VERSION>: specify version number of local image"
+	echo " --target <VERSION>: specify version number of remote image"
 }
 
 # Fail if no arguments are given.
 if [[ $# -lt 1 ]]; then
-  print_help
-  exit 1
+	print_help
+	exit 1
 fi
 
 PUBLISH_INTERNAL=false
@@ -30,38 +30,38 @@ PROMOTE=false
 PULL_SOURCE_IMAGES=false
 
 while [[ $# -gt 0 ]]; do
-  case "${1}" in
-  --internal)
-    PUBLISH_INTERNAL=true
-    ;;
-  --pull)
-    PULL_SOURCE_IMAGES=true
-    ;;
-  --edge)
-    PUBLISH_EDGE=true
-    ;;
-  --promote)
-    PROMOTE=true
-    ;;
-  --source)
-    SOURCE_ARG="${2}"
-    shift
-    ;;
-  --target)
-    TARGET_ARG="${2}"
-    shift
-    ;;
-  --help)
-    print_help
-    exit 1
-    ;;
-  *)
-    echo "Unknown option: ${1}"
-    print_help
-    exit 1
-    ;;
-  esac
-  shift
+	case "${1}" in
+	--internal)
+		PUBLISH_INTERNAL=true
+		;;
+	--pull)
+		PULL_SOURCE_IMAGES=true
+		;;
+	--edge)
+		PUBLISH_EDGE=true
+		;;
+	--promote)
+		PROMOTE=true
+		;;
+	--source)
+		SOURCE_ARG="${2}"
+		shift
+		;;
+	--target)
+		TARGET_ARG="${2}"
+		shift
+		;;
+	--help)
+		print_help
+		exit 1
+		;;
+	*)
+		echo "Unknown option: ${1}"
+		print_help
+		exit 1
+		;;
+	esac
+	shift
 done
 
 readonly REGISTRY="conjurinc"
@@ -70,63 +70,63 @@ readonly LOCAL_REGISTRY="registry.tld"
 VERSION_WITH_COMMIT="$(project_version_with_commit)"
 readonly VERSION_WITH_COMMIT
 readonly IMAGES=(
-  "conjur-service-broker"
+	"conjur-service-broker"
 )
 
 if [[ ${PUBLISH_INTERNAL} = true ]]; then
-  echo "Publishing built images internally to registry.tld."
-  SOURCE_TAG=${VERSION_WITH_COMMIT}
-  REMOTE_TAG=${VERSION_WITH_COMMIT}
+	echo "Publishing built images internally to registry.tld."
+	SOURCE_TAG=${VERSION_WITH_COMMIT}
+	REMOTE_TAG=${VERSION_WITH_COMMIT}
 
-  echo "SOURCE_TAG=${SOURCE_TAG}, REMOTE_TAG=${REMOTE_TAG}"
-  for IMAGE_NAME in "${IMAGES[@]}"; do
-    tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${LOCAL_REGISTRY}/${IMAGE_NAME}:${REMOTE_TAG}"
-  done
+	echo "SOURCE_TAG=${SOURCE_TAG}, REMOTE_TAG=${REMOTE_TAG}"
+	for IMAGE_NAME in "${IMAGES[@]}"; do
+		tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${LOCAL_REGISTRY}/${IMAGE_NAME}:${REMOTE_TAG}"
+	done
 fi
 
 if [[ ${PUBLISH_EDGE} = true ]]; then
-  echo "Performing edge release."
-  SOURCE_TAG=${VERSION_WITH_COMMIT}
+	echo "Performing edge release."
+	SOURCE_TAG=${VERSION_WITH_COMMIT}
 
-  if [[ ${PULL_SOURCE_IMAGES} = true ]]; then
-    echo "Pulling source images from local registry"
-    for IMAGE_NAME in "${IMAGES[@]}"; do
-      docker pull "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
-    done
-  fi
+	if [[ ${PULL_SOURCE_IMAGES} = true ]]; then
+		echo "Pulling source images from local registry"
+		for IMAGE_NAME in "${IMAGES[@]}"; do
+			docker pull "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
+		done
+	fi
 
-  for IMAGE_NAME in "${IMAGES[@]}"; do
-    tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${REGISTRY}/${IMAGE_NAME}:edge"
-  done
+	for IMAGE_NAME in "${IMAGES[@]}"; do
+		tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${REGISTRY}/${IMAGE_NAME}:edge"
+	done
 fi
 
 if [[ ${PROMOTE} = true ]]; then
-  if [[ -z ${SOURCE_ARG:-} || -z ${TARGET_ARG:-} ]]; then
-  echo "When promoting, --source and --target flags are required."
-  print_help
-  exit 1
-  fi
+	if [[ -z ${SOURCE_ARG:-} || -z ${TARGET_ARG:-} ]]; then
+		echo "When promoting, --source and --target flags are required."
+		print_help
+		exit 1
+	fi
 
-  # Update vars to utilize build_utils.sh
-  SOURCE_TAG=${SOURCE_ARG}
-  REMOTE_TAG=${TARGET_ARG}
+	# Update vars to utilize build_utils.sh
+	SOURCE_TAG=${SOURCE_ARG}
+	REMOTE_TAG=${TARGET_ARG}
 
-  echo "Promoting image to ${REMOTE_TAG}"
-  readonly TAGS=(
-    "${REMOTE_TAG}"
-    # "latest"
-  )
+	echo "Promoting image to ${REMOTE_TAG}"
+	readonly TAGS=(
+		"${REMOTE_TAG}"
+		# "latest"
+	)
 
-  if [[ ${PULL_SOURCE_IMAGES} = true ]]; then
-    echo "Pulling source images from local registry"
-    for IMAGE_NAME in "${IMAGES[@]}"; do
-      docker pull "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
-    done
-  fi
+	if [[ ${PULL_SOURCE_IMAGES} = true ]]; then
+		echo "Pulling source images from local registry"
+		for IMAGE_NAME in "${IMAGES[@]}"; do
+			docker pull "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
+		done
+	fi
 
-  for IMAGE_NAME in "${IMAGES[@]}"; do
-    for tag in "${TAGS[@]}" $(gen_versions "${REMOTE_TAG}"); do
-      tag_and_push "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}" "${REGISTRY}/${IMAGE_NAME}:${tag}"
-    done
-  done
+	for IMAGE_NAME in "${IMAGES[@]}"; do
+		for tag in "${TAGS[@]}" $(gen_versions "${REMOTE_TAG}"); do
+			tag_and_push "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}" "${REGISTRY}/${IMAGE_NAME}:${tag}"
+		done
+	done
 fi
