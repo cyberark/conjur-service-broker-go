@@ -38,7 +38,7 @@ archives:
       - VERSION
       - src: configs/manifest.yml
         strip_parent: true
-    wrap_in_directory: true
+    wrap_in_directory: false
 
 checksum:
   name_template: 'SHA256SUMS.txt'
