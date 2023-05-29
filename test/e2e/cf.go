@@ -96,7 +96,12 @@ func (c *cf) installServiceBroker(ctx context.Context, enableSpaceHostIdentity b
 		assert.NoError(t, err)
 	}
 	start, err := cfCLI("restage", "conjur-service-broker")
-	require.NoError(t, err)
+	assert.NoError(t, err)
+	if err != nil {
+		logs, err := cfCLI("logs", "conjur-service-broker", "--recent")
+		assert.NoError(t, err)
+		t.Errorf("logs from conjur-service-broker:\n%s", logs)
+	}
 	route, err := parseRoute(start)
 	require.NoError(t, err)
 	state.sbName = "cyberark-conjur-" + randomName()
