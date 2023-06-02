@@ -36,22 +36,22 @@ func Test_provisionOrgSpaceYAML(t *testing.T) {
 			"with annotations",
 			&provision{
 				orgID:     "3",
-				orgName:   "org",
+				orgName:   "my-org",
 				spaceID:   "4",
-				spaceName: "space",
+				spaceName: "my-space",
 			},
 			`- !policy
   id: "3"
   annotations:
-    pcf/orgName: org
+    pcf/orgName: my-org
     pcf/type: org
   body:
     - !layer
     - !policy
       id: "4"
       annotations:
-        pcf/orgName: org
-        pcf/spaceName: space
+        pcf/orgName: my-org
+        pcf/spaceName: my-space
         pcf/type: space
       body:
         - !layer
