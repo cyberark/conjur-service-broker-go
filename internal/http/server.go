@@ -82,6 +82,8 @@ func initLogger(cfg *config) (logger *zap.Logger, cleanup func(), err error) {
 		return
 	}
 	undo := zap.RedirectStdLog(logger)
+	// we set the debug level for all the logs that would be written on the writer since writer has no mean to understand
+	// the actual level, in non DEBUG mode (production) nothing from the writer would get logged
 	writer := &zapio.Writer{Log: logger, Level: zap.DebugLevel}
 	gin.DefaultWriter = writer
 	logging.ApiLog.Out = writer

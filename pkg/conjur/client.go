@@ -24,8 +24,8 @@ type Client interface {
 }
 
 type client struct {
-	client   api.Client
-	roClient api.Client
+	client   api.Client // the writable client - used for operations that requires modification
+	roClient api.Client // the read-only client - just for read operations - when the follower URL is configured we use it for the read only client
 	config   *Config
 }
 
