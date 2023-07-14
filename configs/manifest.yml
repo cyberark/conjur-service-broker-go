@@ -1,0 +1,7 @@
+---
+applications:
+  - name: conjur-service-broker
+    command: ./cyberark-conjur-service-broker
+    random-route: true
+    buildpacks:
+      - binary_buildpack

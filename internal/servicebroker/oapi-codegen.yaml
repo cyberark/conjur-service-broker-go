@@ -1,0 +1,6 @@
+package: servicebroker
+generate:
+  - gin
+  - types
+  - spec
+output: servicebroker.gen.go

@@ -1,0 +1,73 @@
+before:
+  hooks:
+    - go mod tidy
+    - apt-get update
+    - apt-get install upx -y
+project_name: cyberark-conjur-service-broker
+
+github_urls:
+  api: https://github.cyberng.com/api/v3/
+  upload: https://github.cyberng.com/api/uploads/
+  download: https://github.cyberng.com/
+
+builds:
+  - main: ./cmd/conjur_service_broker
+    binary: cyberark-conjur-service-broker
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -tags=netgo
+      - -a
+    ldflags:
+      - -w
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+archives:
+  - id: cyberark-conjur-service-broker-archive
+    format: zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}"
+    files:
+      - LICENSE
+      - README.md
+      - CHANGELOG.md
+      - NOTICES.txt
+      - SECURITY.md
+      - VERSION
+      - src: configs/manifest.yml
+        strip_parent: true
+    wrap_in_directory: false
+
+checksum:
+  name_template: 'SHA256SUMS.txt'
+
+upx:
+  -
+    # Whether to enable it or not.
+    enabled: true
+
+    # Compress argument.
+    # Valid options are from '1' (faster) to '9' (better), and 'best'.
+    compress: best
+
+    # Whether to try LZMA (slower).
+    lzma: true
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+dist: dist/goreleaser/
+
+release:
+  disable: true
+  draft: true
+  extra_files:
+    - glob: LICENSE
+    - glob: README.md
+    - glob: CHANGELOG.md
+    - glob: NOTICES.txt
+    - glob: SECURITY.md
+    - glob: VERSION
+    - glob: manifest.yml
