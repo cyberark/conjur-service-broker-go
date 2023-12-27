@@ -151,7 +151,7 @@ pipeline {
         stage('End-to-End testing') {
           steps {
             script {
-              allocateTas(infrapool, 'isv_ci_tas_srt_3_0')
+              allocateTas(infrapool, 'isv_ci_tas_srt_5_0')
               infrapool.agentSh './test/e2e/test.sh'
               infrapool.agentStash name: 'e2e-test-results', includes: 'test/e2e/reports/junit.xml'
             }
