@@ -8,6 +8,17 @@ load_dynamic('./dev/Tiltfile.dep')
 # service build and deploy
 docker_build('conjur-service-broker', '.', dockerfile_contents="""
 FROM golang:alpine as builder
+# On CyberArk dev laptops, golang dependencies are downloaded
+# with a corporate proxy in the middle. For these connections
+# succeed we need to configure the proxy CA certificate in the
+# build container.
+#
+# To also allow this script to work on non-CyberArk laptops
+# we copy the certificate into the Docker image as a (potentially
+# empty) directory, rather than rely on the CA file itself.
+COPY build_ca_certificate /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 WORKDIR /src
 COPY go.* .
 COPY . .

@@ -5,6 +5,8 @@ cd "$(dirname "$0")"
 . ../../scripts/utils
 . tanzucli
 . ip_manager
+retrieve_cyberark_ca_cert
+cp -r ../../build_ca_certificate .
 
 export HAMMER_TARGET_CONFIG="${HAMMER_TARGET_CONFIG:-"$(repo_root)/hammerfile.json"}"
 
