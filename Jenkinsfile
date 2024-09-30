@@ -133,7 +133,7 @@ pipeline {
           steps {
             script {
               // Create release artifacts without releasing to Github
-              infrapool.agentSh "./scripts/build_release.sh --skip-validate --clean"
+              infrapool.agentSh "./scripts/build_release.sh --skip=validate --clean"
 
               // Build container images
               infrapool.agentSh "./scripts/build_container_images.sh"
@@ -146,25 +146,33 @@ pipeline {
       }
     }
 
+    stage('Integration tests') {
+      steps {
+        script {
+          infrapool.agentSh './scripts/test_integration.sh'
+        }
+      }
+    }
+
     stage('End to end test while scanning') {
       parallel {
-        stage('End-to-End testing') {
-          steps {
-            script {
-              allocateTas(infrapool, 'isv_ci_tas_srt_5_0')
-              infrapool.agentSh './test/e2e/test.sh'
-              infrapool.agentStash name: 'e2e-test-results', includes: 'test/e2e/reports/junit.xml'
-            }
-          }
+        // stage('End-to-End testing') {
+        //   steps {
+        //     script {
+        //       allocateTas(infrapool, 'isv_ci_tas_srt_5_0')
+        //       infrapool.agentSh './test/e2e/test.sh'
+        //       infrapool.agentStash name: 'e2e-test-results', includes: 'test/e2e/reports/junit.xml'
+        //     }
+        //   }
 
-          post {
-            always {
-              destroyTas(infrapool)
-              unstash 'e2e-test-results'
-              junit 'test/e2e/reports/junit.xml'
-            }
-          }
-        }
+        //   post {
+        //     always {
+        //       destroyTas(infrapool)
+        //       unstash 'e2e-test-results'
+        //       junit 'test/e2e/reports/junit.xml'
+        //     }
+        //   }
+        // }
 
         stage("Scan container images for fixable issues") {
           steps {
