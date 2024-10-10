@@ -1,0 +1,51 @@
+FROM ubuntu:latest
+
+RUN mkdir -p /src
+WORKDIR /src
+
+# Install dependencies
+RUN apt-get update -y && \
+    apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common wget jq gettext-base
+
+# Install Go
+ENV GO_VERSION=1.23.1
+RUN wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar -xf go${GO_VERSION}.linux-amd64.tar.gz && \
+    mv go /usr/local/
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/root/go
+ENV PATH=/root/.local/bin:$GOPATH/bin:$GOROOT/bin:$PATH
+
+# Install yq
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+    chmod +x /usr/bin/yq
+
+# Install KinD
+RUN go install sigs.k8s.io/kind@v0.21.0
+
+# Install coverage dependencies
+RUN go install github.com/jstemmer/go-junit-report/v2@v2.0.0 && go install github.com/boumenot/gocover-cobertura@v1.2.0
+
+# Install Docker client
+RUN curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install kubectl CLI
+ARG KUBECTL_VERSION
+RUN curl -LO https://dl.k8s.io/release/v"${KUBECTL_VERSION:-1.21.3}"/bin/linux/amd64/kubectl && \
+    mv kubectl /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl
+
+# Install tilt
+RUN mkdir -p /root/.local/bin && \
+    curl -fsSL https://github.com/tilt-dev/tilt/releases/download/v0.33.20/tilt.0.33.20.linux.x86_64.tar.gz \
+    | tar -xzv tilt && \
+    mv tilt /root/.local/bin/tilt
+
+# Add the WORKDIR as a safe directory so git commands
+# can be run in containers using this image
+RUN git config --global --add safe.directory /src
+

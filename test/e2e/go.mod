@@ -1,6 +1,6 @@
 module github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/test/e2e
 
-go 1.20
+go 1.23.1
 
 require (
 	github.com/caarlos0/env/v7 v7.1.0

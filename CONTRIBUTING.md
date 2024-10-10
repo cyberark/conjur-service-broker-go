@@ -70,6 +70,10 @@ go test ./test/integration/main_test.go
 
 Alternatively, you can re-run integration-test in the Tilt dashboard.
 
+You may also use the CI script `./scripts/test_integration.sh` to run integration tests in a containerized manner. 
+This leverages Tilt and KinD in a Docker container to run the same set of tests as `tilt up` without requiring the 
+CLIs to be installed locally.
+
 ### End-to-End (E2E) Integration Testing
 
 End-to-End testing is automatically triggered during pipeline. <br>
