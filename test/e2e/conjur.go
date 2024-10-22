@@ -84,17 +84,17 @@ func (c *conjur) iPrivilegeTheAppHostToAccessASecretInConjur(ctx context.Context
 		"app/secrets/app")
 }
 
-func (c *conjur) iPrivilegeTheOrgLayerToAccessASecretInConjur(ctx context.Context) (context.Context, error) {
+func (c *conjur) iPrivilegeTheOrgGroupToAccessASecretInConjur(ctx context.Context) (context.Context, error) {
 	state := ctx.Value(stateKey{}).(*state)
 	return ctx, c.iPrivilegeRoleToSecretInConjur(
-		conjurpolicy.LayerRef(slashJoin(c.cfg.ConjurPolicy, state.orgID)),
+		conjurpolicy.GroupRef(slashJoin(c.cfg.ConjurPolicy, state.orgID)),
 		"app/secrets/org")
 }
 
-func (c *conjur) iPrivilegeTheSpaceLayerToAccessASecretInConjur(ctx context.Context) (context.Context, error) {
+func (c *conjur) iPrivilegeTheSpaceGroupToAccessASecretInConjur(ctx context.Context) (context.Context, error) {
 	state := ctx.Value(stateKey{}).(*state)
 	return ctx, c.iPrivilegeRoleToSecretInConjur(
-		conjurpolicy.LayerRef(slashJoin(c.cfg.ConjurPolicy, state.orgID, state.spaceID)),
+		conjurpolicy.GroupRef(slashJoin(c.cfg.ConjurPolicy, state.orgID, state.spaceID)),
 		"app/secrets/space")
 }
 

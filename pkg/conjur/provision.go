@@ -36,8 +36,8 @@ func (p *provision) spacePolicyResourceID() string {
 	return composeID(p.client.config.ConjurAccount, KindPolicy, p.orgSpacePolicyID())
 }
 
-func (p *provision) spaceLayerResourceID() string {
-	return composeID(p.client.config.ConjurAccount, KindLayer, p.orgSpacePolicyID())
+func (p *provision) spaceGroupResourceID() string {
+	return composeID(p.client.config.ConjurAccount, KindGroup, p.orgSpacePolicyID())
 }
 
 // ProvisionOrgSpacePolicy creates all needed conjur polices for given org and space
@@ -78,7 +78,7 @@ func (p *provision) ProvisionHostPolicy() error {
 }
 
 func (p *provision) orgSpacePolicyExists() (bool, error) {
-	for _, id := range []string{p.orgPolicyResourceID(), p.spacePolicyResourceID(), p.spaceLayerResourceID()} {
+	for _, id := range []string{p.orgPolicyResourceID(), p.spacePolicyResourceID(), p.spaceGroupResourceID()} {
 		ok, err := p.client.resourceExists(id)
 		if err != nil {
 			return false, err
@@ -96,17 +96,17 @@ func (p *provision) provisionOrgSpaceYAML() (io.Reader, error) {
 			Id:          p.orgID,
 			Annotations: p.orgAnnotations(),
 			Body: conjurpolicy.PolicyStatements{
-				conjurpolicy.Layer{},
+				conjurpolicy.Group{},
 				conjurpolicy.Policy{
 					Id: p.spaceID,
 					Body: conjurpolicy.PolicyStatements{
-						conjurpolicy.Layer{},
+						conjurpolicy.Group{},
 					},
 					Annotations: p.spaceAnnotations(),
 				},
 				conjurpolicy.Grant{
-					Role:   conjurpolicy.LayerRef(""),
-					Member: conjurpolicy.LayerRef(p.spaceID),
+					Role:   conjurpolicy.GroupRef(""),
+					Member: conjurpolicy.GroupRef(p.spaceID),
 				},
 			},
 		},
@@ -118,7 +118,7 @@ func (p *provision) provisionHostYAML() (io.Reader, error) {
 	policy := conjurpolicy.PolicyStatements{
 		conjurpolicy.Host{},
 		conjurpolicy.Grant{
-			Role:   conjurpolicy.LayerRef(""),
+			Role:   conjurpolicy.GroupRef(""),
 			Member: conjurpolicy.HostRef(""),
 		},
 		conjurpolicy.Variable{
@@ -133,16 +133,16 @@ func (p *provision) provisionHostYAML() (io.Reader, error) {
 	return policyReader(policy)
 }
 
-func (p *provision) orgAnnotations() map[string]string {
+func (p *provision) orgAnnotations() map[string]interface{} {
 	if len(p.orgName) == 0 || len(p.spaceName) == 0 {
 		return nil
 	}
-	return map[string]string{"pcf/type": "org", "pcf/orgName": p.orgName}
+	return map[string]interface{}{"pcf/type": "org", "pcf/orgName": p.orgName}
 }
 
-func (p *provision) spaceAnnotations() map[string]string {
+func (p *provision) spaceAnnotations() map[string]interface{} {
 	if len(p.orgName) == 0 || len(p.spaceName) == 0 {
 		return nil
 	}
-	return map[string]string{"pcf/type": "space", "pcf/orgName": p.orgName, "pcf/spaceName": p.spaceName}
+	return map[string]interface{}{"pcf/type": "space", "pcf/orgName": p.orgName, "pcf/spaceName": p.spaceName}
 }

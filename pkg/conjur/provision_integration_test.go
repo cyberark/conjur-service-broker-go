@@ -29,7 +29,7 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 			"ResourceExists": []m{
 				{args: p{"dev:policy:cf/orgID"}, returns: p{true, nil}},
 				{args: p{"dev:policy:cf/orgID/spaceID"}, returns: p{true, nil}},
-				{args: p{"dev:layer:cf/orgID/spaceID"}, returns: p{true, nil}},
+				{args: p{"dev:group:cf/orgID/spaceID"}, returns: p{true, nil}},
 			},
 		},
 		assert.NoError,

@@ -10,8 +10,8 @@ Feature: End to End test of service broker with host identity
     Then the policies for the org and space exists
 
     When I load the secrets into Conjur
-    And I privilege the org layer to access a secret in Conjur
-    And I privilege the space layer to access a secret in Conjur
+    And I privilege the org group to access a secret in Conjur
+    And I privilege the space group to access a secret in Conjur
 
     And I push the sample app to PCF
     And I privilege the app host to access a secret in Conjur

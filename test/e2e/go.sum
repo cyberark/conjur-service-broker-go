@@ -20,8 +20,8 @@ github.com/danieljoos/wincred v1.1.2/go.mod h1:GijpziifJoIBfYh+S7BbkdUTU4LfM+QnG
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87 h1:PgHDNNVqAwjDXhHnE7x2HfBW4qdFS2VDSaL8GIK121Q=
-github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87/go.mod h1:3M6KY0++RSAgFkJlFYAkl2/kLdwT7j2Pr4L33dMAtrw=
+github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96 h1:AkFmClMkf4kOmsgSO9UD+PAZINmON40m44PNucHuDlo=
+github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96/go.mod h1:3M6KY0++RSAgFkJlFYAkl2/kLdwT7j2Pr4L33dMAtrw=
 github.com/godbus/dbus/v5 v5.1.0 h1:4KLkAxT3aOY8Li4FRJe/KvhoNFFxo0m6fNuFUO8QJUk=
 github.com/godbus/dbus/v5 v5.1.0/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=

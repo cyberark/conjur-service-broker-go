@@ -21,6 +21,8 @@ func Test_createBindYAML(t *testing.T) {
 		&bind{bindingID: "test", client: &client{roClient: &conjurapi.Client{}, config: &Config{}}},
 		`- !host
   id: test
+  annotations:
+    authn/api-key: true
 `,
 		assert.NoError,
 	}, {
@@ -28,8 +30,10 @@ func Test_createBindYAML(t *testing.T) {
 		&bind{bindingID: "test", client: &client{roClient: &conjurapi.Client{}, config: &Config{}}, orgID: "orgID", spaceID: "spaceID"},
 		`- !host
   id: test
+  annotations:
+    authn/api-key: true
 - !grant
-  role: !layer
+  role: !group
   member: !host test
 `,
 		assert.NoError,

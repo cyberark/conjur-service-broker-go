@@ -207,15 +207,15 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     > service instance must be created in each space where apps retrieve secrets
     > from Conjur.
 
-    ##### Organization and Space Layers
+    ##### Organization and Space Groups
 
     For VMWare Tanzu Application Service (TAS) or Pivotal Cloud Foundry (PCF)
     2.0+, when the service broker is provisioned in a space, it automatically
-    creates policy branches and layers for the org and space. [See below](#permit-org-space)
-    for more information on using these org and space layers to permit access to
+    creates policy branches and groups for the org and space. [See below](#permit-org-space)
+    for more information on using these org and space groups to permit access to
     secrets in Conjur.
 
-    The policy the service broker loads to define these layers is similar to:
+    The policy the service broker loads to define these groups is similar to:
 
     ```yaml
     ---
@@ -228,8 +228,8 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
         pcf/orgName: my-organization # note that this is only added for Service Broker API 2.15 and up
         pcf/type: org
       body:
-        # Layer to privilege an entire organzation to a resource
-        - !layer
+        # Group to privilege an entire organzation to a resource
+        - !group
 
         # Policy for the Space
         - !policy
@@ -241,14 +241,14 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
             pcf/spaceName: my-space
             pcf/type: space
           body:
-            # Layer to privilege an entire space to a resource
-            # The service broker adds applications to this layer automatically.
-            - !layer
+            # Group to privilege an entire space to a resource
+            # The service broker adds applications to this group automatically.
+            - !group
 
-        # Grant to add the Space layer to the Org Layer
+        # Grant to add the Space group to the Org Group
         - !grant
-          role: !layer
-          member: !layer 8bf39f4a-ebde-437b-9c38-3d234b80631a
+          role: !group
+          member: !group 8bf39f4a-ebde-437b-9c38-3d234b80631a
     ```
 
     ##### Application vs Space Host Identity
@@ -261,8 +261,8 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     separately.
 
     In TAS or PCF version 2.0+, when the service broker creates the identity for your application
-    in Conjur, it automatically adds it to a Conjur Layer representing the `Organization`
-    and `Space` where the application is deployed. These layers may be used to control secret
+    in Conjur, it automatically adds it to a Conjur Group representing the `Organization`
+    and `Space` where the application is deployed. These groups may be used to control secret
     access at the org or space level, rather than the application host itself.
 
     ##### Space-scoped Identity
@@ -277,7 +277,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     not the Conjur master. This promotes high-availability and scalability of app binding and secret
     retrieval.
 
-    When using space host identities, only the org and space layers should be used for permitting
+    When using space host identities, only the org and space groups should be used for permitting
     access to secrets. More information on this is available [below.](#permit-org-space)
 
     ##### Application-scoped Identity
@@ -327,15 +327,15 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
 3.  #### Permit the Application to Access Secrets in Conjur
 
-    TAS applications can be granted access to secrets using either the Org and Space layers,
+    TAS applications can be granted access to secrets using either the Org and Space groups,
     or with the application host identity.
 
-    ##### <a name="permit-org-space"> Privilege Org and Space Layers
+    ##### <a name="permit-org-space"> Privilege Org and Space Groups
 
-    Applications can be granted access to secrets by privileging the Org or Space layers
+    Applications can be granted access to secrets by privileging the Org or Space groups
     to read secrets using Conjur policy.
 
-    The layer Ids use the Org and Space GUID identifiers, which may be obtained
+    The group Ids use the Org and Space GUID identifiers, which may be obtained
     using the Cloud Foundry CLI:
 
     ```sh-session
@@ -346,12 +346,12 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     72a928f6-bf7c-4732-a195-896f67bd1133
     ```
 
-    For example, the policy to privilege a space layer to access a secret is:
+    For example, the policy to privilege a space group to access a secret is:
 
     ```yaml
     - !permit
       resource: my-secret-id
-      role: !layer cf/prod/6b40649e-331b-424d-afa0-6d569f016f51/72a928f6-bf7c-4732-a195-896f67bd1133
+      role: !group cf/prod/6b40649e-331b-424d-afa0-6d569f016f51/72a928f6-bf7c-4732-a195-896f67bd1133
       privileges: [ read, execute ]
     ```
 
@@ -379,7 +379,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
 4.  #### Run Your Application
 
-    > **NOTE**: If you use the Org and Space layers to permit access to secrets, and those
+    > **NOTE**: If you use the Org and Space groups to permit access to secrets, and those
     > permissions are granted before pushing your application, this step is not required.
     > Your application will already have access to the secrets when it is initially pushed.
 
@@ -412,7 +412,7 @@ cf bind-service <app-name> conjur
 
 > **NOTE:** This will issue a new identity to the application, not just a new API key,
 > so any application specific permissions will need to be granted again. Any permissions
-> granted to the org or space layers will be automatically inherited by the new identity.
+> granted to the org or space groups will be automatically inherited by the new identity.
 
 #### Rotating Space Host Identities
 
