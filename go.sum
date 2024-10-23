@@ -26,8 +26,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/deepmap/oapi-codegen v1.12.4 h1:pPmn6qI9MuOtCz82WY2Xaw46EQjgvxednXXrP7g5Q2s=
 github.com/deepmap/oapi-codegen v1.12.4/go.mod h1:3lgHGMu6myQ2vqbbTXH2H1o4eXFTGnFiDaOaKKl5yas=
-github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87 h1:PgHDNNVqAwjDXhHnE7x2HfBW4qdFS2VDSaL8GIK121Q=
-github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87/go.mod h1:3M6KY0++RSAgFkJlFYAkl2/kLdwT7j2Pr4L33dMAtrw=
+github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96 h1:AkFmClMkf4kOmsgSO9UD+PAZINmON40m44PNucHuDlo=
+github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96/go.mod h1:3M6KY0++RSAgFkJlFYAkl2/kLdwT7j2Pr4L33dMAtrw=
 github.com/getkin/kin-openapi v0.116.0 h1:o986hwgMzR972JzOG5j6+WTwWqllZLs1EJKMKCivs2E=
 github.com/getkin/kin-openapi v0.116.0/go.mod h1:l5e9PaFUo9fyLJCPGQeXI2ML8c3P8BHOEV2VaAVf/pc=
 github.com/gin-contrib/requestid v0.0.6 h1:mGcxTnHQ45F6QU5HQRgQUDsAfHprD3P7g2uZ4cSZo9o=

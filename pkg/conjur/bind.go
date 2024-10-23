@@ -143,7 +143,7 @@ func (b *bind) createBindYAML() (io.Reader, error) {
 	}
 	if b.useSpace() {
 		policy = append(policy, conjurpolicy.Grant{
-			Role:   conjurpolicy.LayerRef(""),
+			Role:   conjurpolicy.GroupRef(""),
 			Member: conjurpolicy.HostRef(b.bindingID),
 		})
 	}
@@ -159,10 +159,10 @@ func (b *bind) deleteBindYAML() (io.Reader, error) {
 	return policyReader(policy)
 }
 
-func (b *bind) hostAnnotations() map[string]string {
+func (b *bind) hostAnnotations() map[string]interface{} {
 	platform, err := b.client.platformAnnotation()
 	if len(platform) == 0 || err != nil {
-		return nil
+		return map[string]interface{}{"authn/api-key": true}
 	}
-	return map[string]string{platform: "true"}
+	return map[string]interface{}{"authn/api-key": true, platform: true}
 }

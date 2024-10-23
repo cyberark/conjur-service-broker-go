@@ -12,8 +12,8 @@ Feature: End to End test of service broker with org space identity
   And the space host api key variable exists
 
   When I load the secrets into Conjur
-  And I privilege the org layer to access a secret in Conjur
-  And I privilege the space layer to access a secret in Conjur
+  And I privilege the org group to access a secret in Conjur
+  And I privilege the space group to access a secret in Conjur
 
   And I push the sample app to PCF
   And I start the app

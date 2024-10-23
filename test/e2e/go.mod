@@ -6,7 +6,7 @@ require (
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/cucumber/godog v0.12.6
 	github.com/cyberark/conjur-api-go v0.11.0
-	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87
+	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96
 	github.com/lucasepe/codename v0.2.0
 	github.com/stretchr/testify v1.8.2
 	gopkg.in/yaml.v3 v3.0.1

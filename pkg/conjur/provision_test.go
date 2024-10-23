@@ -23,14 +23,14 @@ func Test_provisionOrgSpaceYAML(t *testing.T) {
 			}, `- !policy
   id: '1 # 2'
   body:
-    - !layer
+    - !group
     - !policy
       id: "2"
       body:
-        - !layer
+        - !group
     - !grant
-      role: !layer
-      member: !layer 2
+      role: !group
+      member: !group 2
 `,
 		}, {
 			"with annotations",
@@ -46,7 +46,7 @@ func Test_provisionOrgSpaceYAML(t *testing.T) {
     pcf/orgName: my-org
     pcf/type: org
   body:
-    - !layer
+    - !group
     - !policy
       id: "4"
       annotations:
@@ -54,10 +54,10 @@ func Test_provisionOrgSpaceYAML(t *testing.T) {
         pcf/spaceName: my-space
         pcf/type: space
       body:
-        - !layer
+        - !group
     - !grant
-      role: !layer
-      member: !layer 4
+      role: !group
+      member: !group 4
 `,
 		},
 	}
@@ -95,7 +95,7 @@ func Test_provision_provisionSpaceHostYAML(t *testing.T) {
 		},
 		`- !host
 - !grant
-  role: !layer
+  role: !group
   member: !host
 - !variable
   id: space-host-api-key

@@ -15,12 +15,12 @@ while IFS=$'\n' read -r pkg; do
 done < <(go list "$TOPLEVEL_DIR"/... | grep -v /mocks)
 
 echo "unit tests"
-{ go test -v -covermode=count -cover "${PACKAGES[@]}" -args -test.gocoverdir="$TOPLEVEL_DIR/coverage/unit" >"$TOPLEVEL_DIR"/coverage/results; } 2>&1
+{ go test -v -covermode=count -cover "${PACKAGES[@]}" -args -test.gocoverdir="$TOPLEVEL_DIR/coverage/unit" | tee "$TOPLEVEL_DIR/coverage/results"; } 2>&1
 echo
 go tool covdata percent -i "$TOPLEVEL_DIR"/coverage/unit
 
 echo "integration tests"
-{ go test -v -covermode=count -tags=integration -cover "${PACKAGES[@]}" -args -test.gocoverdir="$TOPLEVEL_DIR"/coverage/integration >>"$TOPLEVEL_DIR"/coverage/results; } 2>&1
+{ go test -v -covermode=count -tags=integration -cover "${PACKAGES[@]}" -args -test.gocoverdir="$TOPLEVEL_DIR/coverage/integration" | tee -a "$TOPLEVEL_DIR/coverage/results"; } 2>&1
 echo
 go tool covdata percent -i "$TOPLEVEL_DIR"/coverage/integration
 

@@ -31,8 +31,8 @@ func Test_policyReader(t *testing.T) {
 		assert.NoError,
 	}, {
 		"non empty",
-		[]conjurpolicy.Resource{conjurpolicy.Layer{}},
-		"- !layer\n",
+		[]conjurpolicy.Resource{conjurpolicy.Group{}},
+		"- !group\n",
 		assert.NoError,
 	}, {
 		"nil",

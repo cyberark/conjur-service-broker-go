@@ -65,7 +65,7 @@ func TestStartHTTPServer(t *testing.T) {
 		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{"protected": "eyJhbGciOiJjb25qdXIub3JnL3Nsb3NpbG8vdjIiLCJraWQiOiI5M2VjNTEwODRmZTM3Zjc3M2I1ODhlNTYyYWVjZGMxMSJ9", "payload": "eyJzdWIiOiJhZG1pbiIsImlhdCI6MTUxMDc1MzI1OX0=", "signature": "raCufKOf7sKzciZInQTphu1mBbLhAdIJM72ChLB4m5wKWxFnNz_7LawQ9iYEI_we1-tdZtTXoopn_T1qoTplR9_Bo3KkpI5Hj3DB7SmBpR3CSRTnnEwkJ0_aJ8bql5Cbst4i4rSftyEmUqX-FDOqJdAztdi9BUJyLfbeKTW9OGg-QJQzPX1ucB7IpvTFCEjMoO8KUxZpbHj-KpwqAMZRooG4ULBkxp5nSfs-LN27JupU58oRgIfaWASaDmA98O2x6o88MFpxK_M0FeFGuDKewNGrRc8lCOtTQ9cULA080M5CSnruCqu1Qd52r72KIOAfyzNIiBCLTkblz2fZyEkdSKQmZ8J3AakxQE2jyHmMT-eXjfsEIzEt-IRPJIirI3Qm"}))
 	httpmock.RegisterResponder("GET", "https://conjur.local/resources/dev/host/service-broker",
 		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))
-	httpmock.RegisterResponder("GET", "=~https://follower.local/resources/dev/(policy|layer)/cf.*",
+	httpmock.RegisterResponder("GET", "=~https://follower.local/resources/dev/(policy|group)/cf.*",
 		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))
 	httpmock.RegisterResponder("GET", "https://conjur.local/resources/dev/policy/cf",
 		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))

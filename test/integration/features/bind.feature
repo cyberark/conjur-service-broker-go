@@ -297,13 +297,13 @@
 #    """
 #
 #  @conjur-version-5
-#  Scenario: Bind resource when space layer is missing
+#  Scenario: Bind resource when space group is missing
 #    When I make a bind request with body:
 #    """
 #    {
 #      "context": {
 #        "organization_guid": "org-space-policy",
-#        "space_guid": "space-policy-without-layer"
+#        "space_guid": "space-policy-without-group"
 #      },
 #      "service_id": "c024e536-6dc4-45c6-8a53-127e7f8275ab",
 #      "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
@@ -321,7 +321,7 @@
 #    """
 #    {
 #      "error": "PolicyNotFound",
-#      "description": "Unable to find {\"id\":\"cucumber:layer:cf/org-space-policy/space-policy-without-layer\"} layer in policy."
+#      "description": "Unable to find {\"id\":\"cucumber:group:cf/org-space-policy/space-policy-without-group\"} group in policy."
 #    }
 #    """
 #

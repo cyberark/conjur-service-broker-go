@@ -6,7 +6,7 @@ require (
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/cyberark/conjur-api-go v0.11.0
 	github.com/deepmap/oapi-codegen v1.12.4
-	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20230516081225-5e382e2ccf87
+	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96
 	github.com/getkin/kin-openapi v0.116.0
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0

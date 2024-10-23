@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.3.0] - 2023-05-26
+## [1.3.0] - 2024-10-22
 
 ### Changed
+-   Generated policy uses groups instead of layers (CNJR-6738)
 -   Rewrite application in Go.
 
 ## [1.2.10] - 2023-05-04
