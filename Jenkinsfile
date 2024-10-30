@@ -62,6 +62,14 @@ pipeline {
       }
     }
 
+    stage('Scan for internal URLs') {
+      steps {
+        script {
+          detectInternalUrls()
+        }
+      }
+    }
+
     stage('Get InfraPool ExecutorV2 Agent(s)') {
       steps{
         script {
@@ -86,6 +94,19 @@ pipeline {
       steps {
         script {
           updateVersion(infrapool, "CHANGELOG.md", "${BUILD_NUMBER}")
+        }
+      }
+    }
+
+    stage('Get latest upstream dependencies') {
+      steps {
+        script {
+          updatePrivateGoDependencies("${WORKSPACE}/go.mod")
+          // Copy the vendor directory onto infrapool
+          infrapool.agentPut from: "vendor", to: "${WORKSPACE}"
+          infrapool.agentPut from: "go.*", to: "${WORKSPACE}"
+          // Add GOMODCACHE directory to infrapool allowing automated release to generate SBOMs
+          infrapool.agentPut from: "/root/go", to: "/var/lib/jenkins/"
         }
       }
     }

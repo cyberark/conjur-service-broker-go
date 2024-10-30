@@ -8,6 +8,8 @@ TOPLEVEL_DIR=$(abs_path "./../..")
 
 rm -f "$TOPLEVEL_DIR"/coverage/unit/* "$TOPLEVEL_DIR"/coverage/integration/* "$TOPLEVEL_DIR"/coverage/merged/* "$TOPLEVEL_DIR"/coverage/all "$TOPLEVEL_DIR"/coverage/all_no_gen &>/dev/null || true
 
+go mod tidy
+
 # ignore mocks in results
 PACKAGES=()
 while IFS=$'\n' read -r pkg; do

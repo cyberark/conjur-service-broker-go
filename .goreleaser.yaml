@@ -1,6 +1,5 @@
 before:
   hooks:
-    - go mod tidy
     - apt-get update
     - apt-get install upx -y
 project_name: cyberark-conjur-service-broker

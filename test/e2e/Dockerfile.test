@@ -9,7 +9,6 @@ RUN apk add curl && \
 WORKDIR /opt/e2e
 
 COPY go.* .
-RUN go mod download
 
 COPY . .
 

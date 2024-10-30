@@ -136,6 +136,58 @@ func (_m *Client) AuthenticateRequest(_a0 authn.LoginPair) (*http.Request, error
 	return r0, r1
 }
 
+// AuthenticatorStatus provides a mock function with given fields: _a0, _a1
+func (_m *Client) AuthenticatorStatus(_a0 string, _a1 string) (*conjurapi.AuthenticatorStatusResponse, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *conjurapi.AuthenticatorStatusResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (*conjurapi.AuthenticatorStatusResponse, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) *conjurapi.AuthenticatorStatusResponse); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.AuthenticatorStatusResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AuthenticatorStatusRequest provides a mock function with given fields: _a0, _a1
+func (_m *Client) AuthenticatorStatusRequest(_a0 string, _a1 string) (*http.Request, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *http.Request
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ChangeCurrentUserPassword provides a mock function with given fields: _a0
 func (_m *Client) ChangeCurrentUserPassword(_a0 string) ([]byte, error) {
 	ret := _m.Called(_a0)
@@ -364,6 +416,30 @@ func (_m *Client) CreateHostRequest(_a0 string, _a1 string) (*http.Request, erro
 	return r0, r1
 }
 
+// CreateHostWithAnnotations provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Client) CreateHostWithAnnotations(_a0 string, _a1 string, _a2 map[string]string) (conjurapi.HostFactoryHostResponse, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 conjurapi.HostFactoryHostResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, map[string]string) (conjurapi.HostFactoryHostResponse, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, map[string]string) conjurapi.HostFactoryHostResponse); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Get(0).(conjurapi.HostFactoryHostResponse)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, map[string]string) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // CreateToken provides a mock function with given fields: _a0, _a1, _a2, _a3
 func (_m *Client) CreateToken(_a0 string, _a1 string, _a2 []string, _a3 int) ([]conjurapi.HostFactoryTokenResponse, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
@@ -449,6 +525,98 @@ func (_m *Client) DeleteTokenRequest(_a0 string) (*http.Request, error) {
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DryRunPolicy provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Client) DryRunPolicy(_a0 conjurapi.PolicyMode, _a1 string, _a2 io.Reader) (*conjurapi.DryRunPolicyResponse, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 *conjurapi.DryRunPolicyResponse
+	var r1 error
+	if rf, ok := ret.Get(0).(func(conjurapi.PolicyMode, string, io.Reader) (*conjurapi.DryRunPolicyResponse, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
+	if rf, ok := ret.Get(0).(func(conjurapi.PolicyMode, string, io.Reader) *conjurapi.DryRunPolicyResponse); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.DryRunPolicyResponse)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(conjurapi.PolicyMode, string, io.Reader) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// EnableAuthenticator provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Client) EnableAuthenticator(_a0 string, _a1 string, _a2 bool) error {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, string, bool) error); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// EnableAuthenticatorRequest provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Client) EnableAuthenticatorRequest(_a0 string, _a1 string, _a2 bool) (*http.Request, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	var r0 *http.Request
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string, bool) (*http.Request, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
+	if rf, ok := ret.Get(0).(func(string, string, bool) *http.Request); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string, bool) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchPolicy provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Client) FetchPolicy(_a0 string, _a1 bool, _a2 uint, _a3 uint) ([]byte, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	var r0 []byte
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, bool, uint, uint) ([]byte, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
+	}
+	if rf, ok := ret.Get(0).(func(string, bool, uint, uint) []byte); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, bool, uint, uint) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -542,6 +710,58 @@ func (_m *Client) InternalAuthenticate() ([]byte, error) {
 	return r0, r1
 }
 
+// JWTAuthenticate provides a mock function with given fields: _a0, _a1
+func (_m *Client) JWTAuthenticate(_a0 string, _a1 string) ([]byte, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 []byte
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) ([]byte, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) []byte); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// JWTAuthenticateRequest provides a mock function with given fields: _a0, _a1
+func (_m *Client) JWTAuthenticateRequest(_a0 string, _a1 string) (*http.Request, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *http.Request
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListOidcProviders provides a mock function with given fields:
 func (_m *Client) ListOidcProviders() ([]conjurapi.OidcProvider, error) {
 	ret := _m.Called()
@@ -620,25 +840,25 @@ func (_m *Client) LoadPolicy(_a0 conjurapi.PolicyMode, _a1 string, _a2 io.Reader
 	return r0, r1
 }
 
-// LoadPolicyRequest provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Client) LoadPolicyRequest(_a0 conjurapi.PolicyMode, _a1 string, _a2 io.Reader) (*http.Request, error) {
-	ret := _m.Called(_a0, _a1, _a2)
+// LoadPolicyRequest provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Client) LoadPolicyRequest(_a0 conjurapi.PolicyMode, _a1 string, _a2 io.Reader, _a3 bool) (*http.Request, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 *http.Request
 	var r1 error
-	if rf, ok := ret.Get(0).(func(conjurapi.PolicyMode, string, io.Reader) (*http.Request, error)); ok {
-		return rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(conjurapi.PolicyMode, string, io.Reader, bool) (*http.Request, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
 	}
-	if rf, ok := ret.Get(0).(func(conjurapi.PolicyMode, string, io.Reader) *http.Request); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(conjurapi.PolicyMode, string, io.Reader, bool) *http.Request); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*http.Request)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(conjurapi.PolicyMode, string, io.Reader) error); ok {
-		r1 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(1).(func(conjurapi.PolicyMode, string, io.Reader, bool) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -757,6 +977,58 @@ func (_m *Client) OidcAuthenticateRequest(_a0 string, _a1 string, _a2 string) (*
 
 	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
 		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OidcTokenAuthenticate provides a mock function with given fields: _a0
+func (_m *Client) OidcTokenAuthenticate(_a0 string) ([]byte, error) {
+	ret := _m.Called(_a0)
+
+	var r0 []byte
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]byte, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(string) []byte); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// OidcTokenAuthenticateRequest provides a mock function with given fields: _a0
+func (_m *Client) OidcTokenAuthenticateRequest(_a0 string) (*http.Request, error) {
+	ret := _m.Called(_a0)
+
+	var r0 *http.Request
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*http.Request, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(string) *http.Request); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1412,6 +1684,32 @@ func (_m *Client) RoleMemberships(_a0 string) ([]map[string]interface{}, error) 
 	return r0, r1
 }
 
+// RoleMembershipsAll provides a mock function with given fields: _a0
+func (_m *Client) RoleMembershipsAll(_a0 string) ([]string, error) {
+	ret := _m.Called(_a0)
+
+	var r0 []string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) ([]string, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(string) []string); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // RoleMembershipsRequest provides a mock function with given fields: _a0
 func (_m *Client) RoleMembershipsRequest(_a0 string) (*http.Request, error) {
 	ret := _m.Called(_a0)
@@ -1431,6 +1729,32 @@ func (_m *Client) RoleMembershipsRequest(_a0 string) (*http.Request, error) {
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RoleMembershipsRequestWithOptions provides a mock function with given fields: _a0, _a1
+func (_m *Client) RoleMembershipsRequestWithOptions(_a0 string, _a1 bool) (*http.Request, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *http.Request
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, bool) (*http.Request, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, bool) *http.Request); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, bool) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -1535,6 +1859,58 @@ func (_m *Client) RotateAPIKeyRequest(_a0 string) (*http.Request, error) {
 
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RotateCurrentRoleAPIKey provides a mock function with given fields:
+func (_m *Client) RotateCurrentRoleAPIKey() ([]byte, error) {
+	ret := _m.Called()
+
+	var r0 []byte
+	var r1 error
+	if rf, ok := ret.Get(0).(func() ([]byte, error)); ok {
+		return rf()
+	}
+	if rf, ok := ret.Get(0).(func() []byte); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// RotateCurrentRoleAPIKeyRequest provides a mock function with given fields: _a0, _a1
+func (_m *Client) RotateCurrentRoleAPIKeyRequest(_a0 string, _a1 string) (*http.Request, error) {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 *http.Request
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}

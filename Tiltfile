@@ -10,7 +10,6 @@ docker_build('conjur-service-broker', '.', dockerfile_contents="""
 FROM golang:alpine as builder
 WORKDIR /src
 COPY go.* .
-RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
 

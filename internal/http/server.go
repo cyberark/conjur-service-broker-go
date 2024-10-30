@@ -4,6 +4,7 @@ package http
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -86,7 +87,12 @@ func initLogger(cfg *config) (logger *zap.Logger, cleanup func(), err error) {
 	// the actual level, in non DEBUG mode (production) nothing from the writer would get logged
 	writer := &zapio.Writer{Log: logger, Level: zap.DebugLevel}
 	gin.DefaultWriter = writer
-	logging.ApiLog.Out = writer
+
+	// Configure conjur-api-go logging (logrus) to go through zap
+	logging.ApiLog.ReportCaller = true   // So Zap reports the right caller
+	logging.ApiLog.SetOutput(io.Discard) // Prevent logrus from writing its logs
+	hook, _ := NewZapHook(logger)
+	logging.ApiLog.AddHook(hook)
 
 	cleanup = func() {
 		_ = logger.Sync()
@@ -99,14 +105,19 @@ func initLogger(cfg *config) (logger *zap.Logger, cleanup func(), err error) {
 
 func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInterface, logger *zap.Logger) error {
 	r := gin.New()
-	r.Use(ginzap.Ginzap(logger, time.RFC3339, true), ginzap.RecoveryWithZap(logger, true), requestid.New(), errorsMiddleware)
+	r.Use(
+		ginzap.Ginzap(logger, time.RFC3339, true),
+		ginzap.RecoveryWithZap(logger, true),
+		requestid.New(),
+		errorsMiddleware,
+	)
 
 	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
 		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
 	}
 	validator, err := validatorMiddleware(ctx)
 	if err != nil {
-		return fmt.Errorf("failed to initialize validateion middleware: %s", err)
+		return fmt.Errorf("failed to initialize validator middleware: %s", err)
 	}
 	r.Use(ctx.Inject(), validator)
 

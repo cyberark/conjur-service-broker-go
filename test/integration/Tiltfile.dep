@@ -4,7 +4,6 @@ docker_build('integration-tests', '.', dockerfile_contents="""
 FROM golang:alpine
 WORKDIR /opt/integration
 COPY go.* .
-RUN go mod download
 COPY . .
 CMD ["go", "test"]
 """)

@@ -5,7 +5,6 @@ FROM golang:${BUILDER_IMAGE_VERSION} as builder
 RUN apk add --no-cache upx
 WORKDIR /src
 COPY go.* .
-RUN go mod download
 COPY . .
 
 RUN CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
