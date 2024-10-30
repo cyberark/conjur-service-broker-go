@@ -21,7 +21,7 @@ function main() {
 	GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.23"
 
 	REPO_ROOT="$(repo_root)"
-	PROJECT_WD="github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go"
+	PROJECT_WD="github.com/cyberark/conjur-service-broker-go"
 	VERSION="$(project_semantic_version)"
 
 	# Get the version of Go specified by the "go directive" in go.mod

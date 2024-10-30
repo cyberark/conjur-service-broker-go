@@ -5,8 +5,8 @@ package http
 import (
 	"testing"
 
+	"github.com/cyberark/conjur-service-broker-go/internal/ctxutil"
 	"github.com/stretchr/testify/require"
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/ctxutil"
 	"go.uber.org/zap"
 )
 

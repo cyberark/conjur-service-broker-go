@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/caarlos0/env/v7"
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
+	"github.com/cyberark/conjur-service-broker-go/pkg/conjur"
 )
 
 // ErrInvalidConjurVersion error indicating invalid conjur version parameter value

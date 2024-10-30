@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/cyberark/conjur-service-broker-go/pkg/conjur/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur/mocks"
 )
 
 func Test_server_ServiceInstance(t *testing.T) {

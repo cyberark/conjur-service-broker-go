@@ -4,7 +4,7 @@ package servicebroker
 import (
 	"encoding/json"
 
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
+	"github.com/cyberark/conjur-service-broker-go/pkg/conjur"
 )
 
 type context struct {

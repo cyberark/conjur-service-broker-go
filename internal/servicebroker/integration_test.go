@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/cyberark/conjur-service-broker-go/internal/ctxutil"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/internal/ctxutil"
 )
 
 func ginTestCtx(t *testing.T, method, url string, body string, enableSpaceIdentity bool) (*httptest.ResponseRecorder, *gin.Context) {
