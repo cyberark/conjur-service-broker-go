@@ -98,7 +98,7 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
 		role = v
 	}
 	if roleID != role.ID {
-		return nil, fmt.Errorf("creatred role ID do not match %v != %v", roleID, role.ID)
+		return nil, fmt.Errorf("created role ID does not match %v != %v", roleID, role.ID)
 	}
 	config := b.client.config
 	return &Policy{

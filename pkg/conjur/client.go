@@ -60,6 +60,10 @@ func (config *Config) NewClient() (Client, error) {
 	if conjur == nil {
 		return nil, fmt.Errorf("failed to create conjur client")
 	}
+
+	// Clear credentials from the loginPair var after creating the client
+	loginPair = authn.LoginPair{}
+
 	return &client{conjur, roClient, config}, nil
 }
 
