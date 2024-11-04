@@ -89,16 +89,21 @@ E2E integration tests are being executed in Tanzu virtual machine based on binar
     updates to [NOTICES.txt](./NOTICES.txt):
     *   Verify that dependencies fit into supported licenses types:
         ```shell
-        go-licenses check ./... --allowed_licenses="MIT,ISC,Apache-2.0,BSD-3-Clause"
+         go-licenses check ./... --allowed_licenses="MIT,ISC,Apache-2.0,BSD-3-Clause"
+            --ignore github.com/cyberark/conjur-service-broker-go \
+            --ignore $(go list std | awk 'NR > 1 { printf(",") } { printf("%s",$0) } END { print "" }')
         ```
         If there is new dependency having unsupported license, such license should be included to [notices.tpl](./notices.tpl)
-        file in order to get generated in NOTICES.txt.
+        file in order to get generated in NOTICES.txt.  
+
+        NOTE: The second ignore flag tells the command to ignore standard library packages, which
+        may or may not be necessary depending on your local Go installation and toolchain.
 
     *   If no errors occur, proceed to generate updated NOTICES.txt:
         ```shell
-        go-licenses report ./... --template notices.tpl > NOTICES.txt \
-          --ignore github.com/cyberark/conjur-service-broker-go \
-          --ignore $(go list std | awk 'NR > 1 { printf(",") } { printf("%s",$0) } END { print "" }')
+         go-licenses report ./... --template notices.tpl > NOTICES.txt \
+            --ignore github.com/cyberark/conjur-service-broker-go \
+            --ignore $(go list std | awk 'NR > 1 { printf(",") } { printf("%s",$0) } END { print "" }')
         ```
 
 ### Update the version and changelog
