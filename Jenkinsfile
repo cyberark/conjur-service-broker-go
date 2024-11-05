@@ -116,7 +116,7 @@ pipeline {
         stage('Run unit tests') {
           steps {
             script {
-              infrapool.agentSh './scripts/test_in_docker.sh'
+              infrapool.agentSh './scripts/test_in_docker.sh --skip-gomod-download'
               infrapool.agentStash name: 'test-results', includes: 'coverage/*'
             }
           }
@@ -170,7 +170,7 @@ pipeline {
     stage('Integration tests') {
       steps {
         script {
-          infrapool.agentSh './scripts/test_integration.sh'
+          infrapool.agentSh './scripts/test_integration.sh --skip-gomod-download'
         }
       }
     }
