@@ -7,11 +7,24 @@ function cleanup() {
   for container in $(echo $containers); do
     docker rm -f -v "$container"
   done
-  
+
   docker network rm kind-network
 }
 
 trap cleanup EXIT ERR SIGINT
+
+# When running in Jenkins, we need to skip the go mod download and go mod tidy
+# commands since we already fetch the latest dependencies with
+# updatePrivateGoDependencies(). We use the --skip-gomod-download flag for this purpose.
+SKIP_GOMOD_DOWNLOAD=false
+set +u
+while true ; do
+  case "$1" in
+    --skip-gomod-download ) SKIP_GOMOD_DOWNLOAD=true ; shift ;;
+    * ) if [ -z "$1" ]; then break; else echo "$1 is not a valid option"; exit 1; fi;;
+  esac
+done
+set -u
 
 docker network create kind-network
 
@@ -22,6 +35,7 @@ docker build \
 
 docker run --rm \
   --network kind-network \
+  --env "SKIP_GOMOD_DOWNLOAD=$SKIP_GOMOD_DOWNLOAD" \
   -v "$PWD":/src \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -w /src \

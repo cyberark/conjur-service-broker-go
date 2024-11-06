@@ -70,8 +70,8 @@ go test ./test/integration/main_test.go
 
 Alternatively, you can re-run integration-test in the Tilt dashboard.
 
-You may also use the CI script `./scripts/test_integration.sh` to run integration tests in a containerized manner. 
-This leverages Tilt and KinD in a Docker container to run the same set of tests as `tilt up` without requiring the 
+You may also use the CI script `./scripts/test_integration.sh` to run integration tests in a containerized manner.
+This leverages Tilt and KinD in a Docker container to run the same set of tests as `tilt up` without requiring the
 CLIs to be installed locally.
 
 ### End-to-End (E2E) Integration Testing
@@ -89,14 +89,16 @@ E2E integration tests are being executed in Tanzu virtual machine based on binar
     updates to [NOTICES.txt](./NOTICES.txt):
     *   Verify that dependencies fit into supported licenses types:
         ```shell
-         go-licenses check ./... --allowed_licenses="MIT,ISC,Apache-2.0,BSD-3-Clause"
+        go-licenses check ./... --allowed_licenses="MIT,ISC,Apache-2.0,BSD-3-Clause"
         ```
         If there is new dependency having unsupported license, such license should be included to [notices.tpl](./notices.tpl)
         file in order to get generated in NOTICES.txt.
 
     *   If no errors occur, proceed to generate updated NOTICES.txt:
         ```shell
-         go-licenses report ./... --template notices.tpl > NOTICES.txt
+        go-licenses report ./... --template notices.tpl > NOTICES.txt \
+          --ignore github.com/cyberark/conjur-service-broker-go \
+          --ignore $(go list std | awk 'NR > 1 { printf(",") } { printf("%s",$0) } END { print "" }')
         ```
 
 ### Update the version and changelog

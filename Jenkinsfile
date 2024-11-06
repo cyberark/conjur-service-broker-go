@@ -62,6 +62,14 @@ pipeline {
       }
     }
 
+    stage('Scan for internal URLs') {
+      steps {
+        script {
+          detectInternalUrls()
+        }
+      }
+    }
+
     stage('Get InfraPool ExecutorV2 Agent(s)') {
       steps{
         script {
@@ -90,12 +98,25 @@ pipeline {
       }
     }
 
+    stage('Get latest upstream dependencies') {
+      steps {
+        script {
+          updatePrivateGoDependencies("${WORKSPACE}/go.mod")
+          // Copy the vendor directory onto infrapool
+          infrapool.agentPut from: "vendor", to: "${WORKSPACE}"
+          infrapool.agentPut from: "go.*", to: "${WORKSPACE}"
+          // Add GOMODCACHE directory to infrapool allowing automated release to generate SBOMs
+          infrapool.agentPut from: "/root/go", to: "/var/lib/jenkins/"
+        }
+      }
+    }
+
     stage('Build while unit testing') {
       parallel {
         stage('Run unit tests') {
           steps {
             script {
-              infrapool.agentSh './scripts/test_in_docker.sh'
+              infrapool.agentSh './scripts/test_in_docker.sh --skip-gomod-download'
               infrapool.agentStash name: 'test-results', includes: 'coverage/*'
             }
           }
@@ -149,7 +170,7 @@ pipeline {
     stage('Integration tests') {
       steps {
         script {
-          infrapool.agentSh './scripts/test_integration.sh'
+          infrapool.agentSh './scripts/test_integration.sh --skip-gomod-download'
         }
       }
     }
@@ -219,6 +240,10 @@ pipeline {
   post {
     always {
       releaseInfraPoolAgent(".infrapool/release_agents")
+
+      // Resolve ownership issue before running infra post hook
+      sh 'git config --global --add safe.directory ${PWD}'
+      infraPostHook()
     }
   }
 }

@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"github.com/caarlos0/env/v7"
+	"github.com/cyberark/conjur-service-broker-go/pkg/conjur"
 	"github.com/stretchr/testify/assert"
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
 )
 
 const validEnvs = "CONJUR_ACCOUNT=dev;CONJUR_APPLIANCE_URL=http://localhost:8082;CONJUR_AUTHN_API_KEY=api-key;CONJUR_AUTHN_LOGIN=host/service-broker;CONJUR_POLICY=cf;DEBUG=true;ENABLE_SPACE_IDENTITY=true;SECURITY_USER_NAME=test;SECURITY_USER_PASSWORD=test"

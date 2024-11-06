@@ -1,4 +1,4 @@
-module github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/test/e2e
+module github.com/cyberark/conjur-service-broker-go/test/e2e
 
 go 1.23.1
 

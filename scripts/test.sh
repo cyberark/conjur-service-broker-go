@@ -8,6 +8,12 @@ TOPLEVEL_DIR=$(abs_path "./../..")
 
 rm -f "$TOPLEVEL_DIR"/coverage/unit/* "$TOPLEVEL_DIR"/coverage/integration/* "$TOPLEVEL_DIR"/coverage/merged/* "$TOPLEVEL_DIR"/coverage/all "$TOPLEVEL_DIR"/coverage/all_no_gen &>/dev/null || true
 
+SKIP_GOMOD_DOWNLOAD="${SKIP_GOMOD_DOWNLOAD:-false}"
+if [ "$SKIP_GOMOD_DOWNLOAD" != "true" ]; then
+	go mod tidy
+fi
+
+
 # ignore mocks in results
 PACKAGES=()
 while IFS=$'\n' read -r pkg; do

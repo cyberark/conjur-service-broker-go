@@ -2,7 +2,7 @@
 package servicebroker
 
 import (
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur"
+	"github.com/cyberark/conjur-service-broker-go/pkg/conjur"
 )
 
 //go:generate oapi-codegen --config ./oapi-codegen.yaml ../../api/openapi.yaml

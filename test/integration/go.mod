@@ -1,4 +1,4 @@
-module github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/test/integration
+module github.com/cyberark/conjur-service-broker-go/test/integration
 
 go 1.23.1
 

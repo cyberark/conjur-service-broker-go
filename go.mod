@@ -1,10 +1,13 @@
-module github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go
+module github.com/cyberark/conjur-service-broker-go
 
 go 1.23.1
 
+// Use the replace below for local development with conjur-api-go
+// replace github.com/cyberark/conjur-api-go => ../conjur-api-go
+
 require (
 	github.com/caarlos0/env/v7 v7.1.0
-	github.com/cyberark/conjur-api-go v0.11.0
+	github.com/cyberark/conjur-api-go v0.12.6 // Run "go get github.com/cyberark/conjur-api-go@main" to update
 	github.com/deepmap/oapi-codegen v1.12.4
 	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96
 	github.com/getkin/kin-openapi v0.116.0
@@ -53,7 +56,7 @@ require (
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
-	github.com/zalando/go-keyring v0.2.2 // indirect
+	github.com/zalando/go-keyring v0.2.3-0.20230503081219-17db2e5354bd // indirect
 	go.opentelemetry.io/otel v1.15.1 // indirect
 	go.opentelemetry.io/otel/trace v1.15.1 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
@@ -65,3 +68,6 @@ require (
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
+
+// DO NOT REMOVE: WE WANT THIS LINE TO PREVENT ACCIDENTALLY COMMITTING A VERSION OF conjur-api-go WHEN UPDATING DEPENDENCIES
+replace github.com/cyberark/conjur-api-go => github.com/cyberark/conjur-api-go latest

@@ -9,7 +9,7 @@ import (
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
-	"github.cyberng.com/Conjur-Enterprise/conjur-service-broker-go/pkg/conjur/api"
+	"github.com/cyberark/conjur-service-broker-go/pkg/conjur/api"
 )
 
 // Client is a wrapper on conjur go sdk allowing creation of bind and provision objects
