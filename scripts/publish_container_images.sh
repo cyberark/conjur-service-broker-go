@@ -10,10 +10,9 @@ cd "$(dirname "${0}")"
 
 function print_help() {
 	echo "Internal Release Usage: ${0} --internal"
-	echo "External Release Usage: ${0} --edge"
+	echo "External Release Usage: ${0}"
 	echo "Promote Usage: ${0} --promote --source <VERSION> --target <VERSION>"
 	echo " --internal: publish images to registry.tld"
-	echo " --edge: publish docker images to docker hub"
 	echo " --source <VERSION>: specify version number of local image"
 	echo " --target <VERSION>: specify version number of remote image"
 }
@@ -25,7 +24,6 @@ if [[ $# -lt 1 ]]; then
 fi
 
 PUBLISH_INTERNAL=false
-PUBLISH_EDGE=false
 PROMOTE=false
 PULL_SOURCE_IMAGES=false
 
@@ -36,9 +34,6 @@ while [[ $# -gt 0 ]]; do
 		;;
 	--pull)
 		PULL_SOURCE_IMAGES=true
-		;;
-	--edge)
-		PUBLISH_EDGE=true
 		;;
 	--promote)
 		PROMOTE=true
@@ -64,14 +59,12 @@ while [[ $# -gt 0 ]]; do
 	shift
 done
 
-readonly REGISTRY="conjurinc"
-readonly LOCAL_REGISTRY="registry.tld"
+readonly INTERNAL_REGISTRY="registry.tld"
 # Version derived from CHANGLEOG and automated release library
 VERSION_WITH_COMMIT="$(project_version_with_commit)"
 readonly VERSION_WITH_COMMIT
-readonly IMAGES=(
-	"conjur-service-broker"
-)
+readonly IMAGE_NAME="conjur-service-broker"
+
 
 if [[ ${PUBLISH_INTERNAL} = true ]]; then
 	echo "Publishing built images internally to registry.tld."
@@ -79,25 +72,7 @@ if [[ ${PUBLISH_INTERNAL} = true ]]; then
 	REMOTE_TAG=${VERSION_WITH_COMMIT}
 
 	echo "SOURCE_TAG=${SOURCE_TAG}, REMOTE_TAG=${REMOTE_TAG}"
-	for IMAGE_NAME in "${IMAGES[@]}"; do
-		tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${LOCAL_REGISTRY}/${IMAGE_NAME}:${REMOTE_TAG}"
-	done
-fi
-
-if [[ ${PUBLISH_EDGE} = true ]]; then
-	echo "Performing edge release."
-	SOURCE_TAG=${VERSION_WITH_COMMIT}
-
-	if [[ ${PULL_SOURCE_IMAGES} = true ]]; then
-		echo "Pulling source images from local registry"
-		for IMAGE_NAME in "${IMAGES[@]}"; do
-			docker pull "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
-		done
-	fi
-
-	for IMAGE_NAME in "${IMAGES[@]}"; do
-		tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${REGISTRY}/${IMAGE_NAME}:edge"
-	done
+	tag_and_push "${IMAGE_NAME}:${SOURCE_TAG}" "${INTERNAL_REGISTRY}/${IMAGE_NAME}:${REMOTE_TAG}"
 fi
 
 if [[ ${PROMOTE} = true ]]; then
@@ -119,14 +94,10 @@ if [[ ${PROMOTE} = true ]]; then
 
 	if [[ ${PULL_SOURCE_IMAGES} = true ]]; then
 		echo "Pulling source images from local registry"
-		for IMAGE_NAME in "${IMAGES[@]}"; do
-			docker pull "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
-		done
+		docker pull "${INTERNAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}"
 	fi
 
-	for IMAGE_NAME in "${IMAGES[@]}"; do
-		for tag in "${TAGS[@]}" $(gen_versions "${REMOTE_TAG}"); do
-			tag_and_push "${LOCAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}" "${REGISTRY}/${IMAGE_NAME}:${tag}"
-		done
+	for tag in "${TAGS[@]}" $(gen_versions "${REMOTE_TAG}"); do
+		tag_and_push "${INTERNAL_REGISTRY}/${IMAGE_NAME}:${SOURCE_TAG}" "${INTERNAL_REGISTRY}/${IMAGE_NAME}:${tag}"
 	done
 fi
