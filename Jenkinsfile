@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-@Library("product-pipelines-shared-library") _
+@Library(['product-pipelines-shared-library', 'conjur-enterprise-sharedlib']) _
 
 // Automated release, promotion and dependencies
 properties([
@@ -8,7 +8,7 @@ properties([
   release.addParams(),
   // Dependencies of the project that should trigger builds
   dependencies([
-    'cyberark/conjur-api-go',
+    'conjur-enterprise/conjur-api-go',
   ])
 ])
 
@@ -25,6 +25,7 @@ if (params.MODE == "PROMOTE") {
     // NOTE: the use of --pull to ensure source images are pulled from internal registry
     infrapool.agentSh "source ./scripts/build_utils.sh && ./scripts/publish_container_images.sh --promote --source ${sourceVersion}-\$(git_commit) --target ${targetVersion} --pull"
   }
+  release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
   return
 }
 
@@ -77,14 +78,6 @@ pipeline {
           INFRAPOOL_EXECUTORV2_AGENTS = getInfraPoolAgent(type: "ExecutorV2", quantity: 1, duration: 1)
           INFRAPOOL_EXECUTORV2_AGENT_0 = INFRAPOOL_EXECUTORV2_AGENTS[0]
           infrapool = infraPoolConnect(INFRAPOOL_EXECUTORV2_AGENT_0, {})
-        }
-      }
-    }
-
-    stage('Parse Changelog') {
-      steps {
-        script {
-          infrapool.agentSh './scripts/parse-changelog.sh'
         }
       }
     }
@@ -223,12 +216,12 @@ pipeline {
             // Copy any artifacts to assetDirectory to attach them to the Github release
 
             // Copy assets to be published in Github release.
-            infrapool.agentSh "./scripts/copy_release_artifacts.sh ${assetDirectory}"
+            infrapool.agentSh "cp -r dist/goreleaser/*.zip dist/goreleaser/SHA256SUMS.txt ${assetDirectory}"
 
             // Create Go application SBOM using the go.mod version for the golang container image
-            infrapool.agentSh """go-bom --tools "${toolsDirectory}" --go-mod ./go.mod --image "golang" --main "cmd/conjur_service_broker/" --output "${billOfMaterialsDirectory}/go-app-bom.json" """
+            infrapool.agentSh """export PATH="${toolsDirectory}/bin:${PATH}" && go-bom --tools "${toolsDirectory}" --go-mod ./go.mod --image "golang" --main "cmd/conjur_service_broker/" --output "${billOfMaterialsDirectory}/go-app-bom.json" """
             // Create Go module SBOM
-            infrapool.agentSh """go-bom --tools "${toolsDirectory}" --go-mod ./go.mod --image "golang" --output "${billOfMaterialsDirectory}/go-mod-bom.json" """
+            infrapool.agentSh """export PATH="${toolsDirectory}/bin:${PATH}" && go-bom --tools "${toolsDirectory}" --go-mod ./go.mod --image "golang" --output "${billOfMaterialsDirectory}/go-mod-bom.json" """
 
             // Publish container images to internal registry
             infrapool.agentSh './scripts/publish_container_images.sh --internal'

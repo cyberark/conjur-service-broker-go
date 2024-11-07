@@ -22,7 +22,7 @@ builds:
 archives:
   - id: cyberark-conjur-service-broker-archive
     format: zip
-    name_template: "{{ .ProjectName }}_{{ .Version }}"
+    name_template: "{{ .ProjectName }}_{{ .Env.VERSION }}"
     files:
       - LICENSE
       - README.md
