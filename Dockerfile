@@ -17,4 +17,4 @@ WORKDIR /opt/conjur_service_broker
 
 COPY --from=builder /src/conjur_service_broker /opt/conjur_service_broker
 
-CMD /opt/conjur_service_broker/conjur_service_broker
+CMD ["/opt/conjur_service_broker/conjur_service_broker"]

@@ -16,7 +16,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
 FROM busybox
 WORKDIR /opt/conjur_service_broker
 COPY --from=builder /src/conjur_service_broker /opt/conjur_service_broker
-CMD /opt/conjur_service_broker/conjur_service_broker
+CMD ["/opt/conjur_service_broker/conjur_service_broker"]
 """)
 
 deployment_create('conjur-service-broker', 'conjur-service-broker', ports=['8080:8080'], env=read_yaml('./.env.yaml'))
