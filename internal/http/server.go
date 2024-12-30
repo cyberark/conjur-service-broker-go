@@ -29,7 +29,7 @@ const (
 )
 
 // StartHTTPServer starts a new http server to handle requests supported by the service broker
-func StartHTTPServer() {
+func StartHTTPServer(httpClient *http.Client) {
 	cfg, err := newConfig()
 	checkFatalErr(err)
 	logger, cleanup, err := initLogger(cfg)
@@ -38,15 +38,15 @@ func StartHTTPServer() {
 
 	ctx := initCtx(logger, cfg)
 
-	srv, err := initServer(cfg)
+	srv, err := initServer(cfg, httpClient)
 	checkFatalErr(err)
 
 	err = startServer(ctx, cfg, srv, logger)
 	checkFatalErr(err)
 }
 
-func initServer(cfg *config) (servicebroker.ServerInterface, error) {
-	client, err := cfg.NewClient()
+func initServer(cfg *config, httpClient *http.Client) (servicebroker.ServerInterface, error) {
+	client, err := cfg.NewClient(httpClient)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize conjur client: %s", err)
 	}
