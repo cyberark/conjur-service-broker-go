@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	http.StartHTTPServer()
+	http.StartHTTPServer(nil)
 }

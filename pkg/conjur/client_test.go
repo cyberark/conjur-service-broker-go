@@ -60,7 +60,7 @@ func TestConfig_NewClient(t *testing.T) {
 	for _, tt := range tests {
 		t.Cleanup(cleanupEnv())
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.config.NewClient()
+			got, err := tt.config.NewClient(nil)
 			tt.wantErr(t, err)
 			tt.want(t, got)
 		})

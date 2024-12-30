@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
@@ -30,7 +31,7 @@ type client struct {
 }
 
 // NewClient creates new conjur API client wrapper
-func (config *Config) NewClient() (Client, error) {
+func (config *Config) NewClient(httpClient *http.Client) (Client, error) {
 	clientConf, err := conjurapi.LoadConfig()
 	clientConf = config.mergeConfig(clientConf)
 	if err != nil {
@@ -59,6 +60,11 @@ func (config *Config) NewClient() (Client, error) {
 	}
 	if conjur == nil {
 		return nil, fmt.Errorf("failed to create conjur client")
+	}
+
+	if httpClient != nil {
+		conjur.SetHttpClient(httpClient)
+		roClient.SetHttpClient(httpClient)
 	}
 
 	// Clear credentials from the loginPair var after creating the client
