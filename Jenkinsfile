@@ -2,6 +2,9 @@
 
 @Library(['product-pipelines-shared-library', 'conjur-enterprise-sharedlib']) _
 
+def productName = 'Conjur Service Broker Go'
+def productTypeName = 'Conjur Enterprise'
+
 // Automated release, promotion and dependencies
 properties([
   // Include the automated release parameters for the build
@@ -20,10 +23,25 @@ if (params.MODE == "PROMOTE") {
     // Any publishing of targetVersion artifacts occur here
     // Anything added to assetDirectory will be attached to the Github Release
 
+    sourceTag = ${infrapool.agentSh(
+        returnStdout: true,
+        script: "source ./scripts/build_utils.sh && echo '${sourceVersion}-\$(git_commit)"
+      )}
+
+    env.INFRAPOOL_PRODUCT_NAME = "${productName}"
+    env.INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
+
+    // Scan the image before promoting
+    runSecurityScans(infrapool,
+      image: "registry.tld/conjur-service-broker:${sourceTag}",
+      buildMode: params.MODE,
+      branch: env.BRANCH_NAME,
+      arch: 'linux/amd64')
+
     // Promote source version to target version.
 
     // NOTE: the use of --pull to ensure source images are pulled from internal registry
-    infrapool.agentSh "source ./scripts/build_utils.sh && ./scripts/publish_container_images.sh --promote --source ${sourceVersion}-\$(git_commit) --target ${targetVersion} --pull"
+    infrapool.agentSh "./scripts/publish_container_images.sh --promote --source ${sourceTag} --target ${targetVersion} --pull"
   }
   release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
   return
@@ -41,6 +59,10 @@ pipeline {
   environment {
     // Sets the MODE to the specified or autocalculated value as appropriate
     MODE = release.canonicalizeMode()
+
+    // Values to direct scan results to the right place in DefectDojo
+    INFRAPOOL_PRODUCT_NAME = "${productName}"
+    INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
   }
 
   triggers {
@@ -168,6 +190,15 @@ pipeline {
       }
     }
 
+    stage("Push container images to internal registry") {
+      steps {
+        script {
+          // Publish container images to internal registry
+          infrapool.agentSh './scripts/publish_container_images.sh --internal'
+        }
+      }
+    }
+
     stage('End to end test while scanning') {
       parallel {
         // stage('End-to-End testing') {
@@ -190,13 +221,11 @@ pipeline {
 
         stage("Scan container images for fixable issues") {
           steps {
-             scanAndReport(infrapool, "${containerImageWithTag()}", "HIGH", false)
-          }
-        }
-
-        stage("Scan container images for total issues") {
-          steps {
-            scanAndReport(infrapool, "${containerImageWithTag()}", "HIGH", false)
+             runSecurityScans(infrapool,
+                image: "registry.tld/${containerImageWithTag()}",
+                buildMode: params.MODE,
+                branch: env.BRANCH_NAME,
+                arch: 'linux/amd64')
           }
         }
       }
@@ -222,9 +251,6 @@ pipeline {
             infrapool.agentSh """export PATH="${toolsDirectory}/bin:${PATH}" && go-bom --tools "${toolsDirectory}" --go-mod ./go.mod --image "golang" --main "cmd/conjur_service_broker/" --output "${billOfMaterialsDirectory}/go-app-bom.json" """
             // Create Go module SBOM
             infrapool.agentSh """export PATH="${toolsDirectory}/bin:${PATH}" && go-bom --tools "${toolsDirectory}" --go-mod ./go.mod --image "golang" --output "${billOfMaterialsDirectory}/go-mod-bom.json" """
-
-            // Publish container images to internal registry
-            infrapool.agentSh './scripts/publish_container_images.sh --internal'
           })
         }
       }
