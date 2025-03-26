@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -69,7 +70,7 @@ func (a *httpFeature) iSendRequestToWithBody(method, endpoint string, bodyDocStr
 	defer func() {
 		switch t := recover().(type) {
 		case string:
-			err = fmt.Errorf(t)
+			err = errors.New(t)
 		case error:
 			err = t
 		}
