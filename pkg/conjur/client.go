@@ -14,8 +14,6 @@ import (
 )
 
 // Client is a wrapper on conjur go sdk allowing creation of bind and provision objects
-//
-//go:generate mockery --name=Client
 type Client interface {
 	NewBind(orgID, spaceID, bindingID string, enableSpaceIdentity bool) Bind
 	FromBindingID(bindingID string) (Bind, error)

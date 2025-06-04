@@ -121,7 +121,7 @@ func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInter
 	}
 	r.Use(ctx.Inject(), validator)
 
-	r = servicebroker.RegisterHandlers(r, srv)
+	servicebroker.RegisterHandlers(r, srv)
 	httpSrv := &http.Server{
 		Addr:              ":" + cfg.Port,
 		Handler:           r,

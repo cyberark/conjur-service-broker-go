@@ -142,11 +142,11 @@ func Test_server_ServiceInstance(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			provision := &mocks.Provision{}
+			provision := mocks.NewMockProvision(t)
 			for method, v := range tt.args.provision {
 				provision.On(method, v.args...).Return(v.returns...).Once()
 			}
-			client := &mocks.Client{}
+			client := mocks.NewMockClient(t)
 			for method, v := range tt.args.client {
 				client.On(method, v.args...).Return(append(p{provision}, v.returns...)...).Once()
 			}

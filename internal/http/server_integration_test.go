@@ -20,7 +20,7 @@ import (
 )
 
 func Test_startServer_gracefulShutdown(t *testing.T) {
-	srv := mocks.ServerInterface{}
+	srv := mocks.MockServerInterface{}
 	srv.On("CatalogGet", mock.Anything, mock.Anything).Return()
 	var exited bool
 	go func() {

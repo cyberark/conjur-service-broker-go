@@ -1,1 +1,23 @@
-case: underscore
+force-file-write: true
+packages:
+  github.com/cyberark/conjur-service-broker-go/pkg/conjur:
+    config:
+      all: true
+      filename: "{{.InterfaceName}}.go"
+      dir: "{{.InterfaceDir}}/mocks"
+      structname: "{{.Mock}}{{.InterfaceName}}"
+      pkgname: "mocks"
+  github.com/cyberark/conjur-service-broker-go/pkg/conjur/api:
+    config:
+      all: true
+      filename: "{{.InterfaceName}}.go"
+      dir: "{{.InterfaceDir}}/mocks"
+      structname: "{{.Mock}}{{.InterfaceName}}"
+      pkgname: "mocks"
+  github.com/cyberark/conjur-service-broker-go/internal/servicebroker:
+    config:
+      all: true
+      filename: "{{.InterfaceName}}.go"
+      dir: "{{.InterfaceDir}}/mocks"
+      structname: "{{.Mock}}{{.InterfaceName}}"
+      pkgname: "mocks"

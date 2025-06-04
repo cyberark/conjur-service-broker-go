@@ -335,11 +335,11 @@ func Test_server_ServiceBinding(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			bind := &mocks.Bind{}
+			bind := mocks.NewMockBind(t)
 			for method, v := range tt.args.bind {
 				bind.On(method, v.args...).Return(v.returns...).Once()
 			}
-			client := &mocks.Client{}
+			client := mocks.NewMockClient(t)
 			for method, v := range tt.args.client {
 				client.On(method, v.args...).Return(append(p{bind}, v.returns...)...).Once()
 			}

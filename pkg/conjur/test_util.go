@@ -9,8 +9,8 @@ import (
 )
 
 // NewMockClient creates a new client with mocked methods and a handle to the mockery mock to allow testing
-func NewMockClient() (Client, *mock.Mock) {
-	c := &mocks.Client{}
+func NewMockConjurClient() (Client, *mock.Mock) {
+	c := &mocks.MockClient{}
 	return &client{
 		client:   c,
 		roClient: c,
