@@ -23,10 +23,10 @@ if (params.MODE == "PROMOTE") {
     // Any publishing of targetVersion artifacts occur here
     // Anything added to assetDirectory will be attached to the Github Release
 
-    sourceTag = infrapool.agentSh(
+    def sourceTag = infrapool.agentSh(
         returnStdout: true,
         script: "source ./scripts/build_utils.sh && echo \"${sourceVersion}-\$(git_commit)\""
-      )
+    ).trim()
 
     env.INFRAPOOL_PRODUCT_NAME = "${productName}"
     env.INFRAPOOL_DD_PRODUCT_TYPE_NAME = "${productTypeName}"
