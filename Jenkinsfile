@@ -42,6 +42,10 @@ if (params.MODE == "PROMOTE") {
 
     // NOTE: the use of --pull to ensure source images are pulled from internal registry
     infrapool.agentSh "./scripts/publish_container_images.sh --promote --source ${sourceTag} --target ${targetVersion} --pull"
+
+    // Ensure the working directory is a safe git directory for the subsequent
+    // promotion operations after this block.
+    sh 'git config --global --add safe.directory "$(pwd)"'
   }
   release.copyEnterpriseRelease(params.VERSION_TO_PROMOTE)
   return
