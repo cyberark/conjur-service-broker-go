@@ -62,7 +62,7 @@ func Test_client_FromBindingID(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &mocks.Client{}
+			c := mocks.NewMockClient(t)
 			c.On("Resources", tt.client.args...).Return(tt.client.returns...).Once()
 
 			client := client{roClient: c, config: &Config{ConjurPolicy: "policy"}}
@@ -106,7 +106,7 @@ func Test_client_ValidateConnectivity(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client, mockAPI := NewMockClient()
+			client, mockAPI := NewMockConjurClient()
 			mockAPI.On("ResourceExists", "dev:user:test").Return(tt.hasIdentityResource, tt.withErrIdentity).Once()
 			mockAPI.On("CheckPermission", mock.Anything, mock.Anything).Return(tt.hasPermissionRW, tt.withErrRW).Once()
 			mockAPI.On("CheckPermission", mock.Anything, mock.Anything).Return(tt.hasPermissionRO, tt.withErrRO).Once()

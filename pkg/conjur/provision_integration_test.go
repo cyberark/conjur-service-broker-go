@@ -49,7 +49,7 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c, mockAPI := NewMockClient()
+			c, mockAPI := NewMockConjurClient()
 			for method, values := range tt.client {
 				for _, v := range values {
 					mockAPI.On(method, v.args...).Return(v.returns...).Once()
@@ -111,7 +111,7 @@ func Test_provision_ProvisionHostPolicy(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c, mockAPI := NewMockClient()
+			c, mockAPI := NewMockConjurClient()
 			for method, v := range tt.client {
 				mockAPI.On(method, v.args...).Return(v.returns...).Once()
 			}

@@ -13,7 +13,7 @@ import (
 )
 
 func Test_server_ServiceInstanceProvisionOrgSpacePolicy(t *testing.T) {
-	client, mockAPI := conjur.NewMockClient()
+	client, mockAPI := conjur.NewMockConjurClient()
 	mockAPI.On("LoadPolicy", conjurapi.PolicyModePost, "cf", mock.Anything).Return(nil, nil).Once()
 	mockAPI.On("ResourceExists", "dev:policy:cf/e027f3f6-80fe-4d22-9374-da23a035ba0b").Return(true, nil).Once()
 	mockAPI.On("ResourceExists", "dev:policy:cf/e027f3f6-80fe-4d22-9374-da23a035ba0b/8c56f85c-c16e-4158-be79-5dac74f970de").Return(true, nil).Once()
@@ -37,7 +37,7 @@ var loadPolicyResp = &conjurapi.PolicyResponse{
 }
 
 func Test_server_ServiceInstanceProvisionHostPolicy(t *testing.T) {
-	client, mockAPI := conjur.NewMockClient()
+	client, mockAPI := conjur.NewMockConjurClient()
 	mockAPI.On("LoadPolicy", conjurapi.PolicyModePost, "cf", mock.Anything).Return(nil, nil).Once()
 	mockAPI.On("ResourceExists", "dev:policy:cf/e027f3f6-80fe-4d22-9374-da23a035ba0b").Return(true, nil).Once()
 	mockAPI.On("ResourceExists", "dev:policy:cf/e027f3f6-80fe-4d22-9374-da23a035ba0b/8c56f85c-c16e-4158-be79-5dac74f970de").Return(true, nil).Once()

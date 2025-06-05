@@ -193,7 +193,7 @@ func Test_client_platformAnnotation(t *testing.T) {
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := &mocks.Client{}
+			c := mocks.NewMockClient(t)
 			var conjurErr error
 			var conjurResp interface{}
 			if e, isErr := tt.conjurResp.(error); isErr {
