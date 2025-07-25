@@ -32,8 +32,9 @@ func (c *conjur) iCreateConjurClientFromAPIResponse() error {
 		return err
 	}
 	c.client, _ = conjurapi.NewClientFromKey(conjurapi.Config{
-		Account:      cr.Credentials.Account,
-		ApplianceURL: cr.Credentials.ApplianceURL,
+		Account:           cr.Credentials.Account,
+		ApplianceURL:      cr.Credentials.ApplianceURL,
+		CredentialStorage: conjurapi.CredentialStorageNone,
 	}, authn.LoginPair{
 		Login:  cr.Credentials.AuthnLogin,
 		APIKey: cr.Credentials.AuthnAPIKey,

@@ -1,7 +1,5 @@
-before:
-  hooks:
-    - apt-get update
-    - apt-get install upx -y
+version: 2
+
 project_name: cyberark-conjur-service-broker
 
 builds:
@@ -40,17 +38,10 @@ checksum:
 upx:
   -
     # Whether to enable it or not.
-    enabled: true
-
-    # Compress argument.
-    # Valid options are from '1' (faster) to '9' (better), and 'best'.
-    compress: best
-
-    # Whether to try LZMA (slower).
-    lzma: true
+    enabled: false
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 dist: dist/goreleaser/
 

@@ -21,9 +21,10 @@ type conjur struct {
 
 func newConjur(cfg *cfg) (*conjur, error) {
 	client, err := conjurapi.NewClientFromKey(conjurapi.Config{
-		Account:      cfg.ConjurAccount,
-		ApplianceURL: cfg.ConjurApplianceURL,
-		SSLCert:      sslCert(cfg.ConjurApplianceURL),
+		Account:           cfg.ConjurAccount,
+		ApplianceURL:      cfg.ConjurApplianceURL,
+		SSLCert:           sslCert(cfg.ConjurApplianceURL),
+		CredentialStorage: conjurapi.CredentialStorageNone,
 	}, authn.LoginPair{
 		Login:  cfg.ConjurUser,
 		APIKey: cfg.ConjurAPIKey,
