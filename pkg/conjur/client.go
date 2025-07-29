@@ -32,6 +32,7 @@ type client struct {
 func (config *Config) NewClient(httpClient *http.Client) (Client, error) {
 	clientConf, err := conjurapi.LoadConfig()
 	clientConf = config.mergeConfig(clientConf)
+	clientConf.CredentialStorage = conjurapi.CredentialStorageNone
 	if err != nil {
 		panic(err)
 	}
