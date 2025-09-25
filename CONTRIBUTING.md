@@ -5,7 +5,7 @@ For general contribution and community guidelines, please see the [community rep
 ## Development
 
 Before getting started, you should install some developer tools.
-These are not required to deploy the Conjur Service Broker but
+These are not required to deploy the Secrets Manager Service Broker but
 they will let you develop using a standardized, expertly configured
 environment.
 
@@ -13,14 +13,14 @@ environment.
 2.  [Docker][get-docker] to manage dependencies and runtime environments
 3.  [Tilt][get-tilt] to orchestrate Docker environments
 
-To test the usage of the Conjur Service Broker within a CF deployment, you can
+To test the usage of the Secrets Manager Service Broker within a CF deployment, you can
 follow the demo scripts in the [Cloud Foundry demo repo](https://github.com/conjurinc/cloudfoundry-conjur-demo).
 
 ## Development Environment
 
 The `Tiltfile` configuration file sets up a development environment that allows you
 to selectively run unit and integration tests interactively against local,
-containerized instances of the Conjur Service Broker and Conjur.
+containerized instances of the Secrets Manager Service Broker and Secrets Manager.
 
 In this development environment, the Service Broker source code is
 volume mounted in the Service Broker instances, so that any changes that
@@ -34,14 +34,14 @@ To start the Service Broker development environment, simply run:
 tilt up
 ```
 
-After starting up Service Broker and Conjur container instances, tilt builds project and runs unit and integration tests.
+After starting up Service Broker and Secrets Manager container instances, tilt builds project and runs unit and integration tests.
 You can rerun any step such as build, test or unit tests from the Tilt dashboard.
 
 ## Non-Interactive Testing
 
 ### Running Unit Tests
 
-To run the Conjur Service Broker unit tests, first deploy the app using tilt:
+To run the Secrets Manager Service Broker unit tests, first deploy the app using tilt:
 
 ```sh-session
 tilt up
@@ -54,7 +54,7 @@ Then re-run test\_in\_docker in the dashboard.
 
 The [test/integration/main\_test.go](./test/integration/main_test.go) file provides a full
 suite of integration tests for testing Service Broker functionality
-against Conjur. To run these test application must be deployed using Tilt.
+against Secrets Manager. To run these test application must be deployed using Tilt.
 
 To run the Service Broker local integration tests, first run Tilt:
 
