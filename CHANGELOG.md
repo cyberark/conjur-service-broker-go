@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [1.3.2] - 2025-08-14
+## [1.3.2] - 2025-09-25
+
+## Changed
+- Updated documentation to align with Conjur Enterprise name change to Secrets Manager. (CNJR-10988)
 
 ## [1.3.1] - 2025-06-04
 
@@ -282,7 +285,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 -   The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur-service-broker-go/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-service-broker-go/compare/v1.3.2...HEAD
+[1.3.2]: https://github.com/cyberark/conjur-service-broker/compare/v0.3.1...v1.3.2
+[1.3.1]: https://github.com/cyberark/conjur-service-broker/compare/v0.3.0...v1.3.1
 [1.3.0]: https://github.com/cyberark/conjur-service-broker/compare/v0.0.0...v1.3.0
 [1.2.10]: https://github.com/cyberark/conjur-service-broker/compare/v1.2.9...v1.2.10
 [1.2.9]: https://github.com/cyberark/conjur-service-broker/compare/v1.2.8...v1.2.9

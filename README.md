@@ -1,10 +1,10 @@
-# CyberArk Conjur Service Broker for Cloud Foundry
+# CyberArk Secrets Manager Service Broker for Cloud Foundry
 
-The Conjur Service Broker makes it easy to secure credentials used by applications in Cloud Foundry (CF) with CyberArk Conjur. Using the Conjur Service Broker, applications are given a Conjur identity automatically when deployed, allowing them to securely retrieve secrets stored in Conjur.
+The Secrets Manager Service Broker makes it easy to secure credentials used by applications in Cloud Foundry (CF) with CyberArk Secrets Manager. Using the Secrets Manager Service Broker, applications are given a Secrets Manager identity automatically when deployed, allowing them to securely retrieve secrets stored in Secrets Manager.
 
-You need a Conjur installation accessible by Cloud Foundry in order to use the Conjur Service Broker; for more information about installing Conjur, please visit [conjur.org](http://conjur.org) or check out our [GitHub repository](https://github.com/cyberark/conjur).
+ This service broker supports both [CyberArk Secrets Manager, Self-Hosted](https://www.cyberark.com/products/secrets-manager-self-hosted/) and [Secrets Manager Open Source](https://www.conjur.org/). You need a Secrets Manager, Self-Hosted or Conjur OSS installation accessible by Cloud Foundry in order to use the Secrets Manager Service Broker.
 
-The Conjur Service Broker is an implementation of the [Open Service Broker API](https://www.openservicebrokerapi.org/) (version 2.13).
+The Secrets Manager Service Broker is an implementation of the [Open Service Broker API](https://www.openservicebrokerapi.org/) (version 2.13).
 
 ## Table of Contents
 
@@ -14,7 +14,7 @@ The Conjur Service Broker is an implementation of the [Open Service Broker API](
 *   [Contributing](#contributing)
 *   [License](#license)
 
-Conjur Service Broker is part of the CyberArk Conjur
+Secrets Manager Service Broker is part of the CyberArk Secrets Manager
 [Open Source Suite](https://cyberark.github.io/conjur/) of tools.
 
 ## Certification Level
@@ -22,27 +22,27 @@ Conjur Service Broker is part of the CyberArk Conjur
 ![](https://img.shields.io/badge/Certification%20Level-Trusted-28A745?link=https://github.com/cyberark/community/blob/master/Conjur/conventions/certification-levels.md)
 
 This repo is a **Trusted** level project. It is supported by CyberArk and has
-been verified to work with Conjur Enterprise. For more detailed information on
+been verified to work with Secrets Manager, Self-Hosted. For more detailed information on
 our certification levels, see
 [our community guidelines](https://github.com/cyberark/community/blob/master/Conjur/conventions/certification-levels.md#trusted).
 
 ## <a name="installation"> Installation Instructions
 
-These instructions guide you through installing the Conjur Service Broker
-and the Conjur Buildpack. The [Conjur Buildpack](https://github.com/cyberark/cloudfoundry-conjur-buildpack)
+These instructions guide you through installing the Secrets Manager Service Broker
+and the Secrets Manager Buildpack. The [Secrets Manager Buildpack](https://github.com/cyberark/cloudfoundry-conjur-buildpack)
 is a supply buildpack that provides a lightweight binary based on [Summon](https://cyberark.github.io/summon/)
 to Cloud Foundry applications. This allows secrets to be securely injected into your
-application's environment at startup. Using the Conjur Buildpack is a convenient way to
+application's environment at startup. Using the Secrets Manager Buildpack is a convenient way to
 securely deliver the secrets that your application needs.
 
-The Conjur Buildpack and Conjur Service Broker should be installed by an admin
+The Secrets Manager Buildpack and Secrets Manager Service Broker should be installed by an admin
 Cloud Foundry user. Follow the instructions below to configure your CF installation
 so that CF users in any org / space are able to see the
-Conjur service listing when they run `cf marketplace`. For more information on how
-to use the Conjur Service Broker when deploying applications, see the
+Secrets Manager service listing when they run `cf marketplace`. For more information on how
+to use the Secrets Manager Service Broker when deploying applications, see the
 [usage instructions](#service-broker-usage).
 
-### Installing the Conjur Service Broker
+### Installing the Secrets Manager Service Broker
 
 **IMPORTANT:** *Before you begin, ensure you are logged into your CF deployment via the CF CLI as an admin.*
 
@@ -66,7 +66,7 @@ to use the Conjur Service Broker when deploying applications, see the
 
 3.  #### Configure the Service Broker application
 
-    The Conjur Service Broker uses HTTP basic authentication, and the credentials it uses must be stored as environment variables in the Service Broker app:
+    The Secrets Manager Service Broker uses HTTP basic authentication, and the credentials it uses must be stored as environment variables in the Service Broker app:
 
     > **NOTE:** The username and password may be any values you choose. These are used by the Service Broker to verify
     > that requests are coming from the Cloud Foundry foundation.
@@ -76,31 +76,31 @@ to use the Conjur Service Broker when deploying applications, see the
     cf set-env conjur-service-broker SECURITY_USER_PASSWORD [value]
     ```
 
-    To configure the Service Broker to communicate with your external Conjur instance, the Service Broker app requires the following environment variables:
+    To configure the Service Broker to communicate with your external Secrets Manager instance, the Service Broker app requires the following environment variables:
 
     *   `CONJUR_ACCOUNT`:
-        the account name for the Conjur instance you are connecting to.
+        the account name for the Secrets Manager instance you are connecting to.
 
     *   `CONJUR_APPLIANCE_URL`:
-        the URL of the Conjur appliance instance you are connecting to. When using an HA Conjur master cluster, this should be the URL of the master load balancer.
+        the URL of the Secrets Manager appliance instance you are connecting to. When using an HA Secrets Manager master cluster, this should be the URL of the master load balancer.
 
     *   `CONJUR_FOLLOWER_URL` (HA only):
-        If using high availability, this should be the URL of a load balancer for the cluster's Follower instances. This is the URL that applications use to communicate with Conjur.
+        If using high availability, this should be the URL of a load balancer for the cluster's Follower instances. This is the URL that applications use to communicate with Secrets Manager.
 
     *   `CONJUR_POLICY`:
-        the Policy branch where new Host identities should be added. The Conjur identity specified in `CONJUR_AUTHN_LOGIN` must have `create` and `update` permissions on this policy branch.
+        the Policy branch where new Host identities should be added. The Secrets Manager identity specified in `CONJUR_AUTHN_LOGIN` must have `create` and `update` permissions on this policy branch.
 
-        > **NOTE:** The `CONJUR_POLICY` is optional, but is *strongly* recommended. If this value is not specified, the Service Broker uses the `root` Conjur policy.
+        > **NOTE:** The `CONJUR_POLICY` is optional, but is *strongly* recommended. If this value is not specified, the Service Broker uses the `root` Secrets Manager policy.
 
-        > **NOTE:** If you use multiple CloudFoundry foundations, this policy branch should include an identifier for the foundation to distinguish applications deployed in each foundation. For example, if you have both a `production` and `development` foundation, then your policy branches for each Conjur Service Broker might be `cf/prod` and `cf/dev`.
+        > **NOTE:** If you use multiple CloudFoundry foundations, this policy branch should include an identifier for the foundation to distinguish applications deployed in each foundation. For example, if you have both a `production` and `development` foundation, then your policy branches for each Secrets Manager Service Broker might be `cf/prod` and `cf/dev`.
 
     *   `CONJUR_AUTHN_LOGIN`:
-        the identity of a Conjur Host (of the form `host/host-id`) with `create`
+        the identity of a Secrets Manager Host (of the form `host/host-id`) with `create`
         and `update` privileges on `CONJUR_POLICY`. This account is used to add
-        and remove Hosts from Conjur policy as apps are deployed to or removed
+        and remove Hosts from Secrets Manager policy as apps are deployed to or removed
         from the platform.
 
-        If you are using Enterprise Conjur, you should add an annotation on the
+        If you are using Secrets Manager, Self-Hosted, you should add an annotation on the
         Service Broker Host in policy to indicate which platform the Service
         Broker is used on. The policy you load should similar to:
 
@@ -111,15 +111,15 @@ to use the Conjur Service Broker when deploying applications, see the
             platform: cloudfoundry
         ```
 
-        You may elect to set `platform` to `cloudfoundry` or to `pivotalcloudfoundry`, for example. This annotation is used to set annotations on Hosts added by the Service Broker, so that they show in the Conjur UI with the appropriate platform logo.
+        You may elect to set `platform` to `cloudfoundry` or to `pivotalcloudfoundry`, for example. This annotation is used to set annotations on Hosts added by the Service Broker, so that they show in the Secrets Manager UI with the appropriate platform logo.
 
         > **NOTE:** The `CONJUR_AUTHN_LOGIN` value for the Host created in policy above is `host/cf-service-broker`.
 
     *   `CONJUR_AUTHN_API_KEY`:
-        the API Key of the Conjur Host whose identity you have provided in `CONJUR_AUTHN_LOGIN`.
+        the API Key of the Secrets Manager Host whose identity you have provided in `CONJUR_AUTHN_LOGIN`.
 
     *   `CONJUR_SSL_CERTIFICATE`:
-        the PEM-encoded x509 CA certificate chain for Conjur. This is required if your Conjur installation uses SSL (e.g. Conjur Enterprise).
+        the PEM-encoded x509 CA certificate chain for Secrets Manager. This is required if your Secrets Manager installation uses SSL (e.g. Secrets Manager, Self-Hosted).
 
         This value may be obtained by running the command:
 
@@ -136,7 +136,7 @@ to use the Conjur Service Broker when deploying applications, see the
         If using high availability, this should be the SSL certificate chain of a load balancer for the cluster's Follower instances. It can be retrieved the same way as the `CONJUR_SSL_CERTIFICATE`. If not provided the value of `CONJUR_SSL_CERTIFICATE` will be used.
 
     *   `ENABLE_SPACE_IDENTITY`:
-        When set to `true`, the service broker provides applications with a Space-level `host` identity, rather than create a new `host` identity for each application in Conjur at bind time. This allows the broker to use a Conjur follower for application binding, rather than the Conjur master.
+        When set to `true`, the service broker provides applications with a Space-level `host` identity, rather than create a new `host` identity for each application in Secrets Manager at bind time. This allows the broker to use a Secrets Manager follower for application binding, rather than the Secrets Manager master.
 
     To load these environment variables into the Service Broker's environment, run:
 
@@ -158,7 +158,7 @@ to use the Conjur Service Broker when deploying applications, see the
     ```
 
     > **NOTE:** When the Service Broker application is started, it runs a health
-    > check that validates its connection to your Conjur instance.
+    > check that validates its connection to your Secrets Manager instance.
 
 5.  #### Register the Service Broker in Cloud Foundry
 
@@ -169,28 +169,28 @@ to use the Conjur Service Broker when deploying applications, see the
     cf create-service-broker conjur-service-broker "[username value]" "[password value]" $APP_URL
     ```
 
-6.  #### List the Conjust service in the marketplace for all Orgs and Spaces
+6.  #### List the Secrets Manager service in the marketplace for all Orgs and Spaces
     ```sh
     cf enable-service-access cyberark-conjur
     ```
 
-The CyberArk Conjur Service Broker is now installed and ready to use!
+The CyberArk Secrets Manager Service Broker is now installed and ready to use!
 
-### Installing the Conjur Buildpack
+### Installing the Secrets Manager Buildpack
 
-The Conjur Buildpack uses a lightweight Go binary based on [Summon](https://cyberark.github.io/summon/) to load secrets into the environment of CF-deployed applications using the app's `secrets.yml` file.
+The Secrets Manager Buildpack uses a lightweight Go binary based on [Summon](https://cyberark.github.io/summon/) to load secrets into the environment of CF-deployed applications using the app's `secrets.yml` file.
 
-For instructions on installing and using the Conjur Buildpack, please [see the Conjur Buildpack documentation](https://github.com/cyberark/cloudfoundry-conjur-buildpack).
+For instructions on installing and using the Secrets Manager Buildpack, please [see the Secrets Manager Buildpack documentation](https://github.com/cyberark/cloudfoundry-conjur-buildpack).
 
-## <a name="usage"> Using the Conjur Service Broker
+## <a name="usage"> Using the Secrets Manager Service Broker
 
 *   [Creating a Service Instance](#prepare-space)
-*   [Connecting an Application to Conjur](#connect-app)
+*   [Connecting an Application to Secrets Manager](#connect-app)
 *   [Rotating App Host Credentials](#rotate-credentials)
 
-### <a name="prepare-space"> Creating a Conjur Service Instance
+### <a name="prepare-space"> Creating a Secrets Manager Service Instance
 
-1.  #### Confirm Conjur Service is in the Marketplace
+1.  #### Confirm Secrets Manager Service is in the Marketplace
 
     Once the Service Broker is installed, you should see the service listing from any
     org / space:
@@ -206,9 +206,9 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     TIP:  Use 'cf marketplace -s SERVICE' to view descriptions of individual plans of a given service.
     ```
 
-2.  #### Create a Conjur Service Instance
+2.  #### Create a Secrets Manager Service Instance
 
-    When you are ready to use the Conjur Service Broker, you can create a Conjur
+    When you are ready to use the Secrets Manager Service Broker, you can create a Secrets Manager
     service instance under the `community` plan in the org / space where you are
     deploying your application:
 
@@ -216,9 +216,9 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     cf create-service cyberark-conjur community conjur
     ```
 
-    > **NOTE:** Service instances cannot be shared between spaces. A Conjur
+    > **NOTE:** Service instances cannot be shared between spaces. A Secrets Manager
     > service instance must be created in each space where apps retrieve secrets
-    > from Conjur.
+    > from Secrets Manager.
 
     ##### Organization and Space Groups
 
@@ -226,7 +226,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     2.0+, when the service broker is provisioned in a space, it automatically
     creates policy branches and groups for the org and space. [See below](#permit-org-space)
     for more information on using these org and space groups to permit access to
-    secrets in Conjur.
+    secrets in Secrets Manager.
 
     The policy the service broker loads to define these groups is similar to:
 
@@ -266,15 +266,15 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
     ##### Application vs Space Host Identity
 
-    When an application is bound to the Conjur service, it receives an identity in Conjur
-    and credentials to authenticate to Conjur.
+    When an application is bound to the Secrets Manager service, it receives an identity in Secrets Manager
+    and credentials to authenticate to Secrets Manager.
 
-    The service broker may be configured to either create a single Conjur identity shared by
-    all applications in a space, or to create a Conjur identity for each application
+    The service broker may be configured to either create a single Secrets Manager identity shared by
+    all applications in a space, or to create a Secrets Manager identity for each application
     separately.
 
     In TAS or PCF version 2.0+, when the service broker creates the identity for your application
-    in Conjur, it automatically adds it to a Conjur Group representing the `Organization`
+    in Secrets Manager, it automatically adds it to a Secrets Manager Group representing the `Organization`
     and `Space` where the application is deployed. These groups may be used to control secret
     access at the org or space level, rather than the application host itself.
 
@@ -282,12 +282,12 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
     Space-scoped identities are enabled by configuring the service broker with
     `ENABLE_SPACE_IDENTITY` set to `true`. This means that when a service instance is created
-    in a space, the service broker creates a Conjur Host for that space. When an application
+    in a space, the service broker creates a Secrets Manager Host for that space. When an application
     is bound to the service, the service broker gives it the credentials of the space identity,
     rather than create a new host identity for the application.
 
-    The advantage to this is the bind operation only requires access to a Conjur follower and
-    not the Conjur master. This promotes high-availability and scalability of app binding and secret
+    The advantage to this is the bind operation only requires access to a Secrets Manager follower and
+    not the Secrets Manager master. This promotes high-availability and scalability of app binding and secret
     retrieval.
 
     When using space host identities, only the org and space groups should be used for permitting
@@ -295,33 +295,33 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
     ##### Application-scoped Identity
 
-    When space identities are not enabled, the service broker creates a new Conjur host identity
+    When space identities are not enabled, the service broker creates a new Secrets Manager host identity
     for each application bound to the service. This requires that the service broker is able to
-    communicate with the Conjur master for each bind request.
+    communicate with the Secrets Manager master for each bind request.
 
-    The advantage to this is finer-grained access control and audit logs in Conjur.
+    The advantage to this is finer-grained access control and audit logs in Secrets Manager.
 
     Application host identities may be permitted to access secrets at the [org and space level](#permit-org-space)
     or at the [application level.](#permit-app)
 
-### <a name="connect-app"> Using Conjur with a Cloud Foundry Application
+### <a name="connect-app"> Using Secrets Manager with a Cloud Foundry Application
 
 1.  #### Create a `secrets.yml` File
 
-    To leverage the Conjur Buildpack so that secret values are automatically
+    To leverage the Secrets Manager Buildpack so that secret values are automatically
     injected into your application's environment at runtime, your application needs
     a `secrets.yml` file is. The `secrets.yml` file gives a mapping of **environment variable name**
-    to a **location where a secret is stored in Conjur**. For more information about
+    to a **location where a secret is stored in Secrets Manager**. For more information about
     creating this file, [see the Summon documentation](https://cyberark.github.io/summon/#secrets.yml).
 
-2.  #### Bind Your Application to the Conjur Service
+2.  #### Bind Your Application to the Secrets Manager Service
 
-    Binding your application to the `conjur` service instance provides the application with an
-    identity in Conjur, and credentials that it may use to retrieve secrets.
+    Binding your application to the `secrets manager` service instance provides the application with an
+    identity in Secrets Manager, and credentials that it may use to retrieve secrets.
 
     *   ##### Using the Cloud Foundry CLI
 
-        To bind your application to the `conjur` service using the CLI, run the command:
+        To bind your application to the `secrets manager` service using the CLI, run the command:
 
         ```sh
         cf bind-service my-app conjur
@@ -329,7 +329,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
 
     *   ##### Using the Application Manifest
 
-        Alternatively you can specify the conjur service in your application manifest:
+        Alternatively you can specify the secrets manager service in your application manifest:
         ```yaml
         ---
         applications:
@@ -338,7 +338,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
           - conjur
         ```
 
-3.  #### Permit the Application to Access Secrets in Conjur
+3.  #### Permit the Application to Access Secrets in Secrets Manager
 
     TAS applications can be granted access to secrets using either the Org and Space groups,
     or with the application host identity.
@@ -346,7 +346,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     ##### <a name="permit-org-space"> Privilege Org and Space Groups
 
     Applications can be granted access to secrets by privileging the Org or Space groups
-    to read secrets using Conjur policy.
+    to read secrets using Secrets Manager policy.
 
     The group Ids use the Org and Space GUID identifiers, which may be obtained
     using the Cloud Foundry CLI:
@@ -373,7 +373,7 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     > **NOTE:** Application Host identity permissions are not available when using Space Host Identies.
 
     After your application has been pushed to the platform, you can use its host identity in
-    Conjur policy to grant it access to secrets. The application does not have access to
+    Secrets Manager policy to grant it access to secrets. The application does not have access to
     secrets and should not be started until this step is completed. To prevent the app from
     starting when it is first pushed, use the `--no-start` flag:
 
@@ -396,8 +396,8 @@ For instructions on installing and using the Conjur Buildpack, please [see the C
     > permissions are granted before pushing your application, this step is not required.
     > Your application will already have access to the secrets when it is initially pushed.
 
-    Now that your application is privileged to access the secrets it needs in Conjur,
-    start or restage the app so that the Conjur Buildpack can inject the secret values
+    Now that your application is privileged to access the secrets it needs in Secrets Manager,
+    start or restage the app so that the Secrets Manager Buildpack can inject the secret values
     into the running application's environment.
 
     ```sh
@@ -416,7 +416,7 @@ when you run `cf env my-app` or if you `cf ssh my-app` and run `printenv`.
 #### Rotating Application Host Identities
 
 When using application host identities (`ENABLE_SPACE_IDENTITY=false`), the host API
-key may be rotated by simply re-binding the application to the Conjur service:
+key may be rotated by simply re-binding the application to the Secrets Manager service:
 
 ```sh
 cf unbind-service <app-name> conjur
@@ -432,7 +432,7 @@ cf bind-service <app-name> conjur
 Rotating the host API key when Space Host Identities are enabled (`ENABLE_SPACE_IDENTITY=true`)
 requires coordinating the host credential update with all apps in a space.
 
-1.  Rotate the Space Host API key using the Conjur CLI. This will return the new API key for the host:
+1.  Rotate the Space Host API key using the Secrets Manager CLI. This will return the new API key for the host:
 
     ```sh
     conjur host rotate_api_key --host <cf policy root>/<org-guid>/<space-guid>
@@ -442,7 +442,7 @@ requires coordinating the host credential update with all apps in a space.
     1p9c5443sy1bg93ek2e062wsnmvy3p9k9j83nq841sj1sp2vasze1r
     ```
 
-2.  Update the Space API key secret in Conjur:
+2.  Update the Space API key secret in Secrets Manager:
     ```sh
     conjur variable values add "<cf policy root>/<org-guid>/<space-guid>/space-host-api-key" "<api-key-value>"
 
@@ -450,7 +450,7 @@ requires coordinating the host credential update with all apps in a space.
     conjur variable values add "cf/prod/6b40649e-331b-424d-afa0-6d569f016f51/72a928f6-bf7c-4732-a195-896f67bd1133/space-host-api-key" "1p9c5443sy1bg93ek2e062wsnmvy3p9k9j83nq841sj1sp2vasze1r"
     ```
 
-3.  Re-bind each application in the space to Conjur
+3.  Re-bind each application in the space to Secrets Manager
 
     > This will provide the updated credentials to each application
 
@@ -469,9 +469,9 @@ requires coordinating the host credential update with all apps in a space.
 
 #### <a name="examples"> Examples
 
-##### Using the Conjur Service Broker and Java API
+##### Using the Secrets Manager Service Broker and Java API
 
-The Conjur Service Broker is most frequently used with the [Conjur Buildpack](https://github.com/cyberark/cloudfoundry-conjur-buildpack), but you can also use the identity and authentication credentials provided by the service broker to authenticate with Conjur using different tools. In this example we retrieve a secret value using the [Conjur API for Java](https://github.com/cyberark/conjur-api-java).
+The Secrets Manager Service Broker is most frequently used with the [Secrets Manager Buildpack](https://github.com/cyberark/cloudfoundry-conjur-buildpack), but you can also use the identity and authentication credentials provided by the service broker to authenticate with Secrets Manager using different tools. In this example we retrieve a secret value using the [Secrets Manager API for Java](https://github.com/cyberark/conjur-api-java).
 Credentials are provided to the API via JSON stored in the `VCAP_SERVICES`
 environment variable.
 
@@ -514,11 +514,11 @@ public class App {
 ```
 
 > **NOTE:** The  [`conjur-api-java`](https://github.com/cyberark/conjur-api-java) does not manage certificate trust. It is up
-> to you to import the Conjur CA certificate via `keytool` or otherwise.
+> to you to import the Secrets Manager CA certificate via `keytool` or otherwise.
 
 > **NOTE:** `ResourceClient` should be used as the API client instead of `Conjur` (as in the example above). This differs slightly from what's
 > documented in the [`cyberark/conjur-api-java`](https://github.com/cyberark/conjur-api-java) repository. The recommendation
-> given here is different from the Java client library documentation because the Conjur configuration is not stored in the
+> given here is different from the Java client library documentation because the Secrets Manager configuration is not stored in the
 > standard `CONJUR_X` environment variables in this case.
 
 ## <a name="contributing"> Contributing
