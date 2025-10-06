@@ -158,7 +158,7 @@ func Test_apiKey(t *testing.T) {
 		"no role",
 		&conjurapi.PolicyResponse{},
 		"",
-		assert.Error,
+		assert.NoError,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

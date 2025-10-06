@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/caarlos0/env/v7 v7.1.0
-	github.com/cucumber/godog v0.15.0
+	github.com/cucumber/godog v0.15.1
 	github.com/cyberark/conjur-api-go v0.13.2
 	github.com/getkin/kin-openapi v0.131.0
 	github.com/jackc/pgx/v5 v5.7.2
@@ -35,7 +35,7 @@ require (
 	github.com/oasdiff/yaml3 v0.0.0-20250309153720-d2182401db90 // indirect
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/zalando/go-keyring v0.2.6 // indirect
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
