@@ -68,9 +68,11 @@ func (p *provision) ProvisionHostPolicy() error {
 	if err != nil {
 		return err
 	}
-	err = p.client.setVariable(fmt.Sprintf("%s/%s", p.orgSpacePolicyID(), spaceHostAPIKey), apiKey)
-	if err != nil {
-		return err
+	if apiKey != "" {
+		err = p.client.setVariable(fmt.Sprintf("%s/%s", p.orgSpacePolicyID(), spaceHostAPIKey), apiKey)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

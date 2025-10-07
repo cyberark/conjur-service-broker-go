@@ -74,8 +74,13 @@ func slashJoin(elems ...string) string {
 }
 
 func apiKey(policy *conjurapi.PolicyResponse) (string, error) {
-	if policy == nil || len(policy.CreatedRoles) < 1 {
-		return "", fmt.Errorf("expecting at least one created role")
+	if policy == nil {
+		return "", fmt.Errorf("nil policy response")
+	}
+	// If no roles were created it should not error since the role already exists
+	// and the API key has not been rotated
+	if len(policy.CreatedRoles) < 1 {
+		return "", nil
 	}
 	var roleID string
 	var role conjurapi.CreatedRole
@@ -85,7 +90,7 @@ func apiKey(policy *conjurapi.PolicyResponse) (string, error) {
 		break
 	}
 	if roleID != role.ID {
-		return "", fmt.Errorf("creatred role ID do not match %v != %v", roleID, role.ID)
+		return "", fmt.Errorf("created role ID do not match %v != %v", roleID, role.ID)
 	}
 	return role.APIKey, nil
 }

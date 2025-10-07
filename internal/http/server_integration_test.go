@@ -3,8 +3,10 @@
 package http
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"strings"
 	"syscall"
@@ -13,7 +15,6 @@ import (
 
 	"github.com/cyberark/conjur-service-broker-go/internal/ctxutil"
 	"github.com/cyberark/conjur-service-broker-go/internal/servicebroker/mocks"
-	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
@@ -57,23 +58,39 @@ func getCatalog(t *testing.T) bool {
 func TestStartHTTPServer(t *testing.T) {
 	t.Cleanup(cleanupEnv())
 	type J map[string]any
-	httpmock.Activate()
-	// Need to inject the default client for the httpmock to intercept requests
-	go StartHTTPServer(http.DefaultClient)
-	defer httpmock.DeactivateAndReset()
-	httpmock.RegisterResponder("POST", "=~https://(conjur|follower).local/authn/dev/host%2Fservice-broker/authenticate",
-		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{"protected": "eyJhbGciOiJjb25qdXIub3JnL3Nsb3NpbG8vdjIiLCJraWQiOiI5M2VjNTEwODRmZTM3Zjc3M2I1ODhlNTYyYWVjZGMxMSJ9", "payload": "eyJzdWIiOiJhZG1pbiIsImlhdCI6MTUxMDc1MzI1OX0=", "signature": "raCufKOf7sKzciZInQTphu1mBbLhAdIJM72ChLB4m5wKWxFnNz_7LawQ9iYEI_we1-tdZtTXoopn_T1qoTplR9_Bo3KkpI5Hj3DB7SmBpR3CSRTnnEwkJ0_aJ8bql5Cbst4i4rSftyEmUqX-FDOqJdAztdi9BUJyLfbeKTW9OGg-QJQzPX1ucB7IpvTFCEjMoO8KUxZpbHj-KpwqAMZRooG4ULBkxp5nSfs-LN27JupU58oRgIfaWASaDmA98O2x6o88MFpxK_M0FeFGuDKewNGrRc8lCOtTQ9cULA080M5CSnruCqu1Qd52r72KIOAfyzNIiBCLTkblz2fZyEkdSKQmZ8J3AakxQE2jyHmMT-eXjfsEIzEt-IRPJIirI3Qm"}))
-	httpmock.RegisterResponder("GET", "https://conjur.local/resources/dev/host/service-broker",
-		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))
-	httpmock.RegisterResponder("GET", "=~https://follower.local/resources/dev/(policy|group)/cf.*",
-		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))
-	httpmock.RegisterResponder("GET", "https://conjur.local/resources/dev/policy/cf",
-		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))
-	httpmock.RegisterResponder("POST", "https://conjur.local/policies/dev/policy/cf",
-		httpmock.NewJsonResponderOrPanic(http.StatusOK, J{}))
+
+	// Create a mock Conjur server
+	mockConjur := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case strings.Contains(r.URL.Path, "/authenticate"):
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(J{
+				"protected": "eyJhbGciOiJjb25qdXIub3JnL3Nsb3NpbG8vdjIiLCJraWQiOiI5M2VjNTEwODRmZTM3Zjc3M2I1ODhlNTYyYWVjZGMxMSJ9",
+				"payload":   "eyJzdWIiOiJhZG1pbiIsImlhdCI6MTUxMDc1MzI1OX0=",
+				"signature": "raCufKOf7sKzciZInQTphu1mBbLhAdIJM72ChLB4m5wKWxFnNz_7LawQ9iYEI_we1-tdZtTXoopn_T1qoTplR9_Bo3KkpI5Hj3DB7SmBpR3CSRTnnEwkJ0_aJ8bql5Cbst4i4rSftyEmUqX-FDOqJdAztdi9BUJyLfbeKTW9OGg-QJQzPX1ucB7IpvTFCEjMoO8KUxZpbHj-KpwqAMZRooG4ULBkxp5nSfs-LN27JupU58oRgIfaWASaDmA98O2x6o88MFpxK_M0FeFGuDKewNGrRc8lCOtTQ9cULA080M5CSnruCqu1Qd52r72KIOAfyzNIiBCLTkblz2fZyEkdSKQmZ8J3AakxQE2jyHmMT-eXjfsEIzEt-IRPJIirI3Qm",
+			})
+		case strings.Contains(r.URL.Path, "/resources/") && strings.Contains(r.URL.Path, "/host/service-broker"):
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(J{})
+		case strings.Contains(r.URL.Path, "/resources/") && (strings.Contains(r.URL.Path, "/policy/cf") || strings.Contains(r.URL.Path, "/group/cf")):
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(J{})
+		case strings.Contains(r.URL.Path, "/policies/"):
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(J{})
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer mockConjur.Close()
+
+	// Set environment variables to point to the mock server
+	t.Setenv("CONJUR_APPLIANCE_URL", mockConjur.URL)
+	t.Setenv("CONJUR_FOLLOWER_URL", mockConjur.URL)
+
+	go StartHTTPServer(nil)
 
 	require.Eventually(t, func() bool { return getCatalog(t) }, 5*time.Second, 50*time.Millisecond)
-
 }
 
 func cleanupEnv() func() {
