@@ -18,7 +18,7 @@ function main() {
 	# Use a GoReleaser Docker image containing cross-compilation tools
 	# This image is recommended by the official GoReleaser docs
 	# https://goreleaser.com/cookbooks/cgo-and-crosscompiling/
-	GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.24"
+	GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.25"
 
 	REPO_ROOT="$(repo_root)"
 	PROJECT_WD="github.com/cyberark/conjur-service-broker-go"

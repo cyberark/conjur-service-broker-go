@@ -1,6 +1,6 @@
 module github.com/cyberark/conjur-service-broker-go
 
-go 1.24.1
+go 1.25.3
 
 // Use the replace below for local development with conjur-api-go
 // replace github.com/cyberark/conjur-api-go => ../conjur-api-go
@@ -13,7 +13,6 @@ require (
 	github.com/gin-contrib/requestid v1.0.5
 	github.com/gin-contrib/zap v1.1.5
 	github.com/gin-gonic/gin v1.11.0
-	github.com/jarcoal/httpmock v1.3.0
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.11.1

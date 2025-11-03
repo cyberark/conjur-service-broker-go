@@ -1,8 +1,19 @@
-ARG BASE_IMAGE_VERSION=1.24-alpine
+ARG BASE_IMAGE_VERSION=1.25-alpine
 
 FROM golang:${BASE_IMAGE_VERSION}
 
 RUN apk add --no-cache bash
+
+# On CyberArk dev laptops, golang dependencies are downloaded
+# with a corporate proxy in the middle. For these connections
+# succeed we need to configure the proxy CA certificate in the
+# build container.
+#
+# To also allow this script to work on non-CyberArk laptops
+# we copy the certificate into the Docker image as a (potentially
+# empty) directory, rather than rely on the CA file itself.
+ADD build_ca_certificate /usr/local/share/ca-certificates/
+RUN update-ca-certificates
 
 RUN go install github.com/jstemmer/go-junit-report/v2@v2.0.0 && go install github.com/boumenot/gocover-cobertura@v1.2.0
 

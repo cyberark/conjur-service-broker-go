@@ -112,14 +112,14 @@ func addCustomValidations(api *openapi3.T) *openapi3.T {
 }
 
 func addCustomQueryParamValidation(api *openapi3.T, path, method string) *openapi3.T {
-	parameters := api.Paths.Find(path).GetOperation(method).Parameters
+	parameters := api.Paths.Value(path).GetOperation(method).Parameters
 	parameters.GetByInAndName("query", "service_id").Schema.Value.Enum = []interface{}{expectedServiceID}
 	parameters.GetByInAndName("query", "plan_id").Schema.Value.Enum = []interface{}{expectedPlanID}
 	return api
 }
 
 func addCustomBodyParamValidation(api *openapi3.T, path, method string) *openapi3.T {
-	content := api.Paths.Find(path).GetOperation(method).RequestBody.Value.Content
+	content := api.Paths.Value(path).GetOperation(method).RequestBody.Value.Content
 	content.Get("application/json").Schema.Value.Properties["service_id"].Value.Enum = []interface{}{expectedServiceID}
 	content.Get("application/json").Schema.Value.Properties["plan_id"].Value.Enum = []interface{}{expectedPlanID}
 	return api
@@ -127,9 +127,9 @@ func addCustomBodyParamValidation(api *openapi3.T, path, method string) *openapi
 
 func addCustomBodyParamEmptyValidation(api *openapi3.T, path, method, param string) *openapi3.T {
 	var zero uint64
+	content := api.Paths.Value(path).GetOperation(method).RequestBody.Value.Content
 	types := openapi3.Types([]string{openapi3.TypeObject})
 
-	content := api.Paths.Find(path).GetOperation(method).RequestBody.Value.Content
 	content.Get("application/json").Schema.Value.Properties[param] = &openapi3.SchemaRef{
 		Value: &openapi3.Schema{
 			Type:     &types,
