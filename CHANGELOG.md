@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 - Updated Go to 1.25 (CONJSE-2067)
 
+### Added
+- Added `close-stale.yml` GitHub workflow
+
 ## [1.3.2] - 2025-10-06
 
 ### Fixed
@@ -293,7 +296,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 -   The first tagged version.
 
-[Unreleased]: https://github.com/cyberark/conjur-service-broker-go/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/cyberark/conjur-service-broker-go/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/cyberark/conjur-service-broker/compare/v0.3.2...v1.3.3
 [1.3.2]: https://github.com/cyberark/conjur-service-broker/compare/v0.3.1...v1.3.2
 [1.3.1]: https://github.com/cyberark/conjur-service-broker/compare/v0.3.0...v1.3.1
 [1.3.0]: https://github.com/cyberark/conjur-service-broker/compare/v0.0.0...v1.3.0
