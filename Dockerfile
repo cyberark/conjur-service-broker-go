@@ -1,4 +1,4 @@
-ARG BUILDER_IMAGE_VERSION=1.24-alpine
+ARG BUILDER_IMAGE_VERSION=1.25-alpine
 ARG BASE_IMAGE_VERSION=1.36.1
 
 FROM golang:${BUILDER_IMAGE_VERSION} as builder
@@ -12,7 +12,7 @@ RUN apk add --no-cache upx
 # To also allow this script to work on non-CyberArk laptops
 # we copy the certificate into the Docker image as a (potentially
 # empty) directory, rather than rely on the CA file itself.
-COPY build_ca_certificate /usr/local/share/ca-certificates/
+ADD build_ca_certificate /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
 WORKDIR /src

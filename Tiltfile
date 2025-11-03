@@ -16,7 +16,7 @@ FROM golang:alpine as builder
 # To also allow this script to work on non-CyberArk laptops
 # we copy the certificate into the Docker image as a (potentially
 # empty) directory, rather than rely on the CA file itself.
-COPY build_ca_certificate /usr/local/share/ca-certificates/
+ADD build_ca_certificate /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
 WORKDIR /src

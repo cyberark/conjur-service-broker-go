@@ -6,6 +6,7 @@
 set -ex
 cd "$(dirname "$0")"
 . utils
+retrieve_cyberark_ca_cert
 
 TOPLEVEL_DIR="$(repo_root)"
 

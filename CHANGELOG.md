@@ -6,17 +6,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.3] - 2025-11-03
+
+### Changed
+- Updated Go to 1.25 (CONJSE-2067)
+
 ## [1.3.2] - 2025-10-06
 
-## Fixed
+### Fixed
 - Fixed an issue where reprovisioning the service broker in an existing space incorrectly throws an error
 
-## Changed
+### Changed
 - Updated documentation to align with Conjur Enterprise name change to Secrets Manager. (CNJR-10988)
 
 ## [1.3.1] - 2025-06-04
 
-## Changed
+### Changed
 - Updated Go to 1.24.x
 - Updated Go dependencies
 
