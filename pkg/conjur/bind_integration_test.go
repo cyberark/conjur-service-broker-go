@@ -77,6 +77,8 @@ func Test_bind_BindHostPolicy(t *testing.T) {
 			for method, v := range tt.client {
 				mockAPI.On(method, v.args...).Return(v.returns...).Once()
 			}
+			mockAPI.On("ResourceExists", "dev:group:cf/orgID/spaceID").Return(false, nil).Once()
+			mockAPI.On("ResourceExists", "dev:layer:cf/orgID/spaceID").Return(false, nil).Once()
 			b := c.NewBind("orgID", "spaceID", "bindingID", true)
 			got, err := b.BindHostPolicy()
 			tt.wantErr(t, err)
@@ -145,7 +147,7 @@ func Test_bind_DeleteBindHostPolicy(t *testing.T) {
 		mockParams{
 			"Resources":    m{args: p{&conjurapi.ResourceFilter{Kind: "host", Search: "bindingID^", Limit: 0, Offset: 0, Role: ""}}, returns: p{[]map[string]interface{}{{"id": "dev:host:cf/orgID/spaceID/bindingID"}}, nil}},
 			"RotateAPIKey": m{args: p{"dev:host:cf/orgID/spaceID/bindingID"}, returns: p{nil, nil}},
-			"LoadPolicy":   m{args: p{conjurapi.PolicyModePut, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, nil}},
+			"LoadPolicy":   m{args: p{conjurapi.PolicyModePatch, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, nil}},
 		},
 		&Policy{Account: "dev", ApplianceURL: "https://conjur.local", AuthnAPIKey: "secret", AuthnLogin: "host/cf/orgID/spaceID"},
 		assert.NoError,
@@ -162,7 +164,7 @@ func Test_bind_DeleteBindHostPolicy(t *testing.T) {
 		mockParams{
 			"Resources":    m{args: p{&conjurapi.ResourceFilter{Kind: "host", Search: "bindingID^", Limit: 0, Offset: 0, Role: ""}}, returns: p{[]map[string]interface{}{{"id": "dev:host:cf/orgID/spaceID/bindingID"}}, nil}},
 			"RotateAPIKey": m{args: p{"dev:host:cf/orgID/spaceID/bindingID"}, returns: p{nil, nil}},
-			"LoadPolicy":   m{args: p{conjurapi.PolicyModePut, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, errors.New("error")}},
+			"LoadPolicy":   m{args: p{conjurapi.PolicyModePatch, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, errors.New("error")}},
 		},
 		nil,
 		assert.Error,
