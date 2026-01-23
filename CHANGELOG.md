@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-01-22
+
+### Fixed
+- Policy deletion now uses PATCH requests.
+- Fixed backwards compatibility with binding applications in existing spaces that use policy layers. (CNJR-12646)
+
 ## [1.3.4] - 2025-11-13
 
 ### Changed

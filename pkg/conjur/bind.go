@@ -78,7 +78,7 @@ func (b *bind) DeleteBindHostPolicy() error {
 	if err != nil {
 		return err
 	}
-	_, err = b.client.replacePolicy(yaml, b.policy())
+	_, err = b.client.updatePolicy(yaml, b.policy())
 	if err != nil {
 		return err
 	}
@@ -140,10 +140,30 @@ func (b *bind) createBindYAML() (io.Reader, error) {
 		},
 	}
 	if b.useSpace() {
-		policy = append(policy, conjurpolicy.Grant{
-			Role:   conjurpolicy.GroupRef(""),
-			Member: conjurpolicy.HostRef(b.bindingID),
-		})
+		// Check if org/space group exists (new/hybrid space)
+		groupExists, err := b.orgSpaceGroupExists()
+		if err != nil {
+			return nil, fmt.Errorf("failed to check if org/space group exists: %w", err)
+		}
+		if groupExists {
+			policy = append(policy, conjurpolicy.Grant{
+				Role:   conjurpolicy.GroupRef(""),
+				Member: conjurpolicy.HostRef(b.bindingID),
+			})
+			return policyReader(policy)
+		}
+		// If group doesn't exist, check if layer exists (legacy space)
+		layerExists, err := b.orgSpaceLayerExists()
+		if err != nil {
+			return nil, fmt.Errorf("failed to check if org/space layer exists: %w", err)
+		}
+		if layerExists {
+			policy = append(policy, conjurpolicy.Grant{
+				Role:   conjurpolicy.LayerRef(""),
+				Member: conjurpolicy.HostRef(b.bindingID),
+			})
+			return policyReader(policy)
+		}
 	}
 	return policyReader(policy)
 }
@@ -155,6 +175,22 @@ func (b *bind) deleteBindYAML() (io.Reader, error) {
 		},
 	}
 	return policyReader(policy)
+}
+
+func (b *bind) orgSpaceGroupResourceID() string {
+	return composeID(b.client.config.ConjurAccount, KindGroup, b.policy())
+}
+
+func (b *bind) orgSpaceLayerResourceID() string {
+	return composeID(b.client.config.ConjurAccount, KindLayer, b.policy())
+}
+
+func (b *bind) orgSpaceGroupExists() (bool, error) {
+	return b.client.resourceExists(b.orgSpaceGroupResourceID())
+}
+
+func (b *bind) orgSpaceLayerExists() (bool, error) {
+	return b.client.resourceExists(b.orgSpaceLayerResourceID())
 }
 
 func (b *bind) hostAnnotations() map[string]interface{} {

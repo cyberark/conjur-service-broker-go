@@ -191,10 +191,10 @@ func (c *client) upsertPolicy(policy io.Reader, policyID string) (*conjurapi.Pol
 	return res, nil
 }
 
-// replacePolicy completely replaces an existing policy, implicitly deleting data which is not present in the new policy
-func (c *client) replacePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
+// updatePolicy updates an existing policy and allows for explicit deletions of resources in the policy
+func (c *client) updatePolicy(policy io.Reader, policyID string) (*conjurapi.PolicyResponse, error) {
 	res, err := c.client.LoadPolicy(
-		conjurapi.PolicyModePut,
+		conjurapi.PolicyModePatch,
 		policyID,
 		policy,
 	)
