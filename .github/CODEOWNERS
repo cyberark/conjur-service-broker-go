@@ -1,4 +1,4 @@
-* @Conjur-Enterprise/conjur-integrations
+* @conjur-enterprise/conjur-integrations
 
 # Changes to .trivyignore require Security Architect approval
 .trivyignore @cyberark/security-architects @conjurinc/security-architects @conjurdemos/security-architects @conjurdemos/security-architects @conjur-enterprise/security-architects
