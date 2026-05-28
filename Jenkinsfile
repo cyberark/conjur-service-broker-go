@@ -143,28 +143,17 @@ pipeline {
 
           post {
             always {
-              unstash 'test-results'
-              junit 'coverage/junit.xml'
-              cobertura(
-                autoUpdateHealth: false,
-                autoUpdateStability: false,
-                coberturaReportFile: 'coverage/cobertura.xml',
-                conditionalCoverageTargets: '70, 0, 0',
-                failUnhealthy: false,
-                failUnstable: false,
-                maxNumberOfBuilds: 0,
-                lineCoverageTargets: '70, 0, 0',
-                methodCoverageTargets: '70, 0, 0',
-                onlyStable: false,
-                sourceEncoding: 'ASCII',
-                zoomCoverageChart: false
-              )
-
-              // Don't fail builds if we can't upload coverage information to Codacy
-              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                retry (2) {
-                  codacy action: 'reportCoverage', language: 'Go', filePath: 'coverage/all_no_gen', extraArgs: '--force-coverage-parser go'
-                }
+              script {
+                unstash 'test-results'
+                junit 'coverage/junit.xml'
+                recordCoverage(
+                  tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura.xml']],
+                  failOnError: true,
+                  qualityGates: [
+                    [threshold: 70.0, metric: 'LINE',   baseline: 'PROJECT', unstable: 'true'],
+                    [threshold: 70.0, metric: 'BRANCH', baseline: 'PROJECT', unstable: 'true'],
+                  ]
+                )
               }
             }
           }
@@ -263,11 +252,10 @@ pipeline {
   }
   post {
     always {
-      releaseInfraPoolAgent(".infrapool/release_agents")
-
       // Resolve ownership issue before running infra post hook
       sh 'git config --global --add safe.directory ${PWD}'
-      infraPostHook()
+      sendNotification(channel: '#conjur-integrations-ci-notifications')
+      releaseInfraPoolAgent(".infrapool/release_agents")
     }
   }
 }
