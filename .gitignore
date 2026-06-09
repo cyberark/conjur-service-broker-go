@@ -19,5 +19,5 @@ test/e2e/tanzu_data
 test/e2e/reports
 /test/e2e/cyberark-conjur-service-broker.zip
 
-VERSION
+/VERSION
 /build_ca_certificate/
