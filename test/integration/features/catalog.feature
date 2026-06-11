@@ -13,6 +13,15 @@ Feature: get catalog
       { "error": "Unauthorized" }
       """
 
+  Scenario: should not allow getting catalog without Authorization header
+    Given my request doesn't include the Authorization header
+    When I send "GET" request to "/v2/catalog"
+    Then the response code should be 401
+    And the response should match json:
+      """
+      { "error": "Unauthorized" }
+      """
+
   Scenario: should get catalog
     When I send "GET" request to "/v2/catalog"
     Then the response code should be 200

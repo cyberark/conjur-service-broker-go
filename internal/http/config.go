@@ -18,8 +18,8 @@ type config struct {
 	// TODO: trim backslash in url
 	conjur.Config
 
-	SecurityUserName     string `env:"SECURITY_USER_NAME,unset"`
-	SecurityUserPassword string `env:"SECURITY_USER_PASSWORD,unset"`
+	SecurityUserName     string `env:"SECURITY_USER_NAME,notEmpty,unset"`
+	SecurityUserPassword string `env:"SECURITY_USER_PASSWORD,notEmpty,unset"`
 
 	// ENABLE_SPACE_IDENTITY: When set to true, the service broker provides applications with a Space-level host identity, rather than create a new host identity for each application in Conjur at bind time. This allows the broker to use a Conjur follower for application binding, rather than the Conjur master.
 	EnableSpaceIdentity bool `env:"ENABLE_SPACE_IDENTITY" envDefault:"false"`

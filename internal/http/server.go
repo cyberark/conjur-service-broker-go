@@ -112,9 +112,10 @@ func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInter
 		errorsMiddleware,
 	)
 
-	if len(cfg.SecurityUserName) > 0 { // gin basic auth middleware will fail on empty username
-		r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
+	if len(cfg.SecurityUserName) == 0 || len(cfg.SecurityUserPassword) == 0 {
+		return fmt.Errorf("SECURITY_USER_NAME and SECURITY_USER_PASSWORD must be set")
 	}
+	r.Use(gin.BasicAuth(gin.Accounts{cfg.SecurityUserName: cfg.SecurityUserPassword}))
 	validator, err := validatorMiddleware(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to initialize validator middleware: %s", err)

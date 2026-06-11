@@ -5,3 +5,9 @@ applications:
     random-route: true
     buildpacks:
       - binary_buildpack
+    # SECURITY_USER_NAME and SECURITY_USER_PASSWORD are required.
+    # Override these with `cf set-env conjur-service-broker SECURITY_USER_NAME <value>`
+    # before starting the app. The broker will refuse to start if either is empty.
+    env:
+      SECURITY_USER_NAME: ""
+      SECURITY_USER_PASSWORD: ""

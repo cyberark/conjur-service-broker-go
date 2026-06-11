@@ -26,6 +26,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	})
 	ctx.Step(`^my basic auth credentials are incorrect$`, api.myBasicAuthCredentialsAreIncorrect)
 	ctx.Step(`^my request doesn\'t include the X-Broker-API-Version header$`, api.myRequestDoesntIncludeTheXBrokerAPIVersionHeader)
+	ctx.Step(`^my request doesn\'t include the Authorization header$`, api.myRequestDoesntIncludeAuthorizationHeader)
 	ctx.Step(`^I send "(GET|POST|PUT|DELETE)" request to "([^"]*)"$`, api.iSendRequestTo)
 	ctx.Step(`^I send "([^"]*)" request to "([^"]*)" with body:$`, api.iSendRequestToWithBody)
 	ctx.Step(`^the response code should be (\d+)$`, api.theResponseCodeShouldBe)
