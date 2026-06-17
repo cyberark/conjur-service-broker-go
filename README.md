@@ -71,6 +71,9 @@ to use the Secrets Manager Service Broker when deploying applications, see the
     > **NOTE:** The username and password may be any values you choose. These are used by the Service Broker to verify
     > that requests are coming from the Cloud Foundry foundation.
 
+    > **IMPORTANT:** `SECURITY_USER_NAME` and `SECURITY_USER_PASSWORD` are **required**. The broker will refuse to
+    > start if either variable is empty or unset. Do not skip this step.
+
     ```sh
     cf set-env conjur-service-broker SECURITY_USER_NAME [value]
     cf set-env conjur-service-broker SECURITY_USER_PASSWORD [value]

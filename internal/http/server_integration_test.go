@@ -20,6 +20,39 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	testBasicAuthUser     = "test-user"
+	testBasicAuthPassword = "test-password"
+)
+
+func Test_startServer_failsWithEmptyCredentials(t *testing.T) {
+	logger, err := zap.NewDevelopment()
+	require.NoError(t, err)
+
+	tests := []struct {
+		name string
+		cfg  *config
+	}{{
+		"empty username",
+		&config{Port: "18081", SecurityUserName: "", SecurityUserPassword: "some-password"},
+	}, {
+		"empty password",
+		&config{Port: "18081", SecurityUserName: "some-user", SecurityUserPassword: ""},
+	}, {
+		"both empty",
+		&config{Port: "18081"},
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			srv := mocks.MockServerInterface{}
+			err := startServer(ctxutil.NewContext(), tt.cfg, &srv, logger)
+			require.Error(t, err)
+			require.Contains(t, err.Error(), "SECURITY_USER_NAME and SECURITY_USER_PASSWORD must be set")
+		})
+	}
+}
+
 func Test_startServer_gracefulShutdown(t *testing.T) {
 	srv := mocks.MockServerInterface{}
 	srv.On("CatalogGet", mock.Anything, mock.Anything).Return()
@@ -27,7 +60,7 @@ func Test_startServer_gracefulShutdown(t *testing.T) {
 	go func() {
 		logger, err := zap.NewDevelopment()
 		require.NoError(t, err)
-		err = startServer(ctxutil.NewContext(), &config{Port: "18080"}, &srv, logger) // port 0 should make go choose a random port
+		err = startServer(ctxutil.NewContext(), &config{Port: "18080", SecurityUserName: testBasicAuthUser, SecurityUserPassword: testBasicAuthPassword}, &srv, logger)
 		exited = true
 		require.NoError(t, err)
 	}()
@@ -43,6 +76,7 @@ func getCatalog(t *testing.T) bool {
 	require.NoError(t, err)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Broker-API-Version", "2.17")
+	req.SetBasicAuth(testBasicAuthUser, testBasicAuthPassword)
 	client := &http.Client{
 		Transport: &http.Transport{},
 	}
@@ -96,7 +130,7 @@ func TestStartHTTPServer(t *testing.T) {
 func cleanupEnv() func() {
 	values := os.Environ()
 	os.Clearenv()
-	for k, v := range map[string]string{"DEBUG": "true", "CONJUR_ACCOUNT": "dev", "CONJUR_APPLIANCE_URL": "https://conjur.local", "CONJUR_FOLLOWER_URL": "https://follower.local", "CONJUR_AUTHN_API_KEY": "api-key", "CONJUR_AUTHN_LOGIN": "host/service-broker", "CONJUR_POLICY": "cf", "PORT": "18080"} {
+	for k, v := range map[string]string{"DEBUG": "true", "CONJUR_ACCOUNT": "dev", "CONJUR_APPLIANCE_URL": "https://conjur.local", "CONJUR_FOLLOWER_URL": "https://follower.local", "CONJUR_AUTHN_API_KEY": "api-key", "CONJUR_AUTHN_LOGIN": "host/service-broker", "CONJUR_POLICY": "cf", "PORT": "18080", "SECURITY_USER_NAME": testBasicAuthUser, "SECURITY_USER_PASSWORD": testBasicAuthPassword} {
 		_ = os.Setenv(k, v)
 	}
 	return func() {
