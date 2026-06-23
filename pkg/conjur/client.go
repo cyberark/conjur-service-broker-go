@@ -10,8 +10,11 @@ import (
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
+	"github.com/cyberark/conjur-service-broker-go/internal/version"
 	"github.com/cyberark/conjur-service-broker-go/pkg/conjur/api"
 )
+
+var telemetryData = conjurapi.NewTelemetry("Service Broker Go", "idira-secretsmanager", version.FullVersion, "Idira", "")
 
 // Client is a wrapper on conjur go sdk allowing creation of bind and provision objects
 type Client interface {
@@ -40,7 +43,7 @@ func (config *Config) NewClient(httpClient *http.Client) (Client, error) {
 		Login:  config.ConjurAuthNLogin,
 		APIKey: config.ConjurAuthNAPIKey,
 	}
-	conjur, err := conjurapi.NewClientFromKey(clientConf, loginPair)
+	conjur, err := conjurapi.NewClientFromKey(clientConf, loginPair, telemetryData)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +53,7 @@ func (config *Config) NewClient(httpClient *http.Client) (Client, error) {
 		if len(config.ConjurFollowerSSLCertificate) > 0 {
 			clientConf.SSLCert = config.ConjurFollowerSSLCertificate
 		}
-		roClient, err = conjurapi.NewClientFromKey(clientConf, loginPair)
+		roClient, err = conjurapi.NewClientFromKey(clientConf, loginPair, telemetryData)
 		if err != nil {
 			return nil, err
 		}

@@ -12,6 +12,7 @@ builds:
       - -a
     ldflags:
       - -w
+      - -X github.com/cyberark/conjur-service-broker-go/internal/version.FullVersion={{ .Env.VERSION }}
     goos:
       - linux
     goarch:

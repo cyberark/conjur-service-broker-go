@@ -1,5 +1,6 @@
 ARG BUILDER_IMAGE_VERSION=1.25-alpine
 ARG BASE_IMAGE_VERSION=1.36.1
+ARG VERSION=dev
 
 FROM golang:${BUILDER_IMAGE_VERSION} as builder
 RUN apk add --no-cache upx
@@ -19,7 +20,7 @@ WORKDIR /src
 COPY go.* .
 COPY . .
 
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
+RUN CGO_ENABLED=0 go build -ldflags="-s -w -X github.com/cyberark/conjur-service-broker-go/internal/version.FullVersion=${VERSION}" ./cmd/conjur_service_broker
 
 RUN upx --lzma /src/conjur_service_broker
 

@@ -24,8 +24,8 @@ function test_in_docker() {
 		"${DOCKER_FLAGS[@]}" \
 		--file "Dockerfile.test" \
 		.)
-	# copy the artifact to test, the goreleaser is using --clean flag so there would be exactly one artifact in ./dist
-	cp ../../dist/goreleaser/*.zip cyberark-conjur-service-broker.zip
+	# copy the linux amd64 artifact to test; goreleaser now builds multiple platform archives
+	cp ../../dist/goreleaser/*_linux_amd64.zip cyberark-conjur-service-broker.zip
 	# execute the tests, inject needed configuration, mount the artifact and results report
 	summon docker run \
 		-v "$PWD"/reports:/opt/e2e/reports \

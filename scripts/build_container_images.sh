@@ -20,6 +20,7 @@ function main() {
 	echo "Building ${CONTAINER_IMAGE_AND_TAG} container image"
 	docker build \
 		--tag "${CONTAINER_IMAGE_AND_TAG}" \
+		--build-arg "VERSION=$(project_version_with_commit)" \
 		--rm \
 		--file "${REPO_ROOT}/Dockerfile" \
 		"${REPO_ROOT}"
