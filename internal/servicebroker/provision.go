@@ -37,7 +37,11 @@ func (s *server) ServiceInstanceProvision(c *gin.Context, _ string, _ ServiceIns
 		return
 	}
 
-	ctxParams := parseContext(body.Context)
+	ctxParams, err := parseContext(body.Context)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid context: %w", err))
+		return
+	}
 	provision := s.client.NewProvision(
 		ctxParams.OrgID,
 		ctxParams.SpaceID,

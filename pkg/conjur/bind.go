@@ -41,6 +41,12 @@ type Bind interface {
 }
 
 func (b *bind) BindHostPolicy() (*Policy, error) {
+	if err := validatePolicyComponent("organization_guid", b.orgID); err != nil {
+		return nil, err
+	}
+	if err := validatePolicyComponent("space_guid", b.spaceID); err != nil {
+		return nil, err
+	}
 	yaml, err := b.createBindYAML()
 	if err != nil {
 		return nil, err
@@ -53,6 +59,12 @@ func (b *bind) BindHostPolicy() (*Policy, error) {
 }
 
 func (b *bind) BindSpacePolicy() (*Policy, error) {
+	if err := validatePolicyComponent("organization_guid", b.orgID); err != nil {
+		return nil, err
+	}
+	if err := validatePolicyComponent("space_guid", b.spaceID); err != nil {
+		return nil, err
+	}
 	config := b.client.config
 	orgSpaceID := slashJoin(config.ConjurPolicy, b.orgID, b.spaceID)
 	apiKey, err := b.client.getVariable(slashJoin(orgSpaceID, spaceHostAPIKey))

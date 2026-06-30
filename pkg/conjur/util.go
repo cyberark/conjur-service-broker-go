@@ -32,6 +32,20 @@ const (
 )
 
 var conjurIDRegexp = regexp.MustCompile("^(?:(.*?)(?::|$))?(?:(.*?)(?::|$))?(.*?)$")
+var policyComponentRE = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+
+// validatePolicyComponent returns an error when value is non-empty and not a
+// valid UUID. Empty strings are allowed so that callers that omit org/space
+// context still fall through to the base CONJUR_POLICY branch.
+func validatePolicyComponent(name, value string) error {
+	if value == "" {
+		return nil
+	}
+	if !policyComponentRE.MatchString(value) {
+		return fmt.Errorf("%s must be a valid UUID, got disallowed value", name)
+	}
+	return nil
+}
 
 func parseID(id string) (account string, kind Kind, identifier string) {
 	m := conjurIDRegexp.FindStringSubmatch(id)
