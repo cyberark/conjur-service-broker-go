@@ -18,6 +18,7 @@ import (
 const (
 	expectedServiceID = "c024e536-6dc4-45c6-8a53-127e7f8275ab"
 	expectedPlanID    = "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community"
+	uuidPattern       = `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
 )
 
 func validatorMiddleware(ctx context.Context) (gin.HandlerFunc, error) {
@@ -108,6 +109,12 @@ func addCustomValidations(api *openapi3.T) *openapi3.T {
 
 	api = addCustomBodyParamEmptyValidation(api, "/v2/service_instances/{instance_id}", http.MethodPut, "parameters")
 	api = addCustomBodyParamEmptyValidation(api, "/v2/service_instances/{instance_id}", http.MethodPatch, "parameters")
+
+	// Enforce RFC-4122 UUID format on every caller-supplied org/space identifier.
+	// This blocks path-traversal and cross-tenant policy manipulation at the
+	// OpenAPI validation layer, before requests reach any business logic.
+	api = addUUIDPatternToContextSchema(api)
+	api = addUUIDPatternToProvisionBody(api, "/v2/service_instances/{instance_id}", http.MethodPut)
 	return api
 }
 
@@ -135,6 +142,34 @@ func addCustomBodyParamEmptyValidation(api *openapi3.T, path, method, param stri
 			Type:     &types,
 			MaxProps: &zero,
 		},
+	}
+	return api
+}
+
+func addUUIDPatternToContextSchema(api *openapi3.T) *openapi3.T {
+	contextSchema := api.Components.Schemas["Context"].Value
+	if contextSchema.Properties == nil {
+		contextSchema.Properties = openapi3.Schemas{}
+	}
+	strType := openapi3.Types([]string{openapi3.TypeString})
+	for _, field := range []string{"organization_guid", "space_guid"} {
+		contextSchema.Properties[field] = &openapi3.SchemaRef{
+			Value: &openapi3.Schema{
+				Type:    &strType,
+				Pattern: uuidPattern,
+			},
+		}
+	}
+	return api
+}
+
+func addUUIDPatternToProvisionBody(api *openapi3.T, path, method string) *openapi3.T {
+	props := api.Paths.Value(path).GetOperation(method).RequestBody.Value.Content.
+		Get("application/json").Schema.Value.Properties
+	for _, field := range []string{"organization_guid", "space_guid"} {
+		if s, ok := props[field]; ok && s.Value != nil {
+			s.Value.Pattern = uuidPattern
+		}
 	}
 	return api
 }

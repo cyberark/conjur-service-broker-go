@@ -27,9 +27,9 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 		mockParams{
 			"LoadPolicy": []m{{args: p{conjurapi.PolicyModePost, "cf", mock.Anything}, returns: p{nil, nil}}},
 			"ResourceExists": []m{
-				{args: p{"dev:policy:cf/orgID"}, returns: p{true, nil}},
-				{args: p{"dev:policy:cf/orgID/spaceID"}, returns: p{true, nil}},
-				{args: p{"dev:group:cf/orgID/spaceID"}, returns: p{true, nil}},
+				{args: p{"dev:policy:cf/11111111-1111-1111-1111-111111111111"}, returns: p{true, nil}},
+				{args: p{"dev:policy:cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222"}, returns: p{true, nil}},
+				{args: p{"dev:group:cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222"}, returns: p{true, nil}},
 			},
 		},
 		assert.NoError,
@@ -43,7 +43,7 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 		"error in existence check",
 		mockParams{
 			"LoadPolicy":     []m{{args: p{conjurapi.PolicyModePost, "cf", mock.Anything}, returns: p{nil, nil}}},
-			"ResourceExists": []m{{args: p{"dev:policy:cf/orgID"}, returns: p{false, errors.New("error")}}},
+			"ResourceExists": []m{{args: p{"dev:policy:cf/11111111-1111-1111-1111-111111111111"}, returns: p{false, errors.New("error")}}},
 		},
 		assert.Error,
 	}}
@@ -55,7 +55,7 @@ func Test_provision_ProvisionOrgSpacePolicy(t *testing.T) {
 					mockAPI.On(method, v.args...).Return(v.returns...).Once()
 				}
 			}
-			p := c.NewProvision("orgID", "spaceID", nil, nil)
+			p := c.NewProvision("11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222", nil, nil)
 			err := p.ProvisionOrgSpacePolicy()
 			tt.wantErr(t, err)
 			mockAPI.AssertExpectations(t)
@@ -84,28 +84,28 @@ func Test_provision_ProvisionHostPolicy(t *testing.T) {
 		"positive",
 		mockParams{
 			"LoadPolicy": m{
-				args:    p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything},
+				args:    p{conjurapi.PolicyModePost, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything},
 				returns: policyResp},
-			"AddSecret": m{args: p{"cf/orgID/spaceID/space-host-api-key", "my-api-key"}, returns: p{nil}},
+			"AddSecret": m{args: p{"cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222/space-host-api-key", "my-api-key"}, returns: p{nil}},
 		},
 		assert.NoError,
 	}, {
 		"error in policy",
 		mockParams{
-			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, errors.New("error")}},
+			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything}, returns: p{nil, errors.New("error")}},
 		},
 		assert.Error,
 	}, {
 		"empty response from load policy",
 		mockParams{
-			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything}, returns: p{nil, nil}},
+			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything}, returns: p{nil, nil}},
 		},
 		assert.Error,
 	}, {
 		"error in secret add",
 		mockParams{
-			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/orgID/spaceID", mock.Anything}, returns: policyResp},
-			"AddSecret":  m{args: p{"cf/orgID/spaceID/space-host-api-key", "my-api-key"}, returns: p{errors.New("error")}},
+			"LoadPolicy": m{args: p{conjurapi.PolicyModePost, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything}, returns: policyResp},
+			"AddSecret":  m{args: p{"cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222/space-host-api-key", "my-api-key"}, returns: p{errors.New("error")}},
 		},
 		assert.Error,
 	}}
@@ -115,7 +115,7 @@ func Test_provision_ProvisionHostPolicy(t *testing.T) {
 			for method, v := range tt.client {
 				mockAPI.On(method, v.args...).Return(v.returns...).Once()
 			}
-			p := c.NewProvision("orgID", "spaceID", nil, nil)
+			p := c.NewProvision("11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222", nil, nil)
 			err := p.ProvisionHostPolicy()
 			tt.wantErr(t, err)
 			mockAPI.AssertExpectations(t)

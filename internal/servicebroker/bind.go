@@ -57,7 +57,11 @@ func (s *server) ServiceBindingBinding(c *gin.Context, _ string, bindingID strin
 		return
 	}
 
-	ctxParams := parseContext(body.Context)
+	ctxParams, err := parseContext(body.Context)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusBadRequest, fmt.Errorf("invalid context: %w", err))
+		return
+	}
 
 	ctx := ctxutil.Ctx(c)
 	bind := s.client.NewBind(ctxParams.OrgID, ctxParams.SpaceID, bindingID, ctx.IsEnableSpaceIdentity())

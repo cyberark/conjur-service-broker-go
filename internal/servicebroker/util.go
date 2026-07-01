@@ -3,9 +3,13 @@ package servicebroker
 
 import (
 	"encoding/json"
+	"fmt"
+	"regexp"
 
 	"github.com/cyberark/conjur-service-broker-go/pkg/conjur"
 )
+
+var uuidRE = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
 type context struct {
 	Platform  string  `json:"platform"`
@@ -15,14 +19,27 @@ type context struct {
 	SpaceName *string `json:"space_name"`
 }
 
-func parseContext(ctx *Context) context {
+// parseContext extracts org/space identity from an OSB context object.
+// It returns an error if organization_guid or space_guid is present but not a
+// valid RFC-4122 UUID, preventing path-traversal and cross-tenant access.
+func parseContext(ctx *Context) (context, error) {
+	orgID := str(ctx, "organization_guid")
+	spaceID := str(ctx, "space_guid")
+
+	if orgID != "" && !uuidRE.MatchString(orgID) {
+		return context{}, fmt.Errorf("organization_guid is not a valid UUID")
+	}
+	if spaceID != "" && !uuidRE.MatchString(spaceID) {
+		return context{}, fmt.Errorf("space_guid is not a valid UUID")
+	}
+
 	return context{
 		str(ctx, "platform"),
-		str(ctx, "organization_guid"),
+		orgID,
 		strOrNil(ctx, "organization_name"),
-		str(ctx, "space_guid"),
+		spaceID,
 		strOrNil(ctx, "space_name"),
-	}
+	}, nil
 }
 
 func str(ctx *Context, name string) string {

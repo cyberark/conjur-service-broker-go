@@ -40,6 +40,12 @@ func (p *provision) spaceGroupResourceID() string {
 
 // ProvisionOrgSpacePolicy creates all needed conjur polices for given org and space
 func (p *provision) ProvisionOrgSpacePolicy() error {
+	if err := validatePolicyComponent("organization_guid", p.orgID); err != nil {
+		return err
+	}
+	if err := validatePolicyComponent("space_guid", p.spaceID); err != nil {
+		return err
+	}
 	yaml, err := p.provisionOrgSpaceYAML()
 	if err != nil {
 		return err
