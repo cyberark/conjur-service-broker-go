@@ -184,6 +184,69 @@ func Test_validatorMiddleware_body(t *testing.T) {
 			code: 400,
 			body: `{"description":"request body has an error: doesn't match schema #/components/schemas/ServiceBindingRequest: property \"service_id\" is missing | property \"plan_id\" is missing", "error":"ValidationError"}`,
 		},
+	}, {
+		"provision - non-UUID organization_guid in context is rejected",
+		request{
+			method: "PUT",
+			path:   "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax7",
+			body: `{
+      "context": {
+        "organization_guid": "tenant/../other",
+        "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970de"
+      },
+      "service_id": "c024e536-6dc4-45c6-8a53-127e7f8275ab",
+      "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
+      "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0a",
+      "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970db",
+      "parameters": {}
+    }`,
+		},
+		want{
+			code: 400,
+			body: `{"error":"ValidationError","description":"request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: string doesn't match the regular expression \"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$\""}`,
+		},
+	}, {
+		"provision - non-UUID space_guid in context is rejected",
+		request{
+			method: "PUT",
+			path:   "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax7",
+			body: `{
+      "context": {
+        "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0b",
+        "space_guid": "not/a/uuid"
+      },
+      "service_id": "c024e536-6dc4-45c6-8a53-127e7f8275ab",
+      "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
+      "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0a",
+      "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970db",
+      "parameters": {}
+    }`,
+		},
+		want{
+			code: 400,
+			body: `{"error":"ValidationError","description":"request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: string doesn't match the regular expression \"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$\""}`,
+		},
+	}, {
+		"provision - non-UUID top-level organization_guid is rejected",
+		request{
+			method: "PUT",
+			path:   "/v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax7",
+			body: `{
+      "context": {
+        "organization_guid": "e027f3f6-80fe-4d22-9374-da23a035ba0b",
+        "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970de"
+      },
+      "service_id": "c024e536-6dc4-45c6-8a53-127e7f8275ab",
+      "plan_id": "3a116ac2-fc8b-496f-a715-e9a1b205d05c.community",
+      "organization_guid": "not-a-uuid",
+      "space_guid": "8c56f85c-c16e-4158-be79-5dac74f970db",
+      "parameters": {}
+    }`,
+		},
+		want{
+			code: 400,
+			body: `{"error":"ValidationError","description":"request body has an error: doesn't match schema #/components/schemas/ServiceInstanceProvisionRequestBody: string doesn't match the regular expression \"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$\""}`,
+		},
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

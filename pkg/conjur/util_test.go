@@ -169,6 +169,52 @@ func Test_apiKey(t *testing.T) {
 	}
 }
 
+func Test_validatePolicyComponent(t *testing.T) {
+	tests := []struct {
+		name    string
+		value   string
+		wantErr bool
+	}{{
+		"valid UUID lowercase",
+		"e027f3f6-80fe-4d22-9374-da23a035ba0b",
+		false,
+	}, {
+		"valid UUID uppercase",
+		"E027F3F6-80FE-4D22-9374-DA23A035BA0B",
+		false,
+	}, {
+		"empty string is allowed",
+		"",
+		false,
+	}, {
+		"plain word is rejected",
+		"not-a-uuid",
+		true,
+	}, {
+		"path traversal with slash is rejected",
+		"../other-org",
+		true,
+	}, {
+		"embedded slash is rejected",
+		"a1b2c3d4-e5f6-7890-abcd-ef1234567890/extra",
+		true,
+	}, {
+		"colon separated conjur id is rejected",
+		"myaccount:policy:root",
+		true,
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validatePolicyComponent("field", tt.value)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
 func Test_slashJoin(t *testing.T) {
 	tests := []struct {
 		name  string
