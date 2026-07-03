@@ -15,15 +15,15 @@ import (
 
 	"github.com/cyberark/conjur-service-broker-go/internal/ctxutil"
 	"github.com/cyberark/conjur-service-broker-go/internal/servicebroker/mocks"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 )
 
-const (
-	testBasicAuthUser     = "test-user"
-	testBasicAuthPassword = "test-password"
-)
+const testBasicAuthUser = "test-user"
+
+var testBasicAuthPassword = uuid.New().String()
 
 func Test_startServer_failsWithEmptyCredentials(t *testing.T) {
 	logger, err := zap.NewDevelopment()
@@ -34,7 +34,7 @@ func Test_startServer_failsWithEmptyCredentials(t *testing.T) {
 		cfg  *config
 	}{{
 		"empty username",
-		&config{Port: "18081", SecurityUserName: "", SecurityUserPassword: "some-password"},
+		&config{Port: "18081", SecurityUserName: "", SecurityUserPassword: uuid.New().String()},
 	}, {
 		"empty password",
 		&config{Port: "18081", SecurityUserName: "some-user", SecurityUserPassword: ""},
