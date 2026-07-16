@@ -57,12 +57,39 @@ to use the Secrets Manager Service Broker when deploying applications, see the
     ```sh
     unzip conjur-service-broker-go.zip
 
-    # Push the Service Broker app
-    cf push --no-start --random-route
+    # Push the Service Broker app without binding a public route
+    cf push --no-start --no-route
     ```
 
     > **NOTE:** For Service Broker versions pre-1.1.0, the release will not include a ZIP file. Instead of downloading
     > the release ZIP you can clone the repository itself.
+
+    > **SECURITY NOTE:** `--no-route` prevents CF from binding the broker to an internet-reachable
+    > shared domain. The Service Broker is a credential-minting endpoint whose only intended caller
+    > is the CF Cloud Controller. Exposing it on a public route unnecessarily enlarges the attack
+    > surface and enables brute-force attacks against the BasicAuth credentials. Always use an
+    > internal route as described in the next step.
+
+2a. #### Map an internal route and add a network policy
+
+    Map the broker to CF's internal DNS domain so that only workloads inside the foundation
+    can reach it, then grant the Cloud Controller explicit container-to-container access:
+
+    ```sh
+    # Map an internal route (the hostname is your choice; adjust to avoid collisions)
+    cf map-route conjur-service-broker apps.internal --hostname conjur-service-broker
+
+    # Allow the Cloud Controller to reach the broker on port 8080
+    # Replace <cloud-controller-app> with the actual CC app name in your foundation
+    cf add-network-policy <cloud-controller-app> conjur-service-broker \
+        --port 8080 --protocol tcp
+    ```
+
+    The broker will now be reachable at `http://conjur-service-broker.apps.internal:8080`
+    from within the foundation but not from the public internet.
+
+    > **NOTE:** `apps.internal` is the default CF internal domain. Confirm the domain name
+    > for your foundation by running `cf domains` and looking for a domain marked `internal`.
 
 3.  #### Configure the Service Broker application
 
@@ -165,11 +192,13 @@ to use the Secrets Manager Service Broker when deploying applications, see the
 
 5.  #### Register the Service Broker in Cloud Foundry
 
-    Use the same Basic Auth credentials specified in your environment variables:
+    Use the same Basic Auth credentials specified in your environment variables.
+    Set `APP_URL` to the internal route you mapped in step 2a (adjust the hostname
+    and port if you chose different values):
 
     ```sh
-    APP_URL="http://`cf app conjur-service-broker | grep -E -w 'urls:|routes:' | awk '{print $2}'`"
-    cf create-service-broker conjur-service-broker "[username value]" "[password value]" $APP_URL
+    APP_URL="http://conjur-service-broker.apps.internal:8080"
+    cf create-service-broker conjur-service-broker "[username value]" "[password value]" "$APP_URL"
     ```
 
 6.  #### List the Secrets Manager service in the marketplace for all Orgs and Spaces
