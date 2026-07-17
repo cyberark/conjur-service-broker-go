@@ -3,12 +3,14 @@ package http
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -35,6 +37,8 @@ func StartHTTPServer(httpClient *http.Client) {
 	logger, cleanup, err := initLogger(cfg)
 	checkFatalErr(err)
 	defer cleanup()
+
+	warnIfPublicRoute(logger)
 
 	ctx := initCtx(logger, cfg)
 
@@ -159,6 +163,36 @@ func startServer(ctx ctxutil.Context, cfg *config, srv servicebroker.ServerInter
 	<-c.Done()
 	logger.Info("server exit")
 	return nil
+}
+
+// warnIfPublicRoute inspects VCAP_APPLICATION.application_uris and logs a security
+// warning for any route that is not on an internal CF domain (i.e. does not end with
+// ".internal"). The service broker is a credential-minting endpoint intended to be
+// reachable only by the CF Cloud Controller; binding it to a public shared-domain route
+// unnecessarily enlarges the attack surface.
+func warnIfPublicRoute(logger *zap.Logger) {
+	raw := os.Getenv("VCAP_APPLICATION")
+	if raw == "" {
+		return
+	}
+	var vcap struct {
+		ApplicationURIs []string `json:"application_uris"`
+	}
+	if err := json.Unmarshal([]byte(raw), &vcap); err != nil {
+		logger.Warn("could not parse VCAP_APPLICATION to check for public routes", zap.Error(err))
+		return
+	}
+	for _, uri := range vcap.ApplicationURIs {
+		if !strings.HasSuffix(uri, ".internal") {
+			logger.Warn(
+				"SECURITY WARNING: service broker is bound to a non-internal route; "+
+					"this credential-minting endpoint should only be reachable by the CF Cloud Controller. "+
+					"Map an internal route (e.g. `cf map-route conjur-service-broker apps.internal --hostname conjur-service-broker`) "+
+					"and unmap or remove this public route to reduce attack surface.",
+				zap.String("route", uri),
+			)
+		}
+	}
 }
 
 func checkFatalErr(err error) {

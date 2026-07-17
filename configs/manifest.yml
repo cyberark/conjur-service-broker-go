@@ -2,7 +2,12 @@
 applications:
   - name: conjur-service-broker
     command: ./cyberark-conjur-service-broker
-    random-route: true
+    # no-route prevents CF from binding a public shared-domain route at push time.
+    # After pushing, map an internal route so that only the CF Cloud Controller can
+    # reach this credential-minting endpoint:
+    #   cf map-route conjur-service-broker apps.internal --hostname conjur-service-broker
+    #   cf add-network-policy <cloud-controller-app> conjur-service-broker --port 8080 --protocol tcp
+    no-route: true
     buildpacks:
       - binary_buildpack
     # SECURITY_USER_NAME and SECURITY_USER_PASSWORD are required.
