@@ -81,7 +81,7 @@ function abs_path() {
 }
 
 function go_version() {
-	REPO_ROOT=$(repo_root)
+	REPO_ROOT=${1:-$(repo_root)}
 	grep "^\bgo\b" "${REPO_ROOT}/go.mod" | awk '{print $2}'
 }
 

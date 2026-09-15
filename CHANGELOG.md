@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+- Added support for certificate (mTLS) authentication (`authn-cert`). The service broker can now
+  authenticate to Secrets Manager using an X.509 client certificate instead of an API key.
+  Set `CONJUR_AUTHN_CERT_SERVICE_ID` to enable this mode. Required companion variables:
+  `CONJUR_CLIENT_CERT` and `CONJUR_CLIENT_CERT_KEY` (inline PEM). Optional:
+  `CONJUR_AUTHN_CERT_HOST_ID` for request host-mode authenticators.
+
 ## [1.3.5] - 2026-01-22
 
 ### Fixed

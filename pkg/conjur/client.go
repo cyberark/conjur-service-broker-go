@@ -31,48 +31,73 @@ type client struct {
 	config   *Config
 }
 
-// NewClient creates new conjur API client wrapper
+// NewClient creates new conjur API client wrapper.
+// When CONJUR_AUTHN_CERT_SERVICE_ID is set, certificate (mTLS) authentication
+// is used; otherwise API Key authentication is used.
 func (config *Config) NewClient(httpClient *http.Client) (Client, error) {
 	clientConf, err := conjurapi.LoadConfig()
-	clientConf = config.mergeConfig(clientConf)
-	clientConf.CredentialStorage = conjurapi.CredentialStorageNone
 	if err != nil {
 		panic(err)
 	}
-	loginPair := authn.LoginPair{
-		Login:  config.ConjurAuthNLogin,
-		APIKey: config.ConjurAuthNAPIKey,
-	}
-	conjur, err := conjurapi.NewClientFromKey(clientConf, loginPair, telemetryData)
-	if err != nil {
-		return nil, err
-	}
+	clientConf = config.mergeConfig(clientConf)
+	clientConf.CredentialStorage = conjurapi.CredentialStorageNone
+
+	var conjurClient *conjurapi.Client
 	var roClient *conjurapi.Client
-	if len(config.ConjurFollowerURL) > 0 {
-		clientConf.ApplianceURL = config.ConjurFollowerURL
-		if len(config.ConjurFollowerSSLCertificate) > 0 {
-			clientConf.SSLCert = config.ConjurFollowerSSLCertificate
-		}
-		roClient, err = conjurapi.NewClientFromKey(clientConf, loginPair, telemetryData)
+
+	if config.IsAuthnCert() {
+		conjurClient, err = conjurapi.NewClientFromEnvironment(clientConf, telemetryData)
 		if err != nil {
 			return nil, err
 		}
+		if len(config.ConjurFollowerURL) > 0 {
+			followerConf := clientConf
+			followerConf.ApplianceURL = config.ConjurFollowerURL
+			if len(config.ConjurFollowerSSLCertificate) > 0 {
+				followerConf.SSLCert = config.ConjurFollowerSSLCertificate
+			}
+			roClient, err = conjurapi.NewClientFromEnvironment(followerConf, telemetryData)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			roClient = conjurClient
+		}
 	} else {
-		roClient = conjur
+		loginPair := authn.LoginPair{
+			Login:  config.ConjurAuthNLogin,
+			APIKey: config.ConjurAuthNAPIKey,
+		}
+		conjurClient, err = conjurapi.NewClientFromKey(clientConf, loginPair, telemetryData)
+		if err != nil {
+			return nil, err
+		}
+		if len(config.ConjurFollowerURL) > 0 {
+			clientConf.ApplianceURL = config.ConjurFollowerURL
+			if len(config.ConjurFollowerSSLCertificate) > 0 {
+				clientConf.SSLCert = config.ConjurFollowerSSLCertificate
+			}
+			roClient, err = conjurapi.NewClientFromKey(clientConf, loginPair, telemetryData)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			roClient = conjurClient
+		}
+		// Clear credentials from the loginPair var after creating the client
+		loginPair = authn.LoginPair{}
 	}
-	if conjur == nil {
+
+	if conjurClient == nil {
 		return nil, fmt.Errorf("failed to create conjur client")
 	}
 
 	if httpClient != nil {
-		conjur.SetHttpClient(httpClient)
+		conjurClient.SetHttpClient(httpClient)
 		roClient.SetHttpClient(httpClient)
 	}
 
-	// Clear credentials from the loginPair var after creating the client
-	loginPair = authn.LoginPair{}
-
-	return &client{conjur, roClient, config}, nil
+	return &client{conjurClient, roClient, config}, nil
 }
 
 // NewBind creates new binding service
@@ -144,22 +169,24 @@ func (c *client) NewProvision(orgID, spaceID string, orgName, spaceName *string)
 	return res
 }
 
-// ValidateConnectivity validates conjur client configuration by checking read access permission to the policy
+// ValidateConnectivity validates conjur client configuration by checking read access permission to the policy.
 func (c *client) ValidateConnectivity() error {
-	res, err := c.client.ResourceExists(func() string {
-		kind := KindUser
-		if strings.HasPrefix(c.config.ConjurAuthNLogin, "host/") {
-			kind = KindHost
+	if !c.config.IsAuthnCert() {
+		res, err := c.client.ResourceExists(func() string {
+			kind := KindUser
+			if strings.HasPrefix(c.config.ConjurAuthNLogin, "host/") {
+				kind = KindHost
+			}
+			return composeID(c.config.ConjurAccount, kind, c.clientHostID())
+		}())
+		if err != nil {
+			return fmt.Errorf("failed checking login resource %v: %w", c.config.ConjurAuthNLogin, err)
 		}
-		return composeID(c.config.ConjurAccount, kind, c.clientHostID())
-	}())
-	if err != nil {
-		return fmt.Errorf("failed checking login resource %v: %w", c.config.ConjurAuthNLogin, err)
+		if !res {
+			return fmt.Errorf("validation failed, identity %v not privileged to read itself", c.config.ConjurAuthNLogin)
+		}
 	}
-	if !res {
-		return fmt.Errorf("validation failed, identity %v not privileged to read itself", c.config.ConjurAuthNLogin)
-	}
-	res, err = c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
+	res, err := c.client.CheckPermission(c.basePolicyID(), PrivilegeRead.String())
 	if err != nil {
 		return fmt.Errorf("failed checking read permissions on policy %v: %w", c.basePolicyID(), err)
 	}
@@ -176,8 +203,13 @@ func (c *client) ValidateConnectivity() error {
 	return nil
 }
 
-// clientHostID returns host ID of the client
+// clientHostID returns the host ID of the client identity.
+// For certificate auth, it returns the cert host ID (CONJUR_AUTHN_CERT_HOST_ID).
+// For API Key auth, it is derived from CONJUR_AUTHN_LOGIN.
 func (c *client) clientHostID() string {
+	if c.config.IsAuthnCert() {
+		return strings.TrimPrefix(c.config.ConjurAuthnCertHostID, "host/")
+	}
 	return strings.TrimPrefix(c.config.ConjurAuthNLogin, "host/")
 }
 

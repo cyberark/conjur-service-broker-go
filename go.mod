@@ -1,6 +1,6 @@
 module github.com/cyberark/conjur-service-broker-go
 
-go 1.25.3
+go 1.27.0
 
 // Use the replace below for local development with conjur-api-go
 // replace github.com/cyberark/conjur-api-go => ../conjur-api-go

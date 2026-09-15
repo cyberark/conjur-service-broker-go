@@ -30,9 +30,23 @@ type Config struct {
 	// You may elect to set platform to cloudfoundry or to pivotalcloudfoundry, for example. This annotation is used to set annotations on Hosts added by the Service Broker, so that they show in the Conjur UI with the appropriate platform logo.
 	//
 	// NOTE: The CONJUR_AUTHN_LOGIN value for the Host created in policy above is host/cf-service-broker.
-	ConjurAuthNLogin string `env:"CONJUR_AUTHN_LOGIN,notEmpty,unset"`
+	// NOTE: Not required when using certificate authentication (CONJUR_AUTHN_CERT_SERVICE_ID).
+	ConjurAuthNLogin string `env:"CONJUR_AUTHN_LOGIN,unset"`
 	// CONJUR_AUTHN_API_KEY: the API Key of the Conjur Host whose identity you have provided in CONJUR_AUTHN_LOGIN.
-	ConjurAuthNAPIKey string `env:"CONJUR_AUTHN_API_KEY,notEmpty,unset"`
+	// Not required when using certificate authentication (CONJUR_AUTHN_CERT_SERVICE_ID).
+	ConjurAuthNAPIKey string `env:"CONJUR_AUTHN_API_KEY,unset"`
+	// CONJUR_AUTHN_CERT_SERVICE_ID: the authenticator service ID for authn-cert (mTLS) authentication
+	// (e.g. "acme-vm"). When this is set, certificate authentication is used instead of API Key auth.
+	// Requires CONJUR_CLIENT_CERT and CONJUR_CLIENT_CERT_KEY to also be set.
+	ConjurAuthnCertServiceID string `env:"CONJUR_AUTHN_CERT_SERVICE_ID"`
+	// CONJUR_CLIENT_CERT: PEM-encoded client certificate for authn-cert (mTLS) authentication.
+	ConjurClientCert string `env:"CONJUR_CLIENT_CERT,unset"`
+	// CONJUR_CLIENT_CERT_KEY: PEM-encoded private key for the client certificate.
+	ConjurClientCertKey string `env:"CONJUR_CLIENT_CERT_KEY,unset"`
+	// CONJUR_AUTHN_CERT_HOST_ID: the full Conjur host path of the workload for authn-cert
+	// (e.g. "host/vm-workloads/vm-01"). Required for request host-mode authenticators.
+	// Not required for SPIFFE host-mode authenticators.
+	ConjurAuthnCertHostID string `env:"CONJUR_AUTHN_CERT_HOST_ID"`
 	// CONJUR_SSL_CERTIFICATE: the PEM-encoded x509 CA certificate chain for Conjur. This is required if your Conjur installation uses SSL (e.g. Conjur Enterprise).
 	//
 	// This value may be obtained by running the command:
@@ -48,6 +62,10 @@ type Config struct {
 	ConjurFollowerSSLCertificate string `env:"CONJUR_FOLLOWER_SSL_CERTIFICATE"`
 }
 
+func (config *Config) IsAuthnCert() bool {
+	return config.ConjurAuthnCertServiceID != ""
+}
+
 func (config *Config) mergeConfig(conf conjurapi.Config) conjurapi.Config {
 	if len(config.ConjurAccount) > 0 {
 		conf.Account = config.ConjurAccount
@@ -57,6 +75,12 @@ func (config *Config) mergeConfig(conf conjurapi.Config) conjurapi.Config {
 	}
 	if len(config.ConjurSSLCertificate) > 0 {
 		conf.SSLCert = config.ConjurSSLCertificate
+	}
+	if len(config.ConjurClientCert) > 0 {
+		conf.ClientCert = config.ConjurClientCert
+	}
+	if len(config.ConjurClientCertKey) > 0 {
+		conf.ClientCertKey = config.ConjurClientCertKey
 	}
 	return conf
 }

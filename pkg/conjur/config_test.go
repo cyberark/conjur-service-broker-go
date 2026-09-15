@@ -37,6 +37,42 @@ func TestConfig_mergeConfig(t *testing.T) {
 		Config{},
 		conjurapi.Config{},
 		conjurapi.Config{},
+	}, {
+		"cert auth - inline PEM fields are merged",
+		Config{
+			ConjurClientCert:    "test-client-cert-pem",
+			ConjurClientCertKey: "test-client-cert-key-pem",
+		},
+		conjurapi.Config{},
+		conjurapi.Config{
+			ClientCert:    "test-client-cert-pem",
+			ClientCertKey: "test-client-cert-key-pem",
+		},
+	}, {
+		"cert auth - inline PEM overrides existing",
+		Config{
+			ConjurClientCert:    "new-cert",
+			ConjurClientCertKey: "new-key",
+		},
+		conjurapi.Config{
+			ClientCert:    "old-cert",
+			ClientCertKey: "old-key",
+		},
+		conjurapi.Config{
+			ClientCert:    "new-cert",
+			ClientCertKey: "new-key",
+		},
+	}, {
+		"cert auth - empty inline PEM does not override existing",
+		Config{},
+		conjurapi.Config{
+			ClientCert:    "existing-cert",
+			ClientCertKey: "existing-key",
+		},
+		conjurapi.Config{
+			ClientCert:    "existing-cert",
+			ClientCertKey: "existing-key",
+		},
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
