@@ -18,6 +18,7 @@ cf-login.sh
 test/e2e/tanzu_data
 test/e2e/reports
 /test/e2e/cyberark-conjur-service-broker.zip
+/test/e2e/e2e
 
 /VERSION
 /build_ca_certificate/

@@ -11,6 +11,11 @@ import (
 	"github.com/cyberark/conjur-service-broker-go/pkg/conjur"
 )
 
+var ErrMissingAuthnLogin = errors.New("CONJUR_AUTHN_LOGIN is required when not using certificate authentication (CONJUR_AUTHN_CERT_SERVICE_ID)")
+var ErrMissingAuthnAPIKey = errors.New("CONJUR_AUTHN_API_KEY is required when not using certificate authentication (CONJUR_AUTHN_CERT_SERVICE_ID)")
+var ErrMissingClientCert = errors.New("CONJUR_CLIENT_CERT is required when using certificate authentication (CONJUR_AUTHN_CERT_SERVICE_ID)")
+var ErrMissingClientCertKey = errors.New("CONJUR_CLIENT_CERT_KEY is required when using certificate authentication (CONJUR_AUTHN_CERT_SERVICE_ID)")
+
 // ErrInvalidConjurVersion error indicating invalid conjur version parameter value
 var ErrInvalidConjurVersion = errors.New("conjur enterprise v4 is no longer supported, please use conjur service broker v1.1.4 or earlier")
 
@@ -49,6 +54,21 @@ func validate(cfg config) error {
 	}
 	if err := validateURL(cfg.ConjurApplianceURL); err != nil {
 		return fmt.Errorf("conjur appliance url validation failed: %w", err)
+	}
+	if cfg.IsAuthnCert() {
+		if cfg.ConjurClientCert == "" {
+			return ErrMissingClientCert
+		}
+		if cfg.ConjurClientCertKey == "" {
+			return ErrMissingClientCertKey
+		}
+	} else {
+		if cfg.ConjurAuthNLogin == "" {
+			return ErrMissingAuthnLogin
+		}
+		if cfg.ConjurAuthNAPIKey == "" {
+			return ErrMissingAuthnAPIKey
+		}
 	}
 	if len(cfg.ConjurFollowerURL) == 0 {
 		return nil

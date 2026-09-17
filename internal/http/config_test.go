@@ -113,27 +113,34 @@ func Test_validate(t *testing.T) {
 		cfg config
 	}
 	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
+		name      string
+		args      args
+		wantErr   bool
+		wantErrIs error // optional sentinel to check with errors.Is
 	}{{
-		"validate version positive",
+		"api-key auth positive",
 		args{cfg: config{
 			Config: conjur.Config{
 				ConjurVersion:      5,
 				ConjurApplianceURL: "http://conjur.local",
+				ConjurAuthNLogin:   "host/service-broker",
+				ConjurAuthNAPIKey:  "api-key",
 			},
 		}},
 		false,
+		nil,
 	}, {
 		"validate version negative",
 		args{cfg: config{
 			Config: conjur.Config{
 				ConjurVersion:      4,
 				ConjurApplianceURL: "http://conjur.local",
+				ConjurAuthNLogin:   "host/service-broker",
+				ConjurAuthNAPIKey:  "api-key",
 			},
 		}},
 		true,
+		ErrInvalidConjurVersion,
 	}, {
 		"validate appliance url",
 		args{cfg: config{
@@ -143,21 +150,90 @@ func Test_validate(t *testing.T) {
 			},
 		}},
 		true,
+		nil,
 	}, {
-		"validate follower url",
+		"api-key auth - validate follower url",
 		args{cfg: config{
 			Config: conjur.Config{
 				ConjurVersion:      5,
 				ConjurApplianceURL: "http://conjur",
 				ConjurFollowerURL:  "conjur",
+				ConjurAuthNLogin:   "host/service-broker",
+				ConjurAuthNAPIKey:  "api-key",
 			},
 		}},
 		true,
+		nil,
+	}, {
+		"api-key auth - missing login",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:      5,
+				ConjurApplianceURL: "http://conjur.local",
+				ConjurAuthNAPIKey:  "api-key",
+			},
+		}},
+		true,
+		ErrMissingAuthnLogin,
+	}, {
+		"api-key auth - missing api key",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:      5,
+				ConjurApplianceURL: "http://conjur.local",
+				ConjurAuthNLogin:   "host/service-broker",
+			},
+		}},
+		true,
+		ErrMissingAuthnAPIKey,
+	}, {
+		"cert auth positive",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:            5,
+				ConjurApplianceURL:       "http://conjur.local",
+				ConjurAuthnCertServiceID: "acme-vm",
+				ConjurClientCert:         "-----BEGIN CERTIFICATE-----\n...",
+				ConjurClientCertKey:      "-----BEGIN PRIVATE KEY-----\n...",
+			},
+		}},
+		false,
+		nil,
+	}, {
+		"cert auth - missing client cert",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:            5,
+				ConjurApplianceURL:       "http://conjur.local",
+				ConjurAuthnCertServiceID: "acme-vm",
+				ConjurClientCertKey:      "-----BEGIN PRIVATE KEY-----\n...",
+			},
+		}},
+		true,
+		ErrMissingClientCert,
+	}, {
+		"cert auth - missing client cert key",
+		args{cfg: config{
+			Config: conjur.Config{
+				ConjurVersion:            5,
+				ConjurApplianceURL:       "http://conjur.local",
+				ConjurAuthnCertServiceID: "acme-vm",
+				ConjurClientCert:         "-----BEGIN CERTIFICATE-----\n...",
+			},
+		}},
+		true,
+		ErrMissingClientCertKey,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := validate(tt.args.cfg); (err != nil) != tt.wantErr {
-				t.Errorf("validate() error = %v, wantErr %v", err, tt.wantErr)
+			err := validate(tt.args.cfg)
+			if tt.wantErr {
+				assert.Error(t, err)
+				if tt.wantErrIs != nil {
+					assert.ErrorIs(t, err, tt.wantErrIs)
+				}
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

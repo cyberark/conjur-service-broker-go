@@ -7,8 +7,8 @@ set -ex
 cd "$(dirname "$0")"
 . ../../scripts/utils
 
-# with that we would use the docker image compatible with go.mod go version
-DOCKER_FLAGS=("--build-arg" "BUILDER_IMAGE_VERSION=$(go_version)-alpine")
+# with that we would use the docker image compatible with test/e2e/go.mod go version
+DOCKER_FLAGS=("--build-arg" "BUILDER_IMAGE_VERSION=$(go_version "$TOPLEVEL_DIR/test/e2e")-alpine")
 
 function main() {
 	test_in_docker

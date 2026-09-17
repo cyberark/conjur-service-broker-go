@@ -148,6 +148,52 @@ to use the Secrets Manager Service Broker when deploying applications, see the
     *   `CONJUR_AUTHN_API_KEY`:
         the API Key of the Secrets Manager Host whose identity you have provided in `CONJUR_AUTHN_LOGIN`.
 
+    #### Certificate (mTLS) Authentication
+
+    As an alternative to API key authentication, the service broker can authenticate to Secrets
+    Manager using an X.509 client certificate (`authn-cert`). This requires the `authn-cert`
+    authenticator to be configured in Secrets Manager beforehand (see the
+    [authn-cert documentation](https://docs.cyberark.com/secrets-manager-sh/latest/en/content/operations/authn/authn-cert/authn-cert.htm)).
+
+    When `CONJUR_AUTHN_CERT_SERVICE_ID` is set, certificate authentication is used and
+    `CONJUR_AUTHN_LOGIN` / `CONJUR_AUTHN_API_KEY` are not required.
+
+    *   `CONJUR_AUTHN_CERT_SERVICE_ID`:
+        the authenticator service ID of the `authn-cert` authenticator configured in Secrets
+        Manager (e.g. `acme-vm`). Setting this variable switches the service broker to
+        certificate (mTLS) authentication mode.
+
+    *   `CONJUR_CLIENT_CERT`:
+        the PEM-encoded X.509 client certificate for mTLS authentication.
+        Required when `CONJUR_AUTHN_CERT_SERVICE_ID` is set.
+
+    *   `CONJUR_CLIENT_CERT_KEY`:
+        the PEM-encoded private key for the client certificate.
+        Required when `CONJUR_AUTHN_CERT_SERVICE_ID` is set.
+
+    *   `CONJUR_AUTHN_CERT_HOST_ID`:
+        the full Conjur host path of the service broker workload
+        (e.g. `host/vm-workloads/cf-service-broker`). Required for `request` host-mode
+        authenticators. Not required for `spiffe` host-mode authenticators — in that case
+        the host identity is derived from the SPIFFE SAN URI in the client certificate.
+
+    To load these environment variables into the Service Broker's environment, run:
+
+    ```sh
+    cf set-env conjur-service-broker CONJUR_AUTHN_CERT_SERVICE_ID [value]
+    cf set-env conjur-service-broker CONJUR_CLIENT_CERT "$(cat client.crt)"
+    cf set-env conjur-service-broker CONJUR_CLIENT_CERT_KEY "$(cat client.key)"
+    cf set-env conjur-service-broker CONJUR_AUTHN_CERT_HOST_ID [value]  # optional for SPIFFE mode
+    ```
+
+    > **NOTE:** The Secrets Manager admin must perform the following steps before using cert auth:
+    > 1. Create an `authn-cert` authenticator policy in `conjur/authn-cert/<service-id>`
+    > 2. Set the `ca-cert` variable (the CA that signed `CONJUR_CLIENT_CERT`)
+    > 3. Enable the authenticator: `conjur authenticator enable --id authn-cert/<service-id>`
+    > 4. Create a host for the service broker with the required annotations and grant it to
+    >    the `conjur/authn-cert/<service-id>/apps` group
+    > 5. Grant the host `create` and `update` permissions on `CONJUR_POLICY`
+
     *   `CONJUR_SSL_CERTIFICATE`:
         the PEM-encoded x509 CA certificate chain for Secrets Manager. This is required if your Secrets Manager installation uses SSL (e.g. Secrets Manager, Self-Hosted).
 
@@ -168,7 +214,7 @@ to use the Secrets Manager Service Broker when deploying applications, see the
     *   `ENABLE_SPACE_IDENTITY`:
         When set to `true`, the service broker provides applications with a Space-level `host` identity, rather than create a new `host` identity for each application in Secrets Manager at bind time. This allows the broker to use a Secrets Manager follower for application binding, rather than the Secrets Manager master.
 
-    To load these environment variables into the Service Broker's environment, run:
+    To load these environment variables into the Service Broker's environment using **API key** authentication, run:
 
     ```sh
     cf set-env conjur-service-broker CONJUR_VERSION [value]
@@ -176,6 +222,21 @@ to use the Secrets Manager Service Broker when deploying applications, see the
     cf set-env conjur-service-broker CONJUR_APPLIANCE_URL [value]
     cf set-env conjur-service-broker CONJUR_AUTHN_LOGIN [value]
     cf set-env conjur-service-broker CONJUR_AUTHN_API_KEY [value]
+    cf set-env conjur-service-broker CONJUR_POLICY [value]
+    cf set-env conjur-service-broker CONJUR_SSL_CERTIFICATE [value]
+    cf set-env conjur-service-broker ENABLE_SPACE_IDENTITY [value]
+    ```
+
+    Or using **certificate (mTLS)** authentication:
+
+    ```sh
+    cf set-env conjur-service-broker CONJUR_VERSION [value]
+    cf set-env conjur-service-broker CONJUR_ACCOUNT [value]
+    cf set-env conjur-service-broker CONJUR_APPLIANCE_URL [value]
+    cf set-env conjur-service-broker CONJUR_AUTHN_CERT_SERVICE_ID [value]
+    cf set-env conjur-service-broker CONJUR_CLIENT_CERT "$(cat client.crt)"
+    cf set-env conjur-service-broker CONJUR_CLIENT_CERT_KEY "$(cat client.key)"
+    cf set-env conjur-service-broker CONJUR_AUTHN_CERT_HOST_ID [value]
     cf set-env conjur-service-broker CONJUR_POLICY [value]
     cf set-env conjur-service-broker CONJUR_SSL_CERTIFICATE [value]
     cf set-env conjur-service-broker ENABLE_SPACE_IDENTITY [value]
