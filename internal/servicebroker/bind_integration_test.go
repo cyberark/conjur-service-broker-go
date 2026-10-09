@@ -30,7 +30,7 @@ func Test_server_ServiceBindingBinding(t *testing.T) {
 	w, c := ginTestCtx(t, http.MethodPut, "v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax8/service_bindings/bb841d2b-8287-47a9-ac8f-eef4c16106f2", bindBody, false)
 	s.ServiceBindingBinding(c, "", "bb841d2b-8287-47a9-ac8f-eef4c16106f2", ServiceBindingBindingParams{})
 	require.Empty(t, c.Errors.Errors())
-	require.Equal(t, `{"credentials":{"account":"dev","appliance_url":"https://conjur.local","authn_api_key":"my-api-key","authn_login":"host/role","ssl_certificate":"","version":0}}`, w.Body.String())
+	require.Equal(t, `{"credentials":{"account":"dev","appliance_url":"https://follower.local","authn_api_key":"my-api-key","authn_login":"host/role","ssl_certificate":"","version":0}}`, w.Body.String())
 	require.Equal(t, http.StatusCreated, w.Code)
 	mockAPI.AssertExpectations(t)
 }
@@ -42,7 +42,7 @@ func Test_server_ServiceBindingBindingSpaceIdentity(t *testing.T) {
 	w, c := ginTestCtx(t, http.MethodPut, "v2/service_instances/9b292a9c-af66-4797-8d98-b30801f32ax8/service_bindings/bb841d2b-8287-47a9-ac8f-eef4c16106f2", bindBody, true)
 	s.ServiceBindingBinding(c, "", "bb841d2b-8287-47a9-ac8f-eef4c16106f2", ServiceBindingBindingParams{})
 	require.Empty(t, c.Errors.Errors())
-	require.Equal(t, `{"credentials":{"account":"dev","appliance_url":"https://conjur.local","authn_api_key":"my-api-key","authn_login":"host/cf/e027f3f6-80fe-4d22-9374-da23a035ba0b/8c56f85c-c16e-4158-be79-5dac74f970de","ssl_certificate":"","version":0}}`, w.Body.String())
+	require.Equal(t, `{"credentials":{"account":"dev","appliance_url":"https://follower.local","authn_api_key":"my-api-key","authn_login":"host/cf/e027f3f6-80fe-4d22-9374-da23a035ba0b/8c56f85c-c16e-4158-be79-5dac74f970de","ssl_certificate":"","version":0}}`, w.Body.String())
 	require.Equal(t, http.StatusCreated, w.Code)
 	mockAPI.AssertExpectations(t)
 }

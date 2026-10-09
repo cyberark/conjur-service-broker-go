@@ -81,3 +81,53 @@ func TestConfig_mergeConfig(t *testing.T) {
 		})
 	}
 }
+
+func TestConfig_AppURL(t *testing.T) {
+	tests := []struct {
+		name   string
+		config Config
+		want   string
+	}{{
+		"returns follower URL when set",
+		Config{ConjurApplianceURL: "https://leader.example.com", ConjurFollowerURL: "https://follower.example.com"},
+		"https://follower.example.com",
+	}, {
+		"falls back to appliance URL when follower not set",
+		Config{ConjurApplianceURL: "https://leader.example.com"},
+		"https://leader.example.com",
+	}, {
+		"falls back to appliance URL when follower is empty string",
+		Config{ConjurApplianceURL: "https://leader.example.com", ConjurFollowerURL: ""},
+		"https://leader.example.com",
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.config.AppURL())
+		})
+	}
+}
+
+func TestConfig_AppSSLCertificate(t *testing.T) {
+	tests := []struct {
+		name   string
+		config Config
+		want   string
+	}{{
+		"returns follower cert when set",
+		Config{ConjurSSLCertificate: "leader-cert", ConjurFollowerSSLCertificate: "follower-cert"},
+		"follower-cert",
+	}, {
+		"falls back to main cert when follower cert not set",
+		Config{ConjurSSLCertificate: "leader-cert"},
+		"leader-cert",
+	}, {
+		"falls back to main cert when follower cert is empty string",
+		Config{ConjurSSLCertificate: "leader-cert", ConjurFollowerSSLCertificate: ""},
+		"leader-cert",
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, tt.config.AppSSLCertificate())
+		})
+	}
+}

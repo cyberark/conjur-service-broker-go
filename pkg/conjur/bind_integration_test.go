@@ -38,7 +38,7 @@ func Test_bind_BindHostPolicy(t *testing.T) {
 				args:    p{conjurapi.PolicyModePost, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything},
 				returns: policyResp},
 		},
-		&Policy{Account: "dev", ApplianceURL: "https://conjur.local", AuthnAPIKey: "my-api-key"},
+		&Policy{Account: "dev", ApplianceURL: "https://follower.local", AuthnAPIKey: "my-api-key"},
 		assert.NoError,
 	}, {
 		"error from load policy",
@@ -68,7 +68,7 @@ func Test_bind_BindHostPolicy(t *testing.T) {
 				args:    p{conjurapi.PolicyModePost, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything},
 				returns: policyResp},
 		},
-		&Policy{Account: "dev", ApplianceURL: "https://conjur.local", AuthnAPIKey: "my-api-key"},
+		&Policy{Account: "dev", ApplianceURL: "https://follower.local", AuthnAPIKey: "my-api-key"},
 		assert.NoError,
 	}}
 	for _, tt := range tests {
@@ -105,7 +105,7 @@ func Test_bind_BindSpacePolicy(t *testing.T) {
 		mockParams{
 			"RetrieveSecret": m{args: p{"cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222/space-host-api-key"}, returns: p{[]byte("secret"), nil}},
 		},
-		&Policy{Account: "dev", ApplianceURL: "https://conjur.local", AuthnAPIKey: "secret", AuthnLogin: "host/cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222"},
+		&Policy{Account: "dev", ApplianceURL: "https://follower.local", AuthnAPIKey: "secret", AuthnLogin: "host/cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222"},
 		assert.NoError,
 	}, {
 		"error for retrieve secret",
@@ -149,7 +149,7 @@ func Test_bind_DeleteBindHostPolicy(t *testing.T) {
 			"RotateAPIKey": m{args: p{"dev:host:cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222/bindingID"}, returns: p{nil, nil}},
 			"LoadPolicy":   m{args: p{conjurapi.PolicyModePatch, "cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222", mock.Anything}, returns: p{nil, nil}},
 		},
-		&Policy{Account: "dev", ApplianceURL: "https://conjur.local", AuthnAPIKey: "secret", AuthnLogin: "host/cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222"},
+		&Policy{Account: "dev", ApplianceURL: "https://follower.local", AuthnAPIKey: "secret", AuthnLogin: "host/cf/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222"},
 		assert.NoError,
 	}, {
 		"error from rotate api key",
