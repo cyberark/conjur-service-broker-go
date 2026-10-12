@@ -73,10 +73,10 @@ func (b *bind) BindSpacePolicy() (*Policy, error) {
 	}
 	return &Policy{
 		Account:        config.ConjurAccount,
-		ApplianceURL:   config.ConjurApplianceURL,
+		ApplianceURL:   config.AppURL(),
 		AuthnLogin:     slashJoin(KindHost.String(), orgSpaceID),
 		AuthnAPIKey:    apiKey,
-		SslCertificate: config.ConjurSSLCertificate,
+		SslCertificate: config.AppSSLCertificate(),
 		Version:        config.ConjurVersion,
 	}, nil
 }
@@ -113,10 +113,10 @@ func (b *bind) onlyPolicy(policy *conjurapi.PolicyResponse) (*Policy, error) {
 	config := b.client.config
 	return &Policy{
 		Account:        config.ConjurAccount,
-		ApplianceURL:   config.ConjurApplianceURL,
+		ApplianceURL:   config.AppURL(),
 		AuthnLogin:     dropAccount(roleID),
 		AuthnAPIKey:    role.APIKey,
-		SslCertificate: config.ConjurSSLCertificate,
+		SslCertificate: config.AppSSLCertificate(),
 		Version:        config.ConjurVersion,
 	}, nil
 }

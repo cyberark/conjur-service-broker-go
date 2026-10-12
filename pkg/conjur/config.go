@@ -66,6 +66,28 @@ func (config *Config) IsAuthnCert() bool {
 	return config.ConjurAuthnCertServiceID != ""
 }
 
+// AppURL returns the Conjur URL that bound applications should use for
+// authentication and secret retrieval. When a follower URL is configured
+// (CONJUR_FOLLOWER_URL), applications should communicate with the follower
+// cluster. Falls back to CONJUR_APPLIANCE_URL otherwise.
+func (config *Config) AppURL() string {
+	if len(config.ConjurFollowerURL) > 0 {
+		return config.ConjurFollowerURL
+	}
+	return config.ConjurApplianceURL
+}
+
+// AppSSLCertificate returns the SSL certificate that bound applications should
+// use when connecting to Conjur. When CONJUR_FOLLOWER_SSL_CERTIFICATE is set
+// it is preferred (follower may have a different cert chain), otherwise falls
+// back to CONJUR_SSL_CERTIFICATE.
+func (config *Config) AppSSLCertificate() string {
+	if len(config.ConjurFollowerSSLCertificate) > 0 {
+		return config.ConjurFollowerSSLCertificate
+	}
+	return config.ConjurSSLCertificate
+}
+
 func (config *Config) mergeConfig(conf conjurapi.Config) conjurapi.Config {
 	if len(config.ConjurAccount) > 0 {
 		conf.Account = config.ConjurAccount
