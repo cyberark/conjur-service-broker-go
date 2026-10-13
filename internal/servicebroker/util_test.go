@@ -14,6 +14,8 @@ const (
 	validSpaceGUID = "8c56f85c-c16e-4158-be79-5dac74f970de"
 )
 
+func strPtr(s string) *string { return &s }
+
 func Test_parseContext(t *testing.T) {
 	name := "name"
 	tests := []struct {
@@ -23,17 +25,17 @@ func Test_parseContext(t *testing.T) {
 		wantErr bool
 	}{{
 		"with valid space guid",
-		&Context{"space_guid": validSpaceGUID},
+		&Context{SpaceGuid: strPtr(validSpaceGUID)},
 		context{SpaceID: validSpaceGUID},
 		false,
 	}, {
 		"with valid org and space guids",
-		&Context{"organization_guid": validOrgGUID, "space_guid": validSpaceGUID},
+		&Context{OrganizationGuid: strPtr(validOrgGUID), SpaceGuid: strPtr(validSpaceGUID)},
 		context{OrgID: validOrgGUID, SpaceID: validSpaceGUID},
 		false,
 	}, {
 		"with org name only",
-		&Context{"organization_name": name},
+		&Context{AdditionalProperties: map[string]interface{}{"organization_name": name}},
 		context{OrgName: &name},
 		false,
 	}, {
@@ -43,27 +45,27 @@ func Test_parseContext(t *testing.T) {
 		false,
 	}, {
 		"invalid field",
-		&Context{"invalid": "value"},
+		&Context{AdditionalProperties: map[string]interface{}{"invalid": "value"}},
 		context{},
 		false,
 	}, {
 		"non-UUID space_guid is rejected",
-		&Context{"space_guid": "not-a-uuid"},
+		&Context{SpaceGuid: strPtr("not-a-uuid")},
 		context{},
 		true,
 	}, {
 		"non-UUID organization_guid is rejected",
-		&Context{"organization_guid": "tenant/../../other"},
+		&Context{OrganizationGuid: strPtr("tenant/../../other")},
 		context{},
 		true,
 	}, {
 		"space_guid with path separator is rejected",
-		&Context{"space_guid": "abc/def"},
+		&Context{SpaceGuid: strPtr("abc/def")},
 		context{},
 		true,
 	}, {
 		"space_guid with colon is rejected",
-		&Context{"space_guid": "myaccount:policy:bad"},
+		&Context{SpaceGuid: strPtr("myaccount:policy:bad")},
 		context{},
 		true,
 	}}

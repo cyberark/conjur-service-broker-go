@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
   `CONJUR_CLIENT_CERT` and `CONJUR_CLIENT_CERT_KEY` (inline PEM). Optional:
   `CONJUR_AUTHN_CERT_HOST_ID` for request host-mode authenticators.
 
+### Security
+- Bumped dependencies (kin-openapi, golang.org/x/crypto, and oapi-codegen) to resolve security vulnerabilities (auth bypass, DoS) and updated servicebroker.gen.go to support typed Context fields.
+
 ### Fixed
 - Fixed a bug where `CONJUR_FOLLOWER_URL` was not passed to bound applications in their
   service binding credentials. Existing bound applications must be re-bound to pick up the corrected URL.
