@@ -23,8 +23,8 @@ type context struct {
 // It returns an error if organization_guid or space_guid is present but not a
 // valid RFC-4122 UUID, preventing path-traversal and cross-tenant access.
 func parseContext(ctx *Context) (context, error) {
-	orgID := str(ctx, "organization_guid")
-	spaceID := str(ctx, "space_guid")
+	orgID := guid(ctx, func(c *Context) *string { return c.OrganizationGuid })
+	spaceID := guid(ctx, func(c *Context) *string { return c.SpaceGuid })
 
 	if orgID != "" && !uuidRE.MatchString(orgID) {
 		return context{}, fmt.Errorf("organization_guid is not a valid UUID")
@@ -42,11 +42,25 @@ func parseContext(ctx *Context) (context, error) {
 	}, nil
 }
 
+// guid reads one of Context's typed GUID fields (organization_guid/space_guid),
+// which oapi-codegen generates as named struct fields rather than
+// AdditionalProperties entries.
+func guid(ctx *Context, field func(*Context) *string) string {
+	if ctx == nil {
+		return ""
+	}
+	v := field(ctx)
+	if v == nil {
+		return ""
+	}
+	return *v
+}
+
 func str(ctx *Context, name string) string {
 	if ctx == nil {
 		return ""
 	}
-	v, found := (*ctx)[name]
+	v, found := ctx.Get(name)
 	if !found {
 		return ""
 	}
@@ -58,7 +72,7 @@ func strOrNil(ctx *Context, name string) *string {
 	if ctx == nil {
 		return nil
 	}
-	v, found := (*ctx)[name]
+	v, found := ctx.Get(name)
 	if !found {
 		return nil
 	}
