@@ -22,3 +22,10 @@ test/e2e/reports
 
 /VERSION
 /build_ca_certificate/
+
+.env
+*.pem
+*.key
+*.p12
+*credentials*
+*secret*
