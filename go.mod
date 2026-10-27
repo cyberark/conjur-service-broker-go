@@ -9,7 +9,7 @@ require (
 	github.com/caarlos0/env/v7 v7.1.0
 	github.com/cyberark/conjur-api-go v0.15.10 // Run "go get github.com/cyberark/conjur-api-go@main" to update
 	github.com/doodlesbykumbi/conjur-policy-go v0.0.0-20241022093904-5fc5921aee96
-	github.com/getkin/kin-openapi v0.144.0
+	github.com/getkin/kin-openapi v0.147.0
 	github.com/gin-contrib/requestid v1.0.5
 	github.com/gin-contrib/zap v1.1.6
 	github.com/gin-gonic/gin v1.11.0
