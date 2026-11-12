@@ -1,10 +1,17 @@
 load('ext://deployment', 'job_yaml')
 
-docker_build('integration-tests', '.', dockerfile_contents="""
+netrc = os.getenv('NETRC', '')
+goproxy_args = {'GOPROXY': os.getenv('GOPROXY', '')} if netrc else {}
+netrc_secret = ['id=gonetrc,src=' + netrc] if netrc else []
+
+docker_build('integration-tests', '.', build_args=goproxy_args, secret=netrc_secret, dockerfile_contents="""
 FROM golang:alpine
+ARG GOPROXY=https://proxy.golang.org,direct
 WORKDIR /opt/integration
 COPY go.* .
+RUN --mount=type=secret,id=gonetrc if [ -s /run/secrets/gonetrc ]; then export NETRC=/run/secrets/gonetrc; fi && go mod download
 COPY . .
+ENV GOPROXY=off
 CMD ["go", "test"]
 """)
 

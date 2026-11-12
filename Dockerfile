@@ -20,7 +20,8 @@ WORKDIR /src
 COPY go.* .
 COPY . .
 
-RUN CGO_ENABLED=0 go build -ldflags="-s -w -X github.com/cyberark/conjur-service-broker-go/internal/version.FullVersion=${VERSION}" ./cmd/conjur_service_broker
+ARG GOPROXY=https://proxy.golang.org,direct
+RUN --mount=type=secret,id=gonetrc if [ -s /run/secrets/gonetrc ]; then export NETRC=/run/secrets/gonetrc; fi && CGO_ENABLED=0 go build -ldflags="-s -w -X github.com/cyberark/conjur-service-broker-go/internal/version.FullVersion=${VERSION}" ./cmd/conjur_service_broker
 
 RUN upx --lzma /src/conjur_service_broker
 

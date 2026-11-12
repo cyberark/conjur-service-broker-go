@@ -7,6 +7,7 @@ set -eo pipefail
 cd "$(dirname "$0")"
 
 . ./build_utils.sh
+. ./go_proxy.sh
 
 function main() {
 	local REPO_ROOT
@@ -31,7 +32,7 @@ function main() {
 	# Compile binaries with Go Releaser
 	#
 	echo "Docker image for release build: ${GORELEASER_IMAGE}"
-	docker run --rm \
+	go_proxy_docker_run --rm \
 		--env VERSION="${VERSION}" \
 		--env GO_VERSION="${GO_VERSION}" \
 		--volume "${REPO_ROOT}:/${PROJECT_WD}" \
