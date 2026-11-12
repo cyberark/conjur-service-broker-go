@@ -61,15 +61,15 @@ func secretsPolicy() io.Reader {
 	err := encoder.Encode(conjurpolicy.PolicyStatements{
 		conjurpolicy.Variable{
 			Id:          "secrets/org",
-			Annotations: map[string]string{"description": "Org-wide secret"},
+			Annotations: map[string]any{"description": "Org-wide secret"},
 		},
 		conjurpolicy.Variable{
 			Id:          "secrets/space",
-			Annotations: map[string]string{"description": "Space-wide secret"},
+			Annotations: map[string]any{"description": "Space-wide secret"},
 		},
 		conjurpolicy.Variable{
 			Id:          "secrets/app",
-			Annotations: map[string]string{"description": "App-specific secret"},
+			Annotations: map[string]any{"description": "App-specific secret"},
 		},
 	})
 	if err != nil {

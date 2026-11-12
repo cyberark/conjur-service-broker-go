@@ -7,6 +7,7 @@ import (
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
+	"github.com/cyberark/conjur-api-go/conjurapi/contract"
 )
 
 // Client is an interface generated for "github.com/cyberark/conjur-api-go/conjurapi.Client".
@@ -18,6 +19,11 @@ type Client interface {
 	AuthenticateRequest(authn.LoginPair) (*http.Request, error)
 	AuthenticatorStatus(string, string) (*conjurapi.AuthenticatorStatusResponse, error)
 	AuthenticatorStatusRequest(string, string) (*http.Request, error)
+	AzureAuthenticate(string) ([]byte, error)
+	AzureAuthenticateRequest(string) (*http.Request, error)
+	CapabilityStatus(contract.Capability) contract.CapabilityStatus
+	CertAuthenticate(string) ([]byte, error)
+	CertAuthenticateRequest(string) (*http.Request, error)
 	ChangeCurrentUserPassword(string) ([]byte, error)
 	ChangeUserPassword(string, string, string) ([]byte, error)
 	ChangeUserPasswordRequest(string, string, string) (*http.Request, error)
@@ -25,6 +31,8 @@ type Client interface {
 	CheckPermissionForRole(string, string, string) (bool, error)
 	CheckPermissionForRoleRequest(string, string, string) (*http.Request, error)
 	CheckPermissionRequest(string, string) (*http.Request, error)
+	Cleanup()
+	CloudHostLogin(string, string) ([]byte, error)
 	CreateHost(string, string) (conjurapi.HostFactoryHostResponse, error)
 	CreateHostRequest(string, string) (*http.Request, error)
 	CreateHostWithAnnotations(string, string, map[string]string) (conjurapi.HostFactoryHostResponse, error)
@@ -40,15 +48,37 @@ type Client interface {
 	EnterpriseServerInfo() (*conjurapi.EnterpriseInfoResponse, error)
 	FetchPolicy(string, bool, uint, uint) ([]byte, error)
 	ForceRefreshToken() error
+	GCPAuthenticate(string) ([]byte, error)
+	GCPAuthenticateRequest(string) (*http.Request, error)
 	GetAuthenticator() conjurapi.Authenticator
 	GetConfig() conjurapi.Config
 	GetHttpClient() *http.Client
 	GetTelemetryHeader() string
+	HasSelfHostedSurface() bool
+	IAMAuthenticate() ([]byte, error)
+	IAMAuthenticateRequest([]byte) (*http.Request, error)
+	IAMAuthenticateWithCredentials(*authn.IAMCredentials) ([]byte, error)
 	InternalAuthenticate() ([]byte, error)
 	Issuer(string) (conjurapi.Issuer, error)
 	Issuers() ([]conjurapi.Issuer, error)
 	JWTAuthenticate(string, string) ([]byte, error)
 	JWTAuthenticateRequest(string, string) (*http.Request, error)
+	LdapCreateGroupMapping(string, string, []string) (*conjurapi.LdapGroupMappingResponse, error)
+	LdapCreateGroupMappingRequest(string, string, []string) (*http.Request, error)
+	LdapCreateUserMapping(string, string, []string) (*conjurapi.LdapUserMappingResponse, error)
+	LdapCreateUserMappingRequest(string, string, []string) (*http.Request, error)
+	LdapDeleteGroupMapping(string, string) error
+	LdapDeleteGroupMappingRequest(string, string) (*http.Request, error)
+	LdapDeleteUserMapping(string, string) error
+	LdapDeleteUserMappingRequest(string, string) (*http.Request, error)
+	LdapListGroupMappings(string) (*conjurapi.LdapMappingListResponse, error)
+	LdapListGroupMappingsRequest(string) (*http.Request, error)
+	LdapListUserMappings(string) (*conjurapi.LdapMappingListResponse, error)
+	LdapListUserMappingsRequest(string) (*http.Request, error)
+	LdapShowGroupMapping(string, string) (*conjurapi.LdapGroupMappingResponse, error)
+	LdapShowGroupMappingRequest(string, string) (*http.Request, error)
+	LdapShowUserMapping(string, string) (*conjurapi.LdapUserMappingResponse, error)
+	LdapShowUserMappingRequest(string, string) (*http.Request, error)
 	ListOidcProviders() ([]conjurapi.OidcProvider, error)
 	ListOidcProvidersRequest() (*http.Request, error)
 	LoadPolicy(conjurapi.PolicyMode, string, io.Reader) (*conjurapi.PolicyResponse, error)
@@ -109,6 +139,7 @@ type Client interface {
 	SetHttpClient(*http.Client)
 	SubmitRequest(*http.Request) (*http.Response, error)
 	UpdateIssuer(string, conjurapi.IssuerUpdate) (conjurapi.Issuer, error)
+	V2() *conjurapi.ClientV2
 	VerifyMinServerVersion(string) error
 	WhoAmI() ([]byte, error)
 	WhoAmIRequest() (*http.Request, error)
