@@ -7,6 +7,7 @@ set -eo pipefail
 cd "$(dirname "$0")"
 
 . ./build_utils.sh
+. ./go_proxy.sh
 
 function main() {
 	local REPO_ROOT
@@ -18,7 +19,7 @@ function main() {
 	# Build container image/s by copying binaries
 	#
 	echo "Building ${CONTAINER_IMAGE_AND_TAG} container image"
-	docker build \
+	go_proxy_docker_build \
 		--tag "${CONTAINER_IMAGE_AND_TAG}" \
 		--build-arg "VERSION=$(project_version_with_commit)" \
 		--rm \

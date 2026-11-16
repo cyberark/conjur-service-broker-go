@@ -6,6 +6,7 @@
 set -ex
 cd "$(dirname "$0")"
 . utils
+. go_proxy.sh
 retrieve_cyberark_ca_cert
 
 TOPLEVEL_DIR="$(repo_root)"
@@ -33,13 +34,13 @@ function main() {
 
 function test_in_docker() {
 	announce "Executing tests in Docker"
-	IMAGE_ID=$(docker build \
+	IMAGE_ID=$(go_proxy_docker_build \
 		--pull \
 		-q \
 		"${DOCKER_FLAGS[@]}" \
 		--file "Dockerfile.test" \
 		"$TOPLEVEL_DIR" || exit 1)
-	docker run --env "SKIP_GOMOD_DOWNLOAD=$SKIP_GOMOD_DOWNLOAD" -v "$TOPLEVEL_DIR"/coverage:/src/coverage --rm "$IMAGE_ID"
+	go_proxy_docker_run --env "SKIP_GOMOD_DOWNLOAD=$SKIP_GOMOD_DOWNLOAD" -v "$TOPLEVEL_DIR"/coverage:/src/coverage --rm "$IMAGE_ID"
 }
 
 main "$@"

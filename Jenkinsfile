@@ -118,6 +118,14 @@ pipeline {
       }
     }
 
+    stage('Configure Artifactory') {
+      steps {
+        script {
+          goProxy.setup(infrapool)
+        }
+      }
+    }
+
     stage('Get latest upstream dependencies') {
       steps {
         script {
@@ -252,6 +260,9 @@ pipeline {
   }
   post {
     always {
+      script {
+        goProxy.cleanup(infrapool)
+      }
       // Resolve ownership issue before running infra post hook
       sh 'git config --global --add safe.directory ${PWD}'
       script {

@@ -5,8 +5,12 @@ load('ext://uibutton', 'cmd_button', 'location', 'text_input')
 # load dev dependencies
 load_dynamic('./dev/Tiltfile.dep')
 
+netrc = os.getenv('NETRC', '')
+goproxy_args = {'GOPROXY': os.getenv('GOPROXY', '')} if netrc else {}
+netrc_secret = ['id=gonetrc,src=' + netrc] if netrc else []
+
 # service build and deploy
-docker_build('conjur-service-broker', '.', dockerfile_contents="""
+docker_build('conjur-service-broker', '.', build_args=goproxy_args, secret=netrc_secret, dockerfile_contents="""
 FROM golang:alpine as builder
 # On CyberArk dev laptops, golang dependencies are downloaded
 # with a corporate proxy in the middle. For these connections
@@ -22,7 +26,8 @@ RUN update-ca-certificates
 WORKDIR /src
 COPY go.* .
 COPY . .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
+ARG GOPROXY=https://proxy.golang.org,direct
+RUN --mount=type=secret,id=gonetrc if [ -s /run/secrets/gonetrc ]; then export NETRC=/run/secrets/gonetrc; fi && CGO_ENABLED=0 go build -ldflags="-s -w" ./cmd/conjur_service_broker
 
 FROM busybox
 WORKDIR /opt/conjur_service_broker

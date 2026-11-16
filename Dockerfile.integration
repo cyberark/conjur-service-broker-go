@@ -8,7 +8,7 @@ RUN apt-get update -y && \
     apt-get install -y apt-transport-https ca-certificates curl git gnupg2 software-properties-common wget jq gettext-base
 
 # Install Go
-ENV GO_VERSION=1.27.0
+ENV GO_VERSION=1.27.3
 RUN wget https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
     tar -xf go${GO_VERSION}.linux-amd64.tar.gz && \
     mv go /usr/local/
@@ -20,11 +20,13 @@ ENV PATH=/root/.local/bin:$GOPATH/bin:$GOROOT/bin:$PATH
 RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
     chmod +x /usr/bin/yq
 
+ARG GOPROXY=https://proxy.golang.org,direct
+
 # Install KinD
-RUN go install sigs.k8s.io/kind@v0.21.0
+RUN --mount=type=secret,id=gonetrc if [ -s /run/secrets/gonetrc ]; then export NETRC=/run/secrets/gonetrc; fi && go install sigs.k8s.io/kind@v0.21.0
 
 # Install coverage dependencies
-RUN go install github.com/jstemmer/go-junit-report/v2@v2.0.0 && go install github.com/boumenot/gocover-cobertura@v1.2.0
+RUN --mount=type=secret,id=gonetrc if [ -s /run/secrets/gonetrc ]; then export NETRC=/run/secrets/gonetrc; fi && go install github.com/jstemmer/go-junit-report/v2@v2.0.0 && go install github.com/boumenot/gocover-cobertura@v1.2.0
 
 # Install Docker client
 RUN install -m 0755 -d /etc/apt/keyrings && \

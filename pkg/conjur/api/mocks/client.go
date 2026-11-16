@@ -10,6 +10,7 @@ import (
 
 	"github.com/cyberark/conjur-api-go/conjurapi"
 	"github.com/cyberark/conjur-api-go/conjurapi/authn"
+	"github.com/cyberark/conjur-api-go/conjurapi/contract"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -483,6 +484,305 @@ func (_c *MockClient_AuthenticatorStatusRequest_Call) Return(request *http.Reque
 }
 
 func (_c *MockClient_AuthenticatorStatusRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_AuthenticatorStatusRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AzureAuthenticate provides a mock function for the type MockClient
+func (_mock *MockClient) AzureAuthenticate(s string) ([]byte, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AzureAuthenticate")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) ([]byte, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) []byte); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_AzureAuthenticate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AzureAuthenticate'
+type MockClient_AzureAuthenticate_Call struct {
+	*mock.Call
+}
+
+// AzureAuthenticate is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) AzureAuthenticate(s interface{}) *MockClient_AzureAuthenticate_Call {
+	return &MockClient_AzureAuthenticate_Call{Call: _e.mock.On("AzureAuthenticate", s)}
+}
+
+func (_c *MockClient_AzureAuthenticate_Call) Run(run func(s string)) *MockClient_AzureAuthenticate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_AzureAuthenticate_Call) Return(bytes []byte, err error) *MockClient_AzureAuthenticate_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockClient_AzureAuthenticate_Call) RunAndReturn(run func(s string) ([]byte, error)) *MockClient_AzureAuthenticate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// AzureAuthenticateRequest provides a mock function for the type MockClient
+func (_mock *MockClient) AzureAuthenticateRequest(s string) (*http.Request, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AzureAuthenticateRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*http.Request, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *http.Request); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_AzureAuthenticateRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AzureAuthenticateRequest'
+type MockClient_AzureAuthenticateRequest_Call struct {
+	*mock.Call
+}
+
+// AzureAuthenticateRequest is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) AzureAuthenticateRequest(s interface{}) *MockClient_AzureAuthenticateRequest_Call {
+	return &MockClient_AzureAuthenticateRequest_Call{Call: _e.mock.On("AzureAuthenticateRequest", s)}
+}
+
+func (_c *MockClient_AzureAuthenticateRequest_Call) Run(run func(s string)) *MockClient_AzureAuthenticateRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_AzureAuthenticateRequest_Call) Return(request *http.Request, err error) *MockClient_AzureAuthenticateRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_AzureAuthenticateRequest_Call) RunAndReturn(run func(s string) (*http.Request, error)) *MockClient_AzureAuthenticateRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CapabilityStatus provides a mock function for the type MockClient
+func (_mock *MockClient) CapabilityStatus(capability contract.Capability) contract.CapabilityStatus {
+	ret := _mock.Called(capability)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CapabilityStatus")
+	}
+
+	var r0 contract.CapabilityStatus
+	if returnFunc, ok := ret.Get(0).(func(contract.Capability) contract.CapabilityStatus); ok {
+		r0 = returnFunc(capability)
+	} else {
+		r0 = ret.Get(0).(contract.CapabilityStatus)
+	}
+	return r0
+}
+
+// MockClient_CapabilityStatus_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CapabilityStatus'
+type MockClient_CapabilityStatus_Call struct {
+	*mock.Call
+}
+
+// CapabilityStatus is a helper method to define mock.On call
+//   - capability contract.Capability
+func (_e *MockClient_Expecter) CapabilityStatus(capability interface{}) *MockClient_CapabilityStatus_Call {
+	return &MockClient_CapabilityStatus_Call{Call: _e.mock.On("CapabilityStatus", capability)}
+}
+
+func (_c *MockClient_CapabilityStatus_Call) Run(run func(capability contract.Capability)) *MockClient_CapabilityStatus_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 contract.Capability
+		if args[0] != nil {
+			arg0 = args[0].(contract.Capability)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_CapabilityStatus_Call) Return(capabilityStatus contract.CapabilityStatus) *MockClient_CapabilityStatus_Call {
+	_c.Call.Return(capabilityStatus)
+	return _c
+}
+
+func (_c *MockClient_CapabilityStatus_Call) RunAndReturn(run func(capability contract.Capability) contract.CapabilityStatus) *MockClient_CapabilityStatus_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CertAuthenticate provides a mock function for the type MockClient
+func (_mock *MockClient) CertAuthenticate(s string) ([]byte, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CertAuthenticate")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) ([]byte, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) []byte); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_CertAuthenticate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CertAuthenticate'
+type MockClient_CertAuthenticate_Call struct {
+	*mock.Call
+}
+
+// CertAuthenticate is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) CertAuthenticate(s interface{}) *MockClient_CertAuthenticate_Call {
+	return &MockClient_CertAuthenticate_Call{Call: _e.mock.On("CertAuthenticate", s)}
+}
+
+func (_c *MockClient_CertAuthenticate_Call) Run(run func(s string)) *MockClient_CertAuthenticate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_CertAuthenticate_Call) Return(bytes []byte, err error) *MockClient_CertAuthenticate_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockClient_CertAuthenticate_Call) RunAndReturn(run func(s string) ([]byte, error)) *MockClient_CertAuthenticate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// CertAuthenticateRequest provides a mock function for the type MockClient
+func (_mock *MockClient) CertAuthenticateRequest(s string) (*http.Request, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CertAuthenticateRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*http.Request, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *http.Request); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_CertAuthenticateRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CertAuthenticateRequest'
+type MockClient_CertAuthenticateRequest_Call struct {
+	*mock.Call
+}
+
+// CertAuthenticateRequest is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) CertAuthenticateRequest(s interface{}) *MockClient_CertAuthenticateRequest_Call {
+	return &MockClient_CertAuthenticateRequest_Call{Call: _e.mock.On("CertAuthenticateRequest", s)}
+}
+
+func (_c *MockClient_CertAuthenticateRequest_Call) Run(run func(s string)) *MockClient_CertAuthenticateRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_CertAuthenticateRequest_Call) Return(request *http.Request, err error) *MockClient_CertAuthenticateRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_CertAuthenticateRequest_Call) RunAndReturn(run func(s string) (*http.Request, error)) *MockClient_CertAuthenticateRequest_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -973,6 +1273,107 @@ func (_c *MockClient_CheckPermissionRequest_Call) Return(request *http.Request, 
 }
 
 func (_c *MockClient_CheckPermissionRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_CheckPermissionRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Cleanup provides a mock function for the type MockClient
+func (_mock *MockClient) Cleanup() {
+	_mock.Called()
+	return
+}
+
+// MockClient_Cleanup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Cleanup'
+type MockClient_Cleanup_Call struct {
+	*mock.Call
+}
+
+// Cleanup is a helper method to define mock.On call
+func (_e *MockClient_Expecter) Cleanup() *MockClient_Cleanup_Call {
+	return &MockClient_Cleanup_Call{Call: _e.mock.On("Cleanup")}
+}
+
+func (_c *MockClient_Cleanup_Call) Run(run func()) *MockClient_Cleanup_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockClient_Cleanup_Call) Return() *MockClient_Cleanup_Call {
+	_c.Call.Return()
+	return _c
+}
+
+func (_c *MockClient_Cleanup_Call) RunAndReturn(run func()) *MockClient_Cleanup_Call {
+	_c.Run(run)
+	return _c
+}
+
+// CloudHostLogin provides a mock function for the type MockClient
+func (_mock *MockClient) CloudHostLogin(s string, s1 string) ([]byte, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CloudHostLogin")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) ([]byte, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) []byte); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_CloudHostLogin_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CloudHostLogin'
+type MockClient_CloudHostLogin_Call struct {
+	*mock.Call
+}
+
+// CloudHostLogin is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) CloudHostLogin(s interface{}, s1 interface{}) *MockClient_CloudHostLogin_Call {
+	return &MockClient_CloudHostLogin_Call{Call: _e.mock.On("CloudHostLogin", s, s1)}
+}
+
+func (_c *MockClient_CloudHostLogin_Call) Run(run func(s string, s1 string)) *MockClient_CloudHostLogin_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_CloudHostLogin_Call) Return(bytes []byte, err error) *MockClient_CloudHostLogin_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockClient_CloudHostLogin_Call) RunAndReturn(run func(s string, s1 string) ([]byte, error)) *MockClient_CloudHostLogin_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -1945,6 +2346,130 @@ func (_c *MockClient_ForceRefreshToken_Call) RunAndReturn(run func() error) *Moc
 	return _c
 }
 
+// GCPAuthenticate provides a mock function for the type MockClient
+func (_mock *MockClient) GCPAuthenticate(s string) ([]byte, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GCPAuthenticate")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) ([]byte, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) []byte); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_GCPAuthenticate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GCPAuthenticate'
+type MockClient_GCPAuthenticate_Call struct {
+	*mock.Call
+}
+
+// GCPAuthenticate is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) GCPAuthenticate(s interface{}) *MockClient_GCPAuthenticate_Call {
+	return &MockClient_GCPAuthenticate_Call{Call: _e.mock.On("GCPAuthenticate", s)}
+}
+
+func (_c *MockClient_GCPAuthenticate_Call) Run(run func(s string)) *MockClient_GCPAuthenticate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_GCPAuthenticate_Call) Return(bytes []byte, err error) *MockClient_GCPAuthenticate_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockClient_GCPAuthenticate_Call) RunAndReturn(run func(s string) ([]byte, error)) *MockClient_GCPAuthenticate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GCPAuthenticateRequest provides a mock function for the type MockClient
+func (_mock *MockClient) GCPAuthenticateRequest(s string) (*http.Request, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GCPAuthenticateRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*http.Request, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *http.Request); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_GCPAuthenticateRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GCPAuthenticateRequest'
+type MockClient_GCPAuthenticateRequest_Call struct {
+	*mock.Call
+}
+
+// GCPAuthenticateRequest is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) GCPAuthenticateRequest(s interface{}) *MockClient_GCPAuthenticateRequest_Call {
+	return &MockClient_GCPAuthenticateRequest_Call{Call: _e.mock.On("GCPAuthenticateRequest", s)}
+}
+
+func (_c *MockClient_GCPAuthenticateRequest_Call) Run(run func(s string)) *MockClient_GCPAuthenticateRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_GCPAuthenticateRequest_Call) Return(request *http.Request, err error) *MockClient_GCPAuthenticateRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_GCPAuthenticateRequest_Call) RunAndReturn(run func(s string) (*http.Request, error)) *MockClient_GCPAuthenticateRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetAuthenticator provides a mock function for the type MockClient
 func (_mock *MockClient) GetAuthenticator() conjurapi.Authenticator {
 	ret := _mock.Called()
@@ -2121,6 +2646,229 @@ func (_c *MockClient_GetTelemetryHeader_Call) Return(s string) *MockClient_GetTe
 }
 
 func (_c *MockClient_GetTelemetryHeader_Call) RunAndReturn(run func() string) *MockClient_GetTelemetryHeader_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// HasSelfHostedSurface provides a mock function for the type MockClient
+func (_mock *MockClient) HasSelfHostedSurface() bool {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for HasSelfHostedSurface")
+	}
+
+	var r0 bool
+	if returnFunc, ok := ret.Get(0).(func() bool); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+	return r0
+}
+
+// MockClient_HasSelfHostedSurface_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'HasSelfHostedSurface'
+type MockClient_HasSelfHostedSurface_Call struct {
+	*mock.Call
+}
+
+// HasSelfHostedSurface is a helper method to define mock.On call
+func (_e *MockClient_Expecter) HasSelfHostedSurface() *MockClient_HasSelfHostedSurface_Call {
+	return &MockClient_HasSelfHostedSurface_Call{Call: _e.mock.On("HasSelfHostedSurface")}
+}
+
+func (_c *MockClient_HasSelfHostedSurface_Call) Run(run func()) *MockClient_HasSelfHostedSurface_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockClient_HasSelfHostedSurface_Call) Return(b bool) *MockClient_HasSelfHostedSurface_Call {
+	_c.Call.Return(b)
+	return _c
+}
+
+func (_c *MockClient_HasSelfHostedSurface_Call) RunAndReturn(run func() bool) *MockClient_HasSelfHostedSurface_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IAMAuthenticate provides a mock function for the type MockClient
+func (_mock *MockClient) IAMAuthenticate() ([]byte, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for IAMAuthenticate")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() ([]byte, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() []byte); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_IAMAuthenticate_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IAMAuthenticate'
+type MockClient_IAMAuthenticate_Call struct {
+	*mock.Call
+}
+
+// IAMAuthenticate is a helper method to define mock.On call
+func (_e *MockClient_Expecter) IAMAuthenticate() *MockClient_IAMAuthenticate_Call {
+	return &MockClient_IAMAuthenticate_Call{Call: _e.mock.On("IAMAuthenticate")}
+}
+
+func (_c *MockClient_IAMAuthenticate_Call) Run(run func()) *MockClient_IAMAuthenticate_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockClient_IAMAuthenticate_Call) Return(bytes []byte, err error) *MockClient_IAMAuthenticate_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockClient_IAMAuthenticate_Call) RunAndReturn(run func() ([]byte, error)) *MockClient_IAMAuthenticate_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IAMAuthenticateRequest provides a mock function for the type MockClient
+func (_mock *MockClient) IAMAuthenticateRequest(bytes []byte) (*http.Request, error) {
+	ret := _mock.Called(bytes)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IAMAuthenticateRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func([]byte) (*http.Request, error)); ok {
+		return returnFunc(bytes)
+	}
+	if returnFunc, ok := ret.Get(0).(func([]byte) *http.Request); ok {
+		r0 = returnFunc(bytes)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func([]byte) error); ok {
+		r1 = returnFunc(bytes)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_IAMAuthenticateRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IAMAuthenticateRequest'
+type MockClient_IAMAuthenticateRequest_Call struct {
+	*mock.Call
+}
+
+// IAMAuthenticateRequest is a helper method to define mock.On call
+//   - bytes []byte
+func (_e *MockClient_Expecter) IAMAuthenticateRequest(bytes interface{}) *MockClient_IAMAuthenticateRequest_Call {
+	return &MockClient_IAMAuthenticateRequest_Call{Call: _e.mock.On("IAMAuthenticateRequest", bytes)}
+}
+
+func (_c *MockClient_IAMAuthenticateRequest_Call) Run(run func(bytes []byte)) *MockClient_IAMAuthenticateRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 []byte
+		if args[0] != nil {
+			arg0 = args[0].([]byte)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_IAMAuthenticateRequest_Call) Return(request *http.Request, err error) *MockClient_IAMAuthenticateRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_IAMAuthenticateRequest_Call) RunAndReturn(run func(bytes []byte) (*http.Request, error)) *MockClient_IAMAuthenticateRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IAMAuthenticateWithCredentials provides a mock function for the type MockClient
+func (_mock *MockClient) IAMAuthenticateWithCredentials(iAMCredentials *authn.IAMCredentials) ([]byte, error) {
+	ret := _mock.Called(iAMCredentials)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IAMAuthenticateWithCredentials")
+	}
+
+	var r0 []byte
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(*authn.IAMCredentials) ([]byte, error)); ok {
+		return returnFunc(iAMCredentials)
+	}
+	if returnFunc, ok := ret.Get(0).(func(*authn.IAMCredentials) []byte); ok {
+		r0 = returnFunc(iAMCredentials)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(*authn.IAMCredentials) error); ok {
+		r1 = returnFunc(iAMCredentials)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_IAMAuthenticateWithCredentials_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IAMAuthenticateWithCredentials'
+type MockClient_IAMAuthenticateWithCredentials_Call struct {
+	*mock.Call
+}
+
+// IAMAuthenticateWithCredentials is a helper method to define mock.On call
+//   - iAMCredentials *authn.IAMCredentials
+func (_e *MockClient_Expecter) IAMAuthenticateWithCredentials(iAMCredentials interface{}) *MockClient_IAMAuthenticateWithCredentials_Call {
+	return &MockClient_IAMAuthenticateWithCredentials_Call{Call: _e.mock.On("IAMAuthenticateWithCredentials", iAMCredentials)}
+}
+
+func (_c *MockClient_IAMAuthenticateWithCredentials_Call) Run(run func(iAMCredentials *authn.IAMCredentials)) *MockClient_IAMAuthenticateWithCredentials_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 *authn.IAMCredentials
+		if args[0] != nil {
+			arg0 = args[0].(*authn.IAMCredentials)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_IAMAuthenticateWithCredentials_Call) Return(bytes []byte, err error) *MockClient_IAMAuthenticateWithCredentials_Call {
+	_c.Call.Return(bytes, err)
+	return _c
+}
+
+func (_c *MockClient_IAMAuthenticateWithCredentials_Call) RunAndReturn(run func(iAMCredentials *authn.IAMCredentials) ([]byte, error)) *MockClient_IAMAuthenticateWithCredentials_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -2427,6 +3175,1072 @@ func (_c *MockClient_JWTAuthenticateRequest_Call) Return(request *http.Request, 
 }
 
 func (_c *MockClient_JWTAuthenticateRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_JWTAuthenticateRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapCreateGroupMapping provides a mock function for the type MockClient
+func (_mock *MockClient) LdapCreateGroupMapping(s string, s1 string, strings []string) (*conjurapi.LdapGroupMappingResponse, error) {
+	ret := _mock.Called(s, s1, strings)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapCreateGroupMapping")
+	}
+
+	var r0 *conjurapi.LdapGroupMappingResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) (*conjurapi.LdapGroupMappingResponse, error)); ok {
+		return returnFunc(s, s1, strings)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) *conjurapi.LdapGroupMappingResponse); ok {
+		r0 = returnFunc(s, s1, strings)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.LdapGroupMappingResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string, []string) error); ok {
+		r1 = returnFunc(s, s1, strings)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapCreateGroupMapping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapCreateGroupMapping'
+type MockClient_LdapCreateGroupMapping_Call struct {
+	*mock.Call
+}
+
+// LdapCreateGroupMapping is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+//   - strings []string
+func (_e *MockClient_Expecter) LdapCreateGroupMapping(s interface{}, s1 interface{}, strings interface{}) *MockClient_LdapCreateGroupMapping_Call {
+	return &MockClient_LdapCreateGroupMapping_Call{Call: _e.mock.On("LdapCreateGroupMapping", s, s1, strings)}
+}
+
+func (_c *MockClient_LdapCreateGroupMapping_Call) Run(run func(s string, s1 string, strings []string)) *MockClient_LdapCreateGroupMapping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []string
+		if args[2] != nil {
+			arg2 = args[2].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapCreateGroupMapping_Call) Return(ldapGroupMappingResponse *conjurapi.LdapGroupMappingResponse, err error) *MockClient_LdapCreateGroupMapping_Call {
+	_c.Call.Return(ldapGroupMappingResponse, err)
+	return _c
+}
+
+func (_c *MockClient_LdapCreateGroupMapping_Call) RunAndReturn(run func(s string, s1 string, strings []string) (*conjurapi.LdapGroupMappingResponse, error)) *MockClient_LdapCreateGroupMapping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapCreateGroupMappingRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapCreateGroupMappingRequest(s string, s1 string, strings []string) (*http.Request, error) {
+	ret := _mock.Called(s, s1, strings)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapCreateGroupMappingRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) (*http.Request, error)); ok {
+		return returnFunc(s, s1, strings)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) *http.Request); ok {
+		r0 = returnFunc(s, s1, strings)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string, []string) error); ok {
+		r1 = returnFunc(s, s1, strings)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapCreateGroupMappingRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapCreateGroupMappingRequest'
+type MockClient_LdapCreateGroupMappingRequest_Call struct {
+	*mock.Call
+}
+
+// LdapCreateGroupMappingRequest is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+//   - strings []string
+func (_e *MockClient_Expecter) LdapCreateGroupMappingRequest(s interface{}, s1 interface{}, strings interface{}) *MockClient_LdapCreateGroupMappingRequest_Call {
+	return &MockClient_LdapCreateGroupMappingRequest_Call{Call: _e.mock.On("LdapCreateGroupMappingRequest", s, s1, strings)}
+}
+
+func (_c *MockClient_LdapCreateGroupMappingRequest_Call) Run(run func(s string, s1 string, strings []string)) *MockClient_LdapCreateGroupMappingRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []string
+		if args[2] != nil {
+			arg2 = args[2].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapCreateGroupMappingRequest_Call) Return(request *http.Request, err error) *MockClient_LdapCreateGroupMappingRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapCreateGroupMappingRequest_Call) RunAndReturn(run func(s string, s1 string, strings []string) (*http.Request, error)) *MockClient_LdapCreateGroupMappingRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapCreateUserMapping provides a mock function for the type MockClient
+func (_mock *MockClient) LdapCreateUserMapping(s string, s1 string, strings []string) (*conjurapi.LdapUserMappingResponse, error) {
+	ret := _mock.Called(s, s1, strings)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapCreateUserMapping")
+	}
+
+	var r0 *conjurapi.LdapUserMappingResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) (*conjurapi.LdapUserMappingResponse, error)); ok {
+		return returnFunc(s, s1, strings)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) *conjurapi.LdapUserMappingResponse); ok {
+		r0 = returnFunc(s, s1, strings)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.LdapUserMappingResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string, []string) error); ok {
+		r1 = returnFunc(s, s1, strings)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapCreateUserMapping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapCreateUserMapping'
+type MockClient_LdapCreateUserMapping_Call struct {
+	*mock.Call
+}
+
+// LdapCreateUserMapping is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+//   - strings []string
+func (_e *MockClient_Expecter) LdapCreateUserMapping(s interface{}, s1 interface{}, strings interface{}) *MockClient_LdapCreateUserMapping_Call {
+	return &MockClient_LdapCreateUserMapping_Call{Call: _e.mock.On("LdapCreateUserMapping", s, s1, strings)}
+}
+
+func (_c *MockClient_LdapCreateUserMapping_Call) Run(run func(s string, s1 string, strings []string)) *MockClient_LdapCreateUserMapping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []string
+		if args[2] != nil {
+			arg2 = args[2].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapCreateUserMapping_Call) Return(ldapUserMappingResponse *conjurapi.LdapUserMappingResponse, err error) *MockClient_LdapCreateUserMapping_Call {
+	_c.Call.Return(ldapUserMappingResponse, err)
+	return _c
+}
+
+func (_c *MockClient_LdapCreateUserMapping_Call) RunAndReturn(run func(s string, s1 string, strings []string) (*conjurapi.LdapUserMappingResponse, error)) *MockClient_LdapCreateUserMapping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapCreateUserMappingRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapCreateUserMappingRequest(s string, s1 string, strings []string) (*http.Request, error) {
+	ret := _mock.Called(s, s1, strings)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapCreateUserMappingRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) (*http.Request, error)); ok {
+		return returnFunc(s, s1, strings)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string, []string) *http.Request); ok {
+		r0 = returnFunc(s, s1, strings)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string, []string) error); ok {
+		r1 = returnFunc(s, s1, strings)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapCreateUserMappingRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapCreateUserMappingRequest'
+type MockClient_LdapCreateUserMappingRequest_Call struct {
+	*mock.Call
+}
+
+// LdapCreateUserMappingRequest is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+//   - strings []string
+func (_e *MockClient_Expecter) LdapCreateUserMappingRequest(s interface{}, s1 interface{}, strings interface{}) *MockClient_LdapCreateUserMappingRequest_Call {
+	return &MockClient_LdapCreateUserMappingRequest_Call{Call: _e.mock.On("LdapCreateUserMappingRequest", s, s1, strings)}
+}
+
+func (_c *MockClient_LdapCreateUserMappingRequest_Call) Run(run func(s string, s1 string, strings []string)) *MockClient_LdapCreateUserMappingRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []string
+		if args[2] != nil {
+			arg2 = args[2].([]string)
+		}
+		run(
+			arg0,
+			arg1,
+			arg2,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapCreateUserMappingRequest_Call) Return(request *http.Request, err error) *MockClient_LdapCreateUserMappingRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapCreateUserMappingRequest_Call) RunAndReturn(run func(s string, s1 string, strings []string) (*http.Request, error)) *MockClient_LdapCreateUserMappingRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapDeleteGroupMapping provides a mock function for the type MockClient
+func (_mock *MockClient) LdapDeleteGroupMapping(s string, s1 string) error {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapDeleteGroupMapping")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockClient_LdapDeleteGroupMapping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapDeleteGroupMapping'
+type MockClient_LdapDeleteGroupMapping_Call struct {
+	*mock.Call
+}
+
+// LdapDeleteGroupMapping is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapDeleteGroupMapping(s interface{}, s1 interface{}) *MockClient_LdapDeleteGroupMapping_Call {
+	return &MockClient_LdapDeleteGroupMapping_Call{Call: _e.mock.On("LdapDeleteGroupMapping", s, s1)}
+}
+
+func (_c *MockClient_LdapDeleteGroupMapping_Call) Run(run func(s string, s1 string)) *MockClient_LdapDeleteGroupMapping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteGroupMapping_Call) Return(err error) *MockClient_LdapDeleteGroupMapping_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteGroupMapping_Call) RunAndReturn(run func(s string, s1 string) error) *MockClient_LdapDeleteGroupMapping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapDeleteGroupMappingRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapDeleteGroupMappingRequest(s string, s1 string) (*http.Request, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapDeleteGroupMappingRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapDeleteGroupMappingRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapDeleteGroupMappingRequest'
+type MockClient_LdapDeleteGroupMappingRequest_Call struct {
+	*mock.Call
+}
+
+// LdapDeleteGroupMappingRequest is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapDeleteGroupMappingRequest(s interface{}, s1 interface{}) *MockClient_LdapDeleteGroupMappingRequest_Call {
+	return &MockClient_LdapDeleteGroupMappingRequest_Call{Call: _e.mock.On("LdapDeleteGroupMappingRequest", s, s1)}
+}
+
+func (_c *MockClient_LdapDeleteGroupMappingRequest_Call) Run(run func(s string, s1 string)) *MockClient_LdapDeleteGroupMappingRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteGroupMappingRequest_Call) Return(request *http.Request, err error) *MockClient_LdapDeleteGroupMappingRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteGroupMappingRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_LdapDeleteGroupMappingRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapDeleteUserMapping provides a mock function for the type MockClient
+func (_mock *MockClient) LdapDeleteUserMapping(s string, s1 string) error {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapDeleteUserMapping")
+	}
+
+	var r0 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) error); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		r0 = ret.Error(0)
+	}
+	return r0
+}
+
+// MockClient_LdapDeleteUserMapping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapDeleteUserMapping'
+type MockClient_LdapDeleteUserMapping_Call struct {
+	*mock.Call
+}
+
+// LdapDeleteUserMapping is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapDeleteUserMapping(s interface{}, s1 interface{}) *MockClient_LdapDeleteUserMapping_Call {
+	return &MockClient_LdapDeleteUserMapping_Call{Call: _e.mock.On("LdapDeleteUserMapping", s, s1)}
+}
+
+func (_c *MockClient_LdapDeleteUserMapping_Call) Run(run func(s string, s1 string)) *MockClient_LdapDeleteUserMapping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteUserMapping_Call) Return(err error) *MockClient_LdapDeleteUserMapping_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteUserMapping_Call) RunAndReturn(run func(s string, s1 string) error) *MockClient_LdapDeleteUserMapping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapDeleteUserMappingRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapDeleteUserMappingRequest(s string, s1 string) (*http.Request, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapDeleteUserMappingRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapDeleteUserMappingRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapDeleteUserMappingRequest'
+type MockClient_LdapDeleteUserMappingRequest_Call struct {
+	*mock.Call
+}
+
+// LdapDeleteUserMappingRequest is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapDeleteUserMappingRequest(s interface{}, s1 interface{}) *MockClient_LdapDeleteUserMappingRequest_Call {
+	return &MockClient_LdapDeleteUserMappingRequest_Call{Call: _e.mock.On("LdapDeleteUserMappingRequest", s, s1)}
+}
+
+func (_c *MockClient_LdapDeleteUserMappingRequest_Call) Run(run func(s string, s1 string)) *MockClient_LdapDeleteUserMappingRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteUserMappingRequest_Call) Return(request *http.Request, err error) *MockClient_LdapDeleteUserMappingRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapDeleteUserMappingRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_LdapDeleteUserMappingRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapListGroupMappings provides a mock function for the type MockClient
+func (_mock *MockClient) LdapListGroupMappings(s string) (*conjurapi.LdapMappingListResponse, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapListGroupMappings")
+	}
+
+	var r0 *conjurapi.LdapMappingListResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*conjurapi.LdapMappingListResponse, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *conjurapi.LdapMappingListResponse); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.LdapMappingListResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapListGroupMappings_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapListGroupMappings'
+type MockClient_LdapListGroupMappings_Call struct {
+	*mock.Call
+}
+
+// LdapListGroupMappings is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) LdapListGroupMappings(s interface{}) *MockClient_LdapListGroupMappings_Call {
+	return &MockClient_LdapListGroupMappings_Call{Call: _e.mock.On("LdapListGroupMappings", s)}
+}
+
+func (_c *MockClient_LdapListGroupMappings_Call) Run(run func(s string)) *MockClient_LdapListGroupMappings_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapListGroupMappings_Call) Return(ldapMappingListResponse *conjurapi.LdapMappingListResponse, err error) *MockClient_LdapListGroupMappings_Call {
+	_c.Call.Return(ldapMappingListResponse, err)
+	return _c
+}
+
+func (_c *MockClient_LdapListGroupMappings_Call) RunAndReturn(run func(s string) (*conjurapi.LdapMappingListResponse, error)) *MockClient_LdapListGroupMappings_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapListGroupMappingsRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapListGroupMappingsRequest(s string) (*http.Request, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapListGroupMappingsRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*http.Request, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *http.Request); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapListGroupMappingsRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapListGroupMappingsRequest'
+type MockClient_LdapListGroupMappingsRequest_Call struct {
+	*mock.Call
+}
+
+// LdapListGroupMappingsRequest is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) LdapListGroupMappingsRequest(s interface{}) *MockClient_LdapListGroupMappingsRequest_Call {
+	return &MockClient_LdapListGroupMappingsRequest_Call{Call: _e.mock.On("LdapListGroupMappingsRequest", s)}
+}
+
+func (_c *MockClient_LdapListGroupMappingsRequest_Call) Run(run func(s string)) *MockClient_LdapListGroupMappingsRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapListGroupMappingsRequest_Call) Return(request *http.Request, err error) *MockClient_LdapListGroupMappingsRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapListGroupMappingsRequest_Call) RunAndReturn(run func(s string) (*http.Request, error)) *MockClient_LdapListGroupMappingsRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapListUserMappings provides a mock function for the type MockClient
+func (_mock *MockClient) LdapListUserMappings(s string) (*conjurapi.LdapMappingListResponse, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapListUserMappings")
+	}
+
+	var r0 *conjurapi.LdapMappingListResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*conjurapi.LdapMappingListResponse, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *conjurapi.LdapMappingListResponse); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.LdapMappingListResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapListUserMappings_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapListUserMappings'
+type MockClient_LdapListUserMappings_Call struct {
+	*mock.Call
+}
+
+// LdapListUserMappings is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) LdapListUserMappings(s interface{}) *MockClient_LdapListUserMappings_Call {
+	return &MockClient_LdapListUserMappings_Call{Call: _e.mock.On("LdapListUserMappings", s)}
+}
+
+func (_c *MockClient_LdapListUserMappings_Call) Run(run func(s string)) *MockClient_LdapListUserMappings_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapListUserMappings_Call) Return(ldapMappingListResponse *conjurapi.LdapMappingListResponse, err error) *MockClient_LdapListUserMappings_Call {
+	_c.Call.Return(ldapMappingListResponse, err)
+	return _c
+}
+
+func (_c *MockClient_LdapListUserMappings_Call) RunAndReturn(run func(s string) (*conjurapi.LdapMappingListResponse, error)) *MockClient_LdapListUserMappings_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapListUserMappingsRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapListUserMappingsRequest(s string) (*http.Request, error) {
+	ret := _mock.Called(s)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapListUserMappingsRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string) (*http.Request, error)); ok {
+		return returnFunc(s)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string) *http.Request); ok {
+		r0 = returnFunc(s)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string) error); ok {
+		r1 = returnFunc(s)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapListUserMappingsRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapListUserMappingsRequest'
+type MockClient_LdapListUserMappingsRequest_Call struct {
+	*mock.Call
+}
+
+// LdapListUserMappingsRequest is a helper method to define mock.On call
+//   - s string
+func (_e *MockClient_Expecter) LdapListUserMappingsRequest(s interface{}) *MockClient_LdapListUserMappingsRequest_Call {
+	return &MockClient_LdapListUserMappingsRequest_Call{Call: _e.mock.On("LdapListUserMappingsRequest", s)}
+}
+
+func (_c *MockClient_LdapListUserMappingsRequest_Call) Run(run func(s string)) *MockClient_LdapListUserMappingsRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		run(
+			arg0,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapListUserMappingsRequest_Call) Return(request *http.Request, err error) *MockClient_LdapListUserMappingsRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapListUserMappingsRequest_Call) RunAndReturn(run func(s string) (*http.Request, error)) *MockClient_LdapListUserMappingsRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapShowGroupMapping provides a mock function for the type MockClient
+func (_mock *MockClient) LdapShowGroupMapping(s string, s1 string) (*conjurapi.LdapGroupMappingResponse, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapShowGroupMapping")
+	}
+
+	var r0 *conjurapi.LdapGroupMappingResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*conjurapi.LdapGroupMappingResponse, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) *conjurapi.LdapGroupMappingResponse); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.LdapGroupMappingResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapShowGroupMapping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapShowGroupMapping'
+type MockClient_LdapShowGroupMapping_Call struct {
+	*mock.Call
+}
+
+// LdapShowGroupMapping is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapShowGroupMapping(s interface{}, s1 interface{}) *MockClient_LdapShowGroupMapping_Call {
+	return &MockClient_LdapShowGroupMapping_Call{Call: _e.mock.On("LdapShowGroupMapping", s, s1)}
+}
+
+func (_c *MockClient_LdapShowGroupMapping_Call) Run(run func(s string, s1 string)) *MockClient_LdapShowGroupMapping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapShowGroupMapping_Call) Return(ldapGroupMappingResponse *conjurapi.LdapGroupMappingResponse, err error) *MockClient_LdapShowGroupMapping_Call {
+	_c.Call.Return(ldapGroupMappingResponse, err)
+	return _c
+}
+
+func (_c *MockClient_LdapShowGroupMapping_Call) RunAndReturn(run func(s string, s1 string) (*conjurapi.LdapGroupMappingResponse, error)) *MockClient_LdapShowGroupMapping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapShowGroupMappingRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapShowGroupMappingRequest(s string, s1 string) (*http.Request, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapShowGroupMappingRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapShowGroupMappingRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapShowGroupMappingRequest'
+type MockClient_LdapShowGroupMappingRequest_Call struct {
+	*mock.Call
+}
+
+// LdapShowGroupMappingRequest is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapShowGroupMappingRequest(s interface{}, s1 interface{}) *MockClient_LdapShowGroupMappingRequest_Call {
+	return &MockClient_LdapShowGroupMappingRequest_Call{Call: _e.mock.On("LdapShowGroupMappingRequest", s, s1)}
+}
+
+func (_c *MockClient_LdapShowGroupMappingRequest_Call) Run(run func(s string, s1 string)) *MockClient_LdapShowGroupMappingRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapShowGroupMappingRequest_Call) Return(request *http.Request, err error) *MockClient_LdapShowGroupMappingRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapShowGroupMappingRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_LdapShowGroupMappingRequest_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapShowUserMapping provides a mock function for the type MockClient
+func (_mock *MockClient) LdapShowUserMapping(s string, s1 string) (*conjurapi.LdapUserMappingResponse, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapShowUserMapping")
+	}
+
+	var r0 *conjurapi.LdapUserMappingResponse
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*conjurapi.LdapUserMappingResponse, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) *conjurapi.LdapUserMappingResponse); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.LdapUserMappingResponse)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapShowUserMapping_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapShowUserMapping'
+type MockClient_LdapShowUserMapping_Call struct {
+	*mock.Call
+}
+
+// LdapShowUserMapping is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapShowUserMapping(s interface{}, s1 interface{}) *MockClient_LdapShowUserMapping_Call {
+	return &MockClient_LdapShowUserMapping_Call{Call: _e.mock.On("LdapShowUserMapping", s, s1)}
+}
+
+func (_c *MockClient_LdapShowUserMapping_Call) Run(run func(s string, s1 string)) *MockClient_LdapShowUserMapping_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapShowUserMapping_Call) Return(ldapUserMappingResponse *conjurapi.LdapUserMappingResponse, err error) *MockClient_LdapShowUserMapping_Call {
+	_c.Call.Return(ldapUserMappingResponse, err)
+	return _c
+}
+
+func (_c *MockClient_LdapShowUserMapping_Call) RunAndReturn(run func(s string, s1 string) (*conjurapi.LdapUserMappingResponse, error)) *MockClient_LdapShowUserMapping_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LdapShowUserMappingRequest provides a mock function for the type MockClient
+func (_mock *MockClient) LdapShowUserMappingRequest(s string, s1 string) (*http.Request, error) {
+	ret := _mock.Called(s, s1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LdapShowUserMappingRequest")
+	}
+
+	var r0 *http.Request
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(string, string) (*http.Request, error)); ok {
+		return returnFunc(s, s1)
+	}
+	if returnFunc, ok := ret.Get(0).(func(string, string) *http.Request); ok {
+		r0 = returnFunc(s, s1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*http.Request)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = returnFunc(s, s1)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockClient_LdapShowUserMappingRequest_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LdapShowUserMappingRequest'
+type MockClient_LdapShowUserMappingRequest_Call struct {
+	*mock.Call
+}
+
+// LdapShowUserMappingRequest is a helper method to define mock.On call
+//   - s string
+//   - s1 string
+func (_e *MockClient_Expecter) LdapShowUserMappingRequest(s interface{}, s1 interface{}) *MockClient_LdapShowUserMappingRequest_Call {
+	return &MockClient_LdapShowUserMappingRequest_Call{Call: _e.mock.On("LdapShowUserMappingRequest", s, s1)}
+}
+
+func (_c *MockClient_LdapShowUserMappingRequest_Call) Run(run func(s string, s1 string)) *MockClient_LdapShowUserMappingRequest_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 string
+		if args[0] != nil {
+			arg0 = args[0].(string)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockClient_LdapShowUserMappingRequest_Call) Return(request *http.Request, err error) *MockClient_LdapShowUserMappingRequest_Call {
+	_c.Call.Return(request, err)
+	return _c
+}
+
+func (_c *MockClient_LdapShowUserMappingRequest_Call) RunAndReturn(run func(s string, s1 string) (*http.Request, error)) *MockClient_LdapShowUserMappingRequest_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -6121,6 +7935,52 @@ func (_c *MockClient_UpdateIssuer_Call) Return(issuer conjurapi.Issuer, err erro
 }
 
 func (_c *MockClient_UpdateIssuer_Call) RunAndReturn(run func(s string, issuerUpdate conjurapi.IssuerUpdate) (conjurapi.Issuer, error)) *MockClient_UpdateIssuer_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// V2 provides a mock function for the type MockClient
+func (_mock *MockClient) V2() *conjurapi.ClientV2 {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for V2")
+	}
+
+	var r0 *conjurapi.ClientV2
+	if returnFunc, ok := ret.Get(0).(func() *conjurapi.ClientV2); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*conjurapi.ClientV2)
+		}
+	}
+	return r0
+}
+
+// MockClient_V2_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'V2'
+type MockClient_V2_Call struct {
+	*mock.Call
+}
+
+// V2 is a helper method to define mock.On call
+func (_e *MockClient_Expecter) V2() *MockClient_V2_Call {
+	return &MockClient_V2_Call{Call: _e.mock.On("V2")}
+}
+
+func (_c *MockClient_V2_Call) Run(run func()) *MockClient_V2_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockClient_V2_Call) Return(clientV2 *conjurapi.ClientV2) *MockClient_V2_Call {
+	_c.Call.Return(clientV2)
+	return _c
+}
+
+func (_c *MockClient_V2_Call) RunAndReturn(run func() *conjurapi.ClientV2) *MockClient_V2_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -28,12 +28,14 @@ set -u
 
 docker network create kind-network
 
-docker build \
+. "$(dirname "$0")/go_proxy.sh"
+
+go_proxy_docker_build \
   -f Dockerfile.integration \
   -t conjur-service-broker-test-runner:latest \
   .
 
-docker run --rm \
+go_proxy_docker_run --rm \
   --network kind-network \
   --env "SKIP_GOMOD_DOWNLOAD=$SKIP_GOMOD_DOWNLOAD" \
   -v "$PWD":/src \

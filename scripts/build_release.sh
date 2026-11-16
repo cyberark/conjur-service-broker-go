@@ -7,6 +7,7 @@ set -eo pipefail
 cd "$(dirname "$0")"
 
 . ./build_utils.sh
+. ./go_proxy.sh
 
 function main() {
 	local REPO_ROOT
@@ -18,7 +19,7 @@ function main() {
 	# Use a GoReleaser Docker image containing cross-compilation tools
 	# This image is recommended by the official GoReleaser docs
 	# https://goreleaser.com/cookbooks/cgo-and-crosscompiling/
-	GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.25"
+	GORELEASER_IMAGE="goreleaser/goreleaser-cross:v1.27.3"
 
 	REPO_ROOT="$(repo_root)"
 	PROJECT_WD="github.com/cyberark/conjur-service-broker-go"
@@ -31,7 +32,7 @@ function main() {
 	# Compile binaries with Go Releaser
 	#
 	echo "Docker image for release build: ${GORELEASER_IMAGE}"
-	docker run --rm \
+	go_proxy_docker_run --rm \
 		--env VERSION="${VERSION}" \
 		--env GO_VERSION="${GO_VERSION}" \
 		--volume "${REPO_ROOT}:/${PROJECT_WD}" \
